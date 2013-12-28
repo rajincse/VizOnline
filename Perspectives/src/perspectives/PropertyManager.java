@@ -39,6 +39,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
+import properties.PProgress;
 import properties.Property;
 import properties.PropertyType;
 
@@ -62,6 +63,8 @@ public class PropertyManager{
 	ArrayList<PropertyChangeListener> listeners;
 	
 	PropertyManagerGroup propertyManagerGroup;
+	
+	private boolean blockedd = false;
 	
 	
 	 private static ArrayList<PropertyType> acceptedTypes = new ArrayList<PropertyType>();
@@ -95,9 +98,6 @@ public class PropertyManager{
 	 }
 	
 	
-	
-	TaskObserverDialog taskObserverDialog;
-	
 	public PropertyManager(String name) {		
 		
 		this.name = name;			
@@ -110,7 +110,7 @@ public class PropertyManager{
 		return name;
 	}	
 
-	protected void addProperty(Property p) throws Exception {
+	protected void addProperty(Property p, int where) throws Exception {
 		
 		int index = -1;
 		for (int i=0; i<acceptedTypes.size(); i++)
@@ -122,17 +122,25 @@ public class PropertyManager{
 		if (index < 0)
 			throw new Exception();
 		
-		props.add(p);
+		props.add(where,p);
 		p.setPropertyManager(this);
 		
 		for (int i=0; i<listeners.size(); i++)
 			listeners.get(i).propertyAdded(this, p);
 		
-
+		
+		
+		if (blockedd)
+			p.setDisabled(true);		
+		
+	}
+	
+	protected void addProperty(Property p) throws Exception {
+		addProperty(p, props.size());		
 	}
 	
 	protected void removeProperty(String name)
-	{		
+	{
 		for (int i=0; i<props.size(); i++)
 			if (props.get(i).getName().equals(name))
 			{
@@ -143,6 +151,7 @@ public class PropertyManager{
 				break;
 			}
 	}
+	
 
 	
 	public Property getProperty(String n) {
@@ -152,9 +161,14 @@ public class PropertyManager{
 		return null;
 	}
 	
-	public <T extends PropertyType> void propertyUpdated(Property p, T newvalue)
+	protected <T extends PropertyType> void propertyUpdated(Property p, T newvalue)
 	{
 		
+	}
+	
+	public <T extends PropertyType> void propertyUpdatedWrapper(Property p, T newvalue)
+	{
+		propertyUpdated(p, newvalue);
 	}
 	
 	public <T extends PropertyType> boolean propertyBroadcast(Property p, T newvalue, PropertyManager origin)
@@ -211,17 +225,28 @@ public class PropertyManager{
 		return propertyManagerGroup;
 	}
 	
-	public TaskObserverDialog getTaskObserverDialog()
-	{
-		return taskObserverDialog;
-	}
 	
 	public <T extends PropertyType> void setPropertyValueCallback(Property p, T newvalue)
 	{
+		if (tasks.indexOf(p) >= 0 )
+		{
+			if (((PProgress)newvalue).getValue() > 1)
+			{
+				this.removeProperty(p.getName());
+				tasks.remove(tasks.indexOf(p));
+				Property[] ps = getProperties();
+				for (int i=0; i<ps.length; i++)
+					ps[i].setDisabled(false);
+				
+				blockedd = false;
+			}
+			return;
+		}
+		
 		for (int i=0; i<listeners.size(); i++)
 			listeners.get(i).propertyValueChanged(this, p, newvalue);
 		
-		this.propertyUpdated(p, newvalue);
+		this.propertyUpdatedWrapper(p, newvalue);
 		
 		if (propertyManagerGroup != null && p.getPublic())
 		{
@@ -250,7 +275,43 @@ public class PropertyManager{
 		return p;
 	}
 	
-
+	////////////tasks/////////////////
+	private ArrayList<Property> tasks = new ArrayList<Property>();
 	
+	public void setPropertyDisabledCallback(Property p, boolean d)
+	{
+		for (int i=0; i<listeners.size(); i++)
+		{
+			listeners.get(i).propertyDisabledChanged(this, p, d);
+		}
+	}
+	
+	public void startTask(Task t)
+	{		
+		PProgress pp = new PProgress(0);
+		pp.indeterminable = t.indeterminate;
+		Property<PProgress> p = new Property<PProgress>(t.name, pp);	
+		t.pprogress = p;
+		
+		if (t.blocking)
+		{
+			Property[] ps = getProperties();
+			for (int i=0; i<ps.length; i++)
+				ps[i].setDisabled(true);
+		}
+		
+		tasks.add(p);
+		
+		try {
+			this.addProperty(p,0);
+		} catch (Exception e) {			
+			e.printStackTrace();
+		}
+		
+		if (t.blocking)
+			blockedd = true;
+		
+		t.start();
+	}
 	
 }

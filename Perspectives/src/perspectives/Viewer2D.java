@@ -21,31 +21,29 @@ public abstract class Viewer2D extends Viewer {
 	protected boolean antialiasing = true;
 	public boolean antialiasingSet = false;	
 	
+	Color backgroundColor;
 	
-	
-	private boolean tooltip;
-	private String tooltipText;
-	
+		
 	int mouseX;
-	int mouseY;
+	int mouseY;	
 	
-	private int tooltipX = 0;
-	private int tooltipY = 0;
-	private long tooltipDelay = 1000;
-	
-	ViewerContainer container;
-	
+	double defaultZoom;
 	
 	public Viewer2D(String name)
 	{
 		super(name);
 		
-		tooltip = true;
-		tooltipText = "";
 		mouseX = 0;
 		mouseY = 0;
+		
+		
+		backgroundColor = Color.white;
+		defaultZoom = 1;
+		
 	}
 	public abstract void render(Graphics2D g);
+		
+
 	public abstract void simulate();
 	
 	public boolean mousepressed(int x, int y, int button) {return false;};
@@ -59,79 +57,45 @@ public abstract class Viewer2D extends Viewer {
 	public void keyPressed(int keycode) {};
 	public void keyReleased(int keycode) {};
 	
-	public void renderTooltip(Graphics2D g)
-	{
-		g.setFont(new Font("Sans-serif",Font.PLAIN, 11));
-			int sizeX = g.getFontMetrics().stringWidth(tooltipText)+6;
-			int sizeY = g.getFontMetrics().getHeight()+1;
-			g.setColor(new Color(235,235,100));
-			g.fillRect(tooltipX, tooltipY-sizeY, sizeX, sizeY);
-			g.setColor(Color.DARK_GRAY);
-			g.setStroke(new BasicStroke(1));
-			g.drawRect(tooltipX, tooltipY-sizeY, sizeX, sizeY);
-			g.drawString(tooltipText, tooltipX+4, tooltipY-3);	
-	}
-	
-	public Color backgroundColor() { return Color.WHITE;}
-	
 	public String getViewerType()
 	{
 		return "Viewer2D";
-	}	
+	}
+	
+	public void setBackgroundColor(Color c)
+	{
+		backgroundColor = c;
+	}
+	
+	public Color getBackgroundColor()
+	{
+		return backgroundColor;
+	}
+	
+	public double getDefaultZoom()
+	{
+		return defaultZoom;
+	}
+	
+	public void setDefaultZoom(double z)
+	{
+		defaultZoom = z;
+	}
 	
 	public void enableAntialising(boolean yes)
 	{
 		antialiasing = yes;
 		antialiasingSet = false;
 	}
-	
-	public boolean skipRendering() { return false;}
-	
-	public void enableToolTip(boolean t)
-	{
-		tooltip = t;
-	}
-	
-	public boolean getToolTipEnabled()
-	{
-		return tooltip;
-	}
-	
-	public void setToolTipText(String t)
-	{
-		tooltipText = t;
-	}
-	
-	public String getToolTipText()
-	{
-		return tooltipText;
-	}
-	
-	public void setToolTipCoordinates(int x, int y)
-	{
-		tooltipX = x;
-		tooltipY = y;
-	}
-	
-	public long getTooltipDelay()
-	{
-		return tooltipDelay;
-	}
-	
-	public void setTooltipDelay(long ms)
-	{
-		tooltipDelay = ms;
-	}
-	
-	public double getDefaultZoom()
-	{
-		return 1;
-	}
+
 	
 	public void setZoom(double z)
 	{
 		if (this.container != null)
+		{
 			((ViewerContainer2D)this.container).zoom = z;
+			this.requestRender();
+		}
 	}
 	
 	public void setTranslation(int tx, int ty)
@@ -140,13 +104,8 @@ public abstract class Viewer2D extends Viewer {
 		{
 			((ViewerContainer2D)this.container).translatex = tx;
 			((ViewerContainer2D)this.container).translatey = ty;
+			this.requestRender();
 		}
-	}
-	
-	public void setContainer(ViewerContainer c)
-	{
-		container = c;
-		
 	}
 	
 

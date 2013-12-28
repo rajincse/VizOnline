@@ -120,7 +120,7 @@ public class PFileWidget extends PropertyWidget {
 	}
 
 	@Override
-	protected void setPropertyReadOnly(boolean r) {
+	public void setPropertyReadOnly(boolean r) {
 		if (control != null)
 			control.setEnabled(!r);
 		

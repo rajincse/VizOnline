@@ -2,6 +2,8 @@ package properties;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -9,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.Box;
@@ -58,7 +62,7 @@ public abstract class PropertyWidget extends JPanel{
 	
 	public <T extends PropertyType> void propertyUpdated(T newvalue)
 	{
-		pm.propertyUpdated(p, newvalue);
+		pm.propertyUpdatedWrapper(p, newvalue);
 		p.setPropertyManager(null);
 		p.setValue(newvalue);
 		p.setPropertyManager(pm);		
@@ -77,7 +81,63 @@ public abstract class PropertyWidget extends JPanel{
 		changeFromOutside = false;
 	}
 	
-	protected abstract void setPropertyReadOnly(boolean v);
+	public abstract void setPropertyReadOnly(boolean v);
+	
+	private ArrayList<Component> componentStatus1;
+	private ArrayList<Boolean> componentStatus2;
+	public void setPropertyDisabled(boolean disabled)
+	{
+		
+		System.out.println("set disabled " + p.getName() + " " + disabled);
+		Component[] c = getComponents(this);
+		
+		if (disabled)
+		{
+			componentStatus1 = new ArrayList<Component>();
+			componentStatus2 = new ArrayList<Boolean>();
+			for (int i=0; i<c.length; i++)
+			{
+				componentStatus1.add(c[i]);
+				componentStatus2.add(c[i].isEnabled());
+			}
+		}
+				
+		for (int i=0; i<c.length; i++)
+		{
+			if (disabled)
+				c[i].setEnabled(false);
+			else
+			{
+				if (componentStatus1 == null) c[i].setEnabled(true);
+				else
+				{
+					int index = componentStatus1.indexOf(c[i]);
+					if (index < 0) c[i].setEnabled(true);
+					else c[i].setEnabled(componentStatus2.get(index));
+				}
+			}
+			
+			c[i].repaint();
+		}
+	}
+	
+	private Component[] getComponents(Component container) {
+        ArrayList<Component> list = null;
+
+        try {
+            list = new ArrayList<Component>(Arrays.asList(
+                  ((Container) container).getComponents()));
+            for (int index = 0; index < list.size(); index++) {
+            for (Component currentComponent : getComponents(list.get(index))) {
+                list.add(currentComponent);
+            }
+            }
+        } catch (ClassCastException e) {
+            list = new ArrayList<Component>();
+        }
+
+        return list.toArray(new Component[list.size()]);
+      }
 					
 }
 

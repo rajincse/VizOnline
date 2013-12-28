@@ -41,19 +41,10 @@ import javax.swing.event.InternalFrameListener;
  * @author rdjianu
  *
  */
-public class ViewerContainer2D extends ViewerContainer implements Runnable{
+public class ViewerContainer2D extends ViewerContainer{
 	
-	//used to implement double buffering for 2d viewers	
-	private BufferedImage tempImage = null;
-	 
-	//used to do rendering and simulation in the background and display results only when done so that the window remains responsive in between
-	MySwingWorker worker;
-	boolean working = false;//indicates whether the thread is still working in the background
-	 
-	Viewer viewer;
-	private Viewer2D v2d;
 	
-	private Viewer3D v3d;
+	int renderCount = 0;
 	
 	//apply to 2d viewers
 	public double zoom = 1;
@@ -69,190 +60,86 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 	public int zoomOriginY = 0;
 	
 	public AffineTransform transform = AffineTransform.getTranslateInstance(0, 0);
-	
-	private long lastMouseMove = new Date().getTime();
-	
 		
+	JPanel drawArea;
 	
-	
-
-	//swingworker class doing simulation and rendering in the background for some classes of viewers
-	class MySwingWorker extends SwingWorker<BufferedImage, Void>
-	{
-		public BufferedImage image; //we will draw the current state into image; in the done() function, which gets called at the end, we implement double buffering: the old image is saved, the current image is set to image.
-		
-		public ViewerContainer thisContainer;
-		
-		public MySwingWorker(BufferedImage bi, ViewerContainer vc)
-		{			
-			image = bi;			
-			working = true;
-			thisContainer = vc;
-		}		
-		 
- 	    public BufferedImage doInBackground() {
- 	    	
- 	    		    	
- 	    	//call the 2D viewer's set simulation function before rendering;
- 	    	if (v2d != null)
- 	    	{
-	 	    	synchronized(v2d)
-	 	    	{
-	 	    	v2d.simulate();
-	 	    	
-	 	    	//developers can use this functuon of 2d viwers to skip long renderings that are not actually updating the image
-	 	    	if (v2d.skipRendering())
-	 	    		return finalImage;
-	 	    	
-	 	    	//this if is for the first time the two buffers are initialized and for when the user changes the size of the container; in this case a new image of the good size needs to be created.
-	 	    	if (image == null || image.getWidth() != thisContainer.getWidth() || image.getHeight() != thisContainer.getHeight())
-	 	    		
-	 	    		if (thisContainer.getWidth() < 0 || thisContainer.getHeight() < 0)
-	 	    			return finalImage;
-	 	    		
-	 	    		//image = thisPanel.getGraphicsConfiguration().createCompatibleImage(thisPanel.getWidth(),thisPanel.getHeight());
-	 	    		image = new BufferedImage(thisContainer.getWidth(), thisContainer.getHeight(),BufferedImage.TYPE_INT_ARGB);
-	 	    		
-	 	    	 	  	    	    	
-	 	    		Graphics2D gc = image.createGraphics();
-	 	    		
-	 	    		gc.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-	 	    		
-		            gc.setColor(v2d.backgroundColor());
-		            gc.fillRect(0, 0, thisContainer.getWidth(), thisContainer.getHeight()); // fill in background
-		            
-		            if (!v2d.antialiasingSet)
-		            {
-		            	if (v2d.antialiasing)
-		            	{	            		
-		            	    gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-		            	                         RenderingHints.VALUE_ANTIALIAS_ON);
-	
-		            	    gc.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-		            	                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		            	}
-		            	else
-		            	{
-		            	    gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-		            	                         RenderingHints.VALUE_ANTIALIAS_OFF);
-	
-		            	    gc.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-		            	                         RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
-		            	}
-		            }
-		            
-		            zoomOriginX = this.thisContainer.getWidth()/2;
-		            zoomOriginY = this.thisContainer.getHeight()/2;
-		            
-		            //sets the proper transformation for the Graphics context that will passed into the rendering function	            
-		     
-		            
-		            gc.setTransform(AffineTransform.getTranslateInstance(zoomOriginX, zoomOriginY));	          
-		            gc.transform(AffineTransform.getScaleInstance(zoom,zoom));		           
-		            gc.transform(AffineTransform.getTranslateInstance(translatex-zoomOriginX, translatey-zoomOriginY));
-		            
-		            
-		            transform = gc.getTransform();
-	 	    		    		
-		            v2d.animate();
-		            v2d.render(gc);
-		            gc.setColor(Color.black);
-		            
-		           
-		          
-		            
-		            gc.setTransform(AffineTransform.getTranslateInstance(0, 0));
-		        	
-		            if ((new Date().getTime()- lastMouseMove) > v2d.getTooltipDelay())
-		            	if (v2d.getToolTipEnabled() && v2d.getToolTipText().length() > 0)
-		            		v2d.renderTooltip(gc);
-	 	    	}
- 	    	}
-	            
- 	        return image;
- 	    }
-
- 	    @Override
- 	    public void done() {
- 	    	try {
- 	    		//when done "switch" the buffers
- 	    		
- 	    		tempImage = finalImage;
- 	    		
-				finalImage = get();
-				
-				//System.out.println("done rendering " + finalImage);
-				
-				working = false;
-				
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
- 	    	
- 	    }
-		
-	}
-	
-	Thread thread = null;
-	public ViewerContainer2D(Viewer v, Environment env, int width, int height)
+	public ViewerContainer2D(Viewer2D v, Environment env, int width, int height)
 	{
 		super(v,env,width,height);
-		
-		if (v.getViewerType() == "Viewer2D")
-		{				
-			//in case of 2d viewers we want MySwingWorkers created regularly to update the rendering and the simulation; this is why we create and start a thread
-			v2d = (Viewer2D)v;
-			v2d.setContainer(this);			
-			zoom = v2d.getDefaultZoom();
-			Thread t = new Thread(this);
-			this.thread = t;
-			t.start();		
+			
+		zoom = v.getDefaultZoom();
+		v.requestRender();
 	
-		}
-		else if (v.getViewerType() == "Viewer3D")
-		{
-			v3d = (Viewer3D)v;
-			v3d.initGLWindow(700,500);
-			Thread t = new Thread(this);
-			this.thread = t;
-			t.start();
-		}
 	}
 	
-	//this esentially calls the rendering/simulation functions of the viewers by creating background SwingWorker threads; these in turn will do the work;
-	//we make sure we don't create a thread if one is already working and we don't try to do anything more often than 10ms.
-	public void run() {
-		
-		long lastTime = new Date().getTime();
-		
-		while (true)
+	public void render()
+	{
+		if (renderCount >= 1)
+			return;
+
+		renderCount++;
+
+
+		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_INT_ARGB);
+
+
+		Graphics2D gc = image.createGraphics();
+
+		gc.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+
+		gc.setColor(((Viewer2D)viewer).getBackgroundColor());
+		gc.fillRect(0, 0, this.getWidth(), this.getHeight()); // fill in background
+
+		if (!((Viewer2D)viewer).antialiasingSet)
 		{
-			long ct = new Date().getTime();
-			if (ct-lastTime < 100)
-				try {
-					//thread.slee(10-ct+lastTime);
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-			lastTime = new Date().getTime();
-			
-							
-			
-			if (working /*|| drawArea == null || drawArea.getGraphicsConfiguration() == null*/)
-				continue;			
-		
-			
-				worker = new MySwingWorker(tempImage,this);
-				worker.execute();
-			
-			
+			if (((Viewer2D)viewer).antialiasing)
+			{	            		
+				gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_ON);
+
+				gc.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+						RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			}
+			else
+			{
+				gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+						RenderingHints.VALUE_ANTIALIAS_OFF);
+
+				gc.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+						RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+			}
 		}
-		
-		
+
+		zoomOriginX = this.getWidth()/2;
+		zoomOriginY = this.getHeight()/2;
+
+		//sets the proper transformation for the Graphics context that will passed into the rendering function	            
+
+
+		gc.setTransform(AffineTransform.getTranslateInstance(zoomOriginX, zoomOriginY));	          
+		gc.transform(AffineTransform.getScaleInstance(zoom,zoom));		           
+		gc.transform(AffineTransform.getTranslateInstance(translatex-zoomOriginX, translatey-zoomOriginY));
+
+
+		transform = gc.getTransform();
+
+		final BufferedImage fimage = image;
+		final Graphics2D gcf = gc;
+		viewer.em.scheduleEvent(new PEvent()
+		{
+			public void process() {
+				((Viewer2D)viewer).render(gcf);
+				renderDoneCallback(fimage);
+			}
+		});	
 	}
+	
+	public void renderDoneCallback(BufferedImage im)
+	{
+		renderCount--;		
+		this.setViewerImage(im);
+	}
+
 	
 	public void setWidth(int w)
 	{
@@ -277,27 +164,28 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 	public void keyPressed(KeyEvent e)
 	{
 		if (e.getKeyCode() == e.VK_UP)
-			translatey++;
+		{	translatey++; this.render();	}
 		else if (e.getKeyCode() == e.VK_DOWN)
-			translatey--;
+		{	translatey--;this.render();	}
 		else if (e.getKeyCode() == e.VK_LEFT)
-			translatex--;
+		{	translatex--;this.render();	}
 		else if (e.getKeyCode() == e.VK_RIGHT)
-			translatex++;
+		{	translatex++;this.render();	}
 		else if (e.getKeyCode() == e.VK_PLUS || e.getKeyCode() == 61)
-			zoom = zoom + 0.1;
+		{	zoom = zoom + 0.1;this.render();	}
 		else if (e.getKeyCode() == e.VK_MINUS)
 		{
 			zoom = zoom - 0.1;
 			if (zoom < 0.1)
 				zoom = 0.1;
+			this.render();
 		}
 		
-		v2d.keyPressed(e.getKeyCode());
+		((Viewer2D)viewer).keyPressed(e.getKeyCode());
 	}
 
 	public void keyReleased(KeyEvent e) {
-		v2d.keyReleased(e.getKeyCode());				
+		((Viewer2D)viewer).keyReleased(e.getKeyCode());				
 	}
 	public void keyTyped(KeyEvent arg0) {
 	}	
@@ -321,7 +209,8 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 			int x = (int)tp.x;
 			int y = (int)tp.y;
 			
-			v2d.mousepressed(x,y, button);
+			((Viewer2D)viewer).mousepressed(x,y, button);
+			
 			
 			dragPrevX = ex;
 			dragPrevY = ey;
@@ -348,8 +237,8 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 			int y = (int)tp.y;
 		
 		
-			v2d.mousereleased(x,y, button);
-		
+			((Viewer2D)viewer).mousereleased(x,y, button);
+			
 			if (button == MouseEvent.BUTTON3)
 				rightButtonDown = false;
 
@@ -360,12 +249,9 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 		}
 	}	
 	
-	
-	
-	
 	public void mouseDragged(int ex, int ey) {
 		
-		v2d.setToolTipCoordinates(ex,ey);
+		((Viewer2D)viewer).setToolTipCoordinates(ex,ey);
 		
 		try{
 			Point2D.Double tp = new Point2D.Double();
@@ -377,8 +263,7 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 			int px = (int)tp.x;
 			int py = (int)tp.y;
 		
-		//if (!v2d.mousedragged(x,y, (int)((dragPrevX-translatex)/zoom), (int)((dragPrevY-translatey)/zoom)))
-		if (!v2d.mousedragged(x,y, px, py))
+		if (!((Viewer2D)viewer).mousedragged(x,y, px, py))
 		{
 			if (rightButtonDown) //zoom
 			{
@@ -394,9 +279,11 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 				translatex += (ex-dragPrevX)/zoom;
 				translatey += (ey-dragPrevY)/zoom;
 			}
+			this.render();
 		}
 		dragPrevX = ex;
-		dragPrevY = ey;	
+		dragPrevY = ey;
+		
 		}
 		catch(Exception ee)
 		{
@@ -406,31 +293,24 @@ public class ViewerContainer2D extends ViewerContainer implements Runnable{
 	}
 	public void mouseMoved(int ex, int ey)
 	{
-		if (v2d == null)
+		if (((Viewer2D)viewer) == null)
 			return;
 		
-		v2d.setToolTipCoordinates(ex,ey);
+		((Viewer2D)viewer).setToolTipCoordinates(ex,ey);
 		
 		try{
 			Point2D.Double tp = new Point2D.Double();
 			transform.inverseTransform(new Point2D.Double(ex,ey), tp);
 			int x = (int)tp.x;
-			int y = (int)tp.y;
-		lastMouseMove = new Date().getTime();
-		//int x = (int)((e.getX()-translatex)/zoom);
-		//int y = (int)((e.getY()-0-translatey)/zoom);
-		v2d.mousemoved(x,y);
+			int y = (int)tp.y;	
+
+		((Viewer2D)viewer).mousemoved(x,y);
 		}
 		catch(Exception ee)
 		{
-			
+			ee.printStackTrace();
 		}
 	}	
 	
-	public BufferedImage getImage()
-	{
-		return finalImage;
-	}
-
 
 }

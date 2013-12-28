@@ -2,6 +2,8 @@ package perspectives;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -18,6 +20,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -32,23 +36,30 @@ import javax.swing.JToggleButton;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
+import properties.Property;
+import properties.PropertyWidget;
+
 public class ViewerWindow extends JInternalFrame  {
 
-	JPanel drawArea = null;
-	
-	private TaskObserverDialog taskObserverDialog;
+	JPanel drawArea = null;	
 	
 	ViewerContainer viewerContainer;
 	
 	private ViewerGUI vg;
 	
+	boolean dragging = false;
+	
+	public void redraw()
+	{
+		drawArea.repaint();
+	}
+	
 	public ViewerWindow(ViewerContainer vc)
 	{
 		super(vc.viewer.getName(), true,true,true,true);
 		
-		viewerContainer = vc;
-		
-		taskObserverDialog = new TaskObserverDialog(this, false);
+		viewerContainer = vc;	
+		vc.window = this;
 		
 		if (viewerContainer.viewer.getViewerType() == "ViewerGUI")
 		{
@@ -66,16 +77,9 @@ public class ViewerWindow extends JInternalFrame  {
 				 public void paintComponent(Graphics g) {
 				        super.paintComponent(g);				        
 				        Graphics2D g2 = (Graphics2D)g; 					        
-				        g2.drawImage(viewerContainer.finalImage, null, 0, 0);				 
+				        g2.drawImage(viewerContainer.getImage(), null, 0, 0);				 
 				    }
-			};
-			
-			//in case of 2d viewers we want MySwingWorkers created regularly to update the rendering and the simulation; this is why we create and start a thread
-			if (vc.viewer.getViewerType() == "Viewer2D")
-			((Viewer2D)viewerContainer.viewer).taskObserverDialog = this.taskObserverDialog;
-			if (vc.viewer.getViewerType() == "Viewer3D")
-			((Viewer3D)viewerContainer.viewer).taskObserverDialog = this.taskObserverDialog;
-
+			};			
 			
 			//for 2D viewers we add automatic zooming and panning; this can happen using the arrow keys and +,- keys; the key strokes are also sent to the viewer as interaction events
 			drawArea.setFocusable(true);
@@ -85,12 +89,24 @@ public class ViewerWindow extends JInternalFrame  {
 			{
 				public void keyPressed(KeyEvent e)
 				{
-					viewerContainer.keyPressed(e);
+					final KeyEvent ef = e;
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.keyPressed(ef);	
+						}
+					});		
 				}
 
 				public void keyReleased(KeyEvent e)
 				{
-					viewerContainer.keyReleased(e);				
+					final KeyEvent ef = e;
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.keyReleased(ef);
+						}
+					});	
 				}
 				public void keyTyped(KeyEvent e) {
 					viewerContainer.keyTyped(e);
@@ -102,21 +118,32 @@ public class ViewerWindow extends JInternalFrame  {
 			drawArea.addMouseListener(new MouseListener()
 			{
 				public void mouseClicked(MouseEvent e) {
-					viewerContainer.mouseClicked(e.getX(), e.getY(), e.getButton());
 				}
 				public void mouseEntered(MouseEvent e) {
-					viewerContainer.mouseEntered(e.getX(), e.getY());
+					//viewerContainer.mouseEntered(e.getX(), e.getY());
 				}
 				public void mouseExited(MouseEvent e) {
-					viewerContainer.mouseExited(e.getX(), e.getY());
+					//viewerContainer.mouseExited(e.getX(), e.getY());
 				}
 				public void mousePressed(MouseEvent e) {					
-					viewerContainer.mousePressed(e.getX(), e.getY(), e.getButton());
+					final MouseEvent ef = e;
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.mousePressed(ef.getX(), ef.getY(), ef.getButton());							
+						}						
+					});
+					drawArea.requestFocus();
 				}
 				public void mouseReleased(MouseEvent e)
 				{
-					drawArea.requestFocus();
-					viewerContainer.mouseReleased(e.getX(), e.getY(), e.getButton());
+					final MouseEvent ef = e;
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.mouseReleased(ef.getX(), ef.getY(), ef.getButton());							
+						}						
+					});
 				}			
 			});
 			
@@ -137,16 +164,53 @@ public class ViewerWindow extends JInternalFrame  {
 			drawArea.addMouseMotionListener(new MouseMotionListener()
 			{
 				public void mouseDragged(MouseEvent e) {
-					viewerContainer.mouseDragged(e.getX(), e.getY());
+
+					if (dragging) return;
+					
+					final MouseEvent ef = e;	
+					
+					dragging = true;
+				
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.mouseDragged(ef.getX(), ef.getY());	
+							viewerContainer.lastMouseMove = new Date().getTime();
+							viewerContainer.viewer.em.scheduleEvent(new PEvent()
+							{
+								public void process() {
+									viewerContainer.renderTooltip();
+								}								
+							}, viewerContainer.viewer.getTooltipDelay());
+							
+							dragging = false;
+						}						
+					});
 				}
 				public void mouseMoved(MouseEvent e){
-					viewerContainer.mouseMoved(e.getX(), e.getY());
+					if (dragging) return;
+					
+					final MouseEvent ef = e;
+					
+					dragging = true;
+					
+					viewerContainer.viewer.em.scheduleEvent(new PEvent()
+					{
+						public void process() {
+							viewerContainer.mouseMoved(ef.getX(), ef.getY());
+							viewerContainer.lastMouseMove = new Date().getTime();
+							viewerContainer.viewer.em.scheduleEvent(new PEvent()
+							{
+								public void process() {
+									viewerContainer.renderTooltip();
+								}								
+							}, viewerContainer.viewer.getTooltipDelay());
+							
+							dragging = false;
+						}						
+					});
 				}			
 			});			
-			
-		}
-		else if (viewerContainer.viewer.getViewerType() == "Viewer3D")
-		{
 			
 		}
 		
@@ -257,8 +321,10 @@ public class ViewerWindow extends JInternalFrame  {
 			{
 				viewerContainer.setWidth(ff.getWidth());
 				viewerContainer.setHeight(ff.getHeight());
+				viewerContainer.viewer.requestRender();
 			}
 		});
 		
 	}
+	
 }

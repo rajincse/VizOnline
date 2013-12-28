@@ -2,6 +2,8 @@ package perspectives;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -13,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -92,9 +95,19 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
                 BorderFactory.createEmptyBorder(5,5,5,5)));
 		
 		for (int i = 0; i<pm.props.size(); i++)
+		{
 			this.propertyAdded(pm, pm.props.get(i));
+			if (pm.props.get(i).getDisabled())
+				pm.props.get(i).setDisabled(true);
+		}
 		
 		pm.addPropertyChangeListener(this);
+		
+		for (int i = 0; i<pm.props.size(); i++)
+		{
+			if (pm.props.get(i).getDisabled())
+				pm.props.get(i).setDisabled(true);
+		}
 	}
 	
 	public PropertyManager getPropertyManager()
@@ -231,8 +244,26 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 		
 				wrapper.add(parent2);
 			
+				//find the right position
+				int pos = pm.props.indexOf(p);
+				//props.add(pos,p);
+				//widgets.add(pos,pw);
+				for (pos=pos-1; pos>=0; pos--)
+				{
+					if (widgets.get(pos).getParent().getParent() == parent)
+						break;
+				}
+				if (pos < 0) pos = 0;
+				else
+				{
+					Component[] c = parent.getComponents();
+					for (int j=0; j<c.length; j++)
+						if (c[j] == widgets.get(pos).getParent())
+							pos = j;
+					pos++;
+				}		
 				
-				parent.add(wrapper, this.getComponentCount());
+				parent.add(wrapper, pos);
 				
 				
 				parent2.addMouseListener(new MouseListener()
@@ -256,7 +287,7 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 									if (sx > maxx) maxx = sx;
 								}
 								
-								System.out.println(maxx);
+							//	System.out.println(maxx);
 								
 							
 								parent2.add(Box.createRigidArea(new Dimension(maxx,0)),0);
@@ -264,8 +295,8 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 								for (int i=1; i<parent2.getComponentCount(); i++)
 									parent2.getComponent(i).setVisible(false);
 								
-								for (int i=0; i<thisPM.getComponentCount(); i++)
-									System.out.println(thisPM.getComponent(i));
+								//for (int i=0; i<thisPM.getComponentCount(); i++)
+								//	System.out.println(thisPM.getComponent(i));
 								
 								parent2.revalidate();
 							}
@@ -315,12 +346,43 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 		
 		wrapper.add(pw);
 		
-		parent.add(wrapper, parent.getComponentCount());
+		//parent.add(wrapper, parent.getComponentCount());
+		//find the right position		
+		int pos = pm.props.indexOf(p);
+		props.add(pos,p);
+		widgets.add(pos,pw);	
+		Component child = null;
+		for (pos = pos-1; pos>=0; pos--)
+		{			
+			Component sameParent = widgets.get(pos).getParent();
+			child = widgets.get(pos);
+			while (sameParent != null && sameParent != parent)
+			{
+				child = sameParent;
+				sameParent = sameParent.getParent();
+			}
+			if (sameParent != null)
+				break;
+			
+				
+		}
+		if (pos < 0) pos = 0;
+		else
+		{
+			Component[] c = parent.getComponents();
+			for (int i=0; i<c.length; i++)
+				if (c[i] == child)
+					pos = i;
+			pos++;
+		}
+		
+		
+		parent.add(wrapper, pos);
 		
 		pw.setReferences(p, this.getPropertyManager());
 		pw.widgetLayout();
-		props.add(p);
-		widgets.add(pw);		
+		
+				
 		
 		pw.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(200,200,230), new Color(230,230,240)),BorderFactory.createEmptyBorder(2,2,2,2)));
 		pw.setBackground(new Color(220,220,230));		
@@ -379,7 +441,7 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 	@Override
 	public void propertyReadonlyChanged(PropertyManager pm, Property p,
 			boolean newReadOnly) {
-		//this.getPropertyWidget(p).setReadOnly(v);
+		this.getPropertyWidget(p).setPropertyReadOnly(newReadOnly);
 		
 	}
 
@@ -400,11 +462,15 @@ public class PropertyManagerViewer extends JPanel implements PropertyChangeListe
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
-	
-	
 
-	
 
+	@Override
+	public void propertyDisabledChanged(PropertyManager propertyManager, Property p,
+			boolean disabled) {
+		PropertyWidget pw = this.getPropertyWidget(p);
+		if (pw != null)
+		{		
+			pw.setPropertyDisabled(disabled);
+		}	
+	}
 }

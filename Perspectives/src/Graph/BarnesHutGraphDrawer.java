@@ -278,7 +278,7 @@ public class BarnesHutGraphDrawer extends GraphDrawer{
 		System.out.println("drawer times: " + (t4-t1) + " " + (t5-t4) + " " + (t6-t5));
 		
 	//	max_step = Math.max(1,max_step * 0.95);
-		max_step *= 0.999;
+		max_step *= 0.99;
 		
 	//	qt = generateQuadTree(posx,posy);
 		

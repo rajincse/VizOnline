@@ -32,15 +32,12 @@ public abstract class Viewer3D extends Viewer implements GLEventListener{
 	
 	int cnt = 0;
 	
-	
 	GLProfile glp;
 	
 	boolean reshaped = false;
 	
-	public GLWindow windowOffscreen = null;
-	
-	int width;
-	int height;
+	public GLWindow windowOffscreen = null;	
+
 	
 	BufferedImage image = null;
 	
@@ -147,25 +144,6 @@ public abstract class Viewer3D extends Viewer implements GLEventListener{
 		gl.glEnd();
 	    }
 
-	   /* // North pole
-	    gl.glBegin (GL.GL_TRIANGLE_FAN);
-	    gl.glVertex3d (0.0, 0.0, r);
-	    for (double thet = 180.0; thet <= -180.0; thet -= 10.0) {
-		gl.glVertex3d (r*Math.sin (deg_to_rad * thet) * Math.cos (deg_to_rad * 80.0),
-				r*Math.cos (deg_to_rad * thet) * Math.cos (deg_to_rad * 80.0),
-				r*Math.sin (deg_to_rad * 80.0));
-	    }
-	    gl.glEnd();
-
-	    // South pole
-	    gl.glBegin (GL.GL_TRIANGLE_FAN);
-	    gl.glVertex3d (0.0, 0.0, -r);
-	    for (double thet = 180.0; thet <= -180.0; thet -= 10.0) {
-		gl.glVertex3d (r*Math.sin (deg_to_rad * thet) * Math.cos (deg_to_rad * -80.0),
-				r*Math.cos (deg_to_rad * thet) * Math.cos (deg_to_rad * -80.0),
-				r*Math.sin (deg_to_rad * -80.0));
-	    }
-	    gl.glEnd();*/
 	}
 	
 	

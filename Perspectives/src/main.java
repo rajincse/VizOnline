@@ -49,5 +49,7 @@ public class main {
 	      e.registerViewerFactory(new BundledGraphFactory());
 	      
 	      e.registerViewerFactory(new ParallelCoordinateViewerFactory());
+	      
+	      e.addViewer(new TestViewer3D("H"));
 	  }
 }

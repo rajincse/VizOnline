@@ -35,6 +35,9 @@ import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
+import properties.Property;
+
+
 /**
  * This is a window class for Viewers. It will be able to accommodate any of the three main types of Viewers: 2D, 3D, GUI. It will call their rendering, simulation, and interactivity functions (if appropriate), it will implement double buffering for them, and it can be added to the viewer area
  * of the Environment. ViewerContainers automatically implementing panning and zooming for 2D viewers via 2dtransforms applied to the Graphics2D objects passed onto the Viewer2D's render function.
@@ -44,38 +47,35 @@ import javax.swing.event.InternalFrameListener;
 public class ViewerContainer{
 	
 	//used to implement double buffering for 2d and 3d viewers
-	BufferedImage finalImage = null;
+	private BufferedImage viewerImage = null;
+	private BufferedImage image;
 	
-	 
-	//used to do rendering and simulation in the background and display results only when done so that the window remains responsive in between
-	
-	boolean working = false;//indicates whether the thread is still working in the background
-	 
-	Viewer viewer;
-	private Viewer2D v2d;
-	
-	private Viewer3D v3d;
-	
-	
+	ViewerWindow window = null;
+		 
+	Viewer viewer;	
+		
 	//a pointer to the parent Environment class (needed for instance to delete the viewer from the Environment if the user activates the 'X')
 	Environment env;
 	
 	int width, height;
 	
-	Thread thread = null;
+	long lastMouseMove;
 	
-
+	boolean tooltipOn;
+	String prevTooltip;
 	
 	public ViewerContainer(Viewer v, Environment env, int width, int height)
 	{		
 		this.env = env;		
-		final Environment envtmp = env;
 		
 		this.width = width;
 		this.height = height;
 		
+		tooltipOn = false;
+		String prevTooltip = "";
+		
 		viewer = v;
-
+		viewer.setContainer(this);	
 	}
 
 	
@@ -95,16 +95,47 @@ public class ViewerContainer{
 	{
 		return height;
 	}
-
 	
+	public void render()
+	{
+
+	}
 	
 	
 	public BufferedImage getImage()
 	{
-		return finalImage;
+		return image;
 	}
 	
+	public void setViewerImage(BufferedImage im)
+	{
+		this.viewerImage = im;
+		
+		if (!blocked)
+			this.image = im;
+		else
+			this.savedImage = im;
+		
+	     if (tooltipOn && prevTooltip.equals(viewer.getToolTipText()))
+	     {
+	        		BufferedImage imm = new BufferedImage(viewerImage.getWidth(), viewerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					Graphics2D gc = (Graphics2D)imm.getGraphics();
+					
+					gc.drawImage(viewerImage, 0, 0, null);					
+					viewer.renderTooltip(gc);
+					if (!blocked)
+						image = imm;
+					else
+						savedImage = imm;
+	     }
+	     else
+	     {
+	    	 tooltipOn = false;
+	    	 prevTooltip = "";
+	     }
+	}
 	
+
 	
 
 	
@@ -115,6 +146,7 @@ public class ViewerContainer{
 
 	public void keyReleased(KeyEvent e) {					
 	}
+	
 	public void keyTyped(KeyEvent arg0) {
 	}	
 	
@@ -131,10 +163,7 @@ public class ViewerContainer{
 	public void mouseReleased(int ex, int ey, int button)
 	{
 		
-	}	
-	
-	
-	
+	}		
 	
 	public void mouseDragged(int ex, int ey) {
 		
@@ -144,9 +173,61 @@ public class ViewerContainer{
 	{
 		
 	}
-
-
-
-
+	
+	public boolean unresponsive()
+	{
+		return viewer.em.unresponsive(2000);
+	}
+	
+	BufferedImage savedImage = null;
+	boolean blocked = false;
+	public void block(boolean blocked)
+	{
+		if (this.blocked == blocked)
+			return;
+		
+		this.blocked = blocked;
+		
+		Property[] ps = viewer.getProperties();
+		for (int i=0; i<ps.length; i++)
+			ps[i].setDisabled(blocked);
+		
+		if (blocked)
+		{
+			BufferedImage im = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = (Graphics2D)im.createGraphics();
+			g.drawImage(image, 0, 0, null);
+			g.setColor(new Color(100,100,100,100));
+			g.fillRect(0,0,im.getWidth(),im.getHeight());
+			savedImage = image;
+			image = im;
+		}
+		else if (savedImage != null)
+			image = savedImage;
+	}
+	
+	public void renderTooltip()
+	{
+		long delta = new Date().getTime()- lastMouseMove;	
+		if (delta >= viewer.getTooltipDelay())
+		{
+			if (viewer.getToolTipText().length() > 0)
+			{
+				tooltipOn = true;
+				prevTooltip = viewer.getToolTipText();
+			}
+		}
+			
+	     if (tooltipOn)
+	     {
+	        		BufferedImage im = new BufferedImage(viewerImage.getWidth(), viewerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					Graphics2D gc = (Graphics2D)im.getGraphics();
+					
+					gc.drawImage(viewerImage, 0, 0, null);					
+					viewer.renderTooltip(gc);
+					
+					image = im;
+	     }  		
+	}
 
 }

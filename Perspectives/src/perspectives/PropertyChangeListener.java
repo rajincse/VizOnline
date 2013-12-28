@@ -10,5 +10,6 @@ public interface PropertyChangeListener {
 	public void propertyReadonlyChanged(PropertyManager pm, Property p, boolean newReadOnly);
 	public void propertyVisibleChanged(PropertyManager pm, Property p, boolean newVisible);
 	public void propertyPublicChanged(PropertyManager pm, Property p, boolean newPublic);
+	public void propertyDisabledChanged(PropertyManager propertyManager, Property p,boolean enabled);
 	
 }

@@ -51,11 +51,8 @@ import com.jogamp.newt.opengl.GLWindow;
  * @author rdjianu
  *
  */
-public class ViewerContainer3D extends ViewerContainer implements Runnable{
+public class ViewerContainer3D extends ViewerContainer{
 	
-	
-	private Viewer3D v3d;
-		
 	//a pointer to the parent Environment class (needed for instance to delete the viewer from the Environment if the user activates the 'X')
 	final Environment env;
 	
@@ -67,88 +64,75 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 	int dragPrevX;
 	int dragPrevY;
 	
-	public ViewerContainer3D(Viewer v, Environment env, int width, int height)
+	int renderCount = 0;	
+	
+	
+	public ViewerContainer3D(Viewer3D v, Environment env, int width, int height)
 	{	
 		super(v,env,width,height);
-		
-		this.env = env;		
-			
-		v3d = (Viewer3D)v;
-		
+
+		this.env = env;				
+
 		GLProfile glp = GLProfile.getDefault();	       
 
-	     try {
-	            GLCapabilities caps = new GLCapabilities(glp);
+		try {
+			GLCapabilities caps = new GLCapabilities(glp);
 
-	           windowOffscreen = createOffscreen(caps, width, height);
-	           
-	           
-	            v3d.width = width;
-	            v3d.height = height;
+			windowOffscreen = createOffscreen(caps, width, height);
 
-	            windowOffscreen.addGLEventListener(v3d);  //adding it to the offscreen window
-	            
 
-	        } catch (GLException e) {
-	            e.printStackTrace();
-	        }
-		Thread t = new Thread(this);
-		this.thread = t;
-		t.start();
-	}
-	
-	//this esentially calls the rendering/simulation functions of the viewers by creating background SwingWorker threads; these in turn will do the work;
-	//we make sure we don't create a thread if one is already working and we don't try to do anything more often than 10ms.
-	public void run() {
-		
-		long lastTime = new Date().getTime();
-		
-		while (true)
-		{
-			long ct = new Date().getTime();
-			if (ct-lastTime < 50)
-				try {
-					//thread.slee(10-ct+lastTime);
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			
-			lastTime = new Date().getTime();
-			
+			viewer.width = width;
+			viewer.height = height;
 
-			windowOffscreen.display();
-			
-			this.finalImage = v3d.image;
-			tb.viewport = v3d.viewport;
-			tb.mvmatrix = v3d.mvmatrix;
-			tb.projmatrix = v3d.projmatrix;
-			
-			
+			windowOffscreen.addGLEventListener(v);  //adding it to the offscreen window
+
+
+		} catch (GLException e) {
+			e.printStackTrace();
 		}
-		
-		
 	}
 	
+	public void render()
+	{		
+		viewer.em.scheduleEvent(new PEvent()
+		{
+			public void process() {
+				windowOffscreen.display();			
+				renderDoneCallback();	
+			}
+		});
+	}
+	
+	public void renderDoneCallback()
+	{
+		renderCount--;
+		
+		setViewerImage(((Viewer3D)viewer).image);
+		tb.viewport = ((Viewer3D)viewer).viewport;
+		tb.mvmatrix = ((Viewer3D)viewer).mvmatrix;
+		tb.projmatrix = ((Viewer3D)viewer).projmatrix;
+
+	}
+
+
 	public void setWidth(int w)
 	{
 		super.setWidth(w);
 		windowOffscreen.setSize(w, this.getHeight());
-		v3d.width = w;
+		((Viewer3D)viewer).width = w;
 	}
 	public void setHeight(int h)
 	{
 		super.setHeight(h);
 		windowOffscreen.setSize(this.getWidth(),h);
-		v3d.height = h;
+		((Viewer3D)viewer).height = h;
 	}
 	
 	
 
 	public BufferedImage getImage()
 	{
-		return v3d.image;
+		return ((Viewer3D)viewer).image;
 	}
 	
 	
@@ -174,24 +158,27 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 	 Trackball tb = new Trackball(0,0,0,5);
 	 boolean zooming = false;
 	
+	 public void mouseMoved(int ex, int ey) {
+		 lastMouseMove = new Date().getTime();
+	 }
 	 
 		public void mouseDragged(int ex, int ey) {
 			
-			if (v3d.rotating)
+			if (((Viewer3D)viewer).rotating)
 			{			
-				float[] camloc = v3d.getCameraLocation();	 
+				float[] camloc = ((Viewer3D)viewer).getCameraLocation();	 
 				float camdist = (float)Math.sqrt(camloc[0]*camloc[0] + camloc[1]*camloc[1] + camloc[2]*camloc[2]);
 				
 				tb.setRadius(camdist/2.2f);
 				tb.setCenter(camloc[0], camloc[1], 0);
 				 
 		        tb.drag(ex, ey);
-		        v3d.q = tb.rot;
+		        ((Viewer3D)viewer).q = tb.rot;
 			}
 			else if (zooming)
 			{
 				
-				float[] camloc = v3d.getCameraLocation();
+				float[] camloc = ((Viewer3D)viewer).getCameraLocation();
 				
 				if (Math.abs(ex-dragPrevX) > Math.abs(ey- dragPrevY))
 					camloc[2] *= (1+(ex-dragPrevX)/500.);
@@ -203,7 +190,7 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 				System.out.println(camloc[2]);
 				
 				
-				v3d.setCameraLocation(camloc);
+				((Viewer3D)viewer).setCameraLocation(camloc);
 			}
 			else
 			{
@@ -215,6 +202,8 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 			
 			dragPrevX = ex;
 			dragPrevY = ey;	
+			
+			this.render();
 		}
 		
 		public void mousePressed(int x, int y, int button)
@@ -239,19 +228,19 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 		public void keyPressed(KeyEvent e)
 		{
 			if (e.getKeyCode() == e.VK_R)
-				v3d.rotating = true;
+				((Viewer3D)viewer).rotating = true;
 			else if (e.getKeyCode() == e.VK_UP)
-				v3d.transy+=1;
+				((Viewer3D)viewer).transy+=1;
 			else if (e.getKeyCode() == e.VK_DOWN)
-				v3d.transy-=1;
+				((Viewer3D)viewer).transy-=1;
 			else if (e.getKeyCode() == e.VK_LEFT)
-				v3d.transx-=1;
+				((Viewer3D)viewer).transx-=1;
 			else if (e.getKeyCode() == e.VK_RIGHT)
-				v3d.transx+=1;
+				((Viewer3D)viewer).transx+=1;
 			else if (e.getKeyCode() == e.VK_PLUS || e.getKeyCode() == 61)
-				v3d.transz+=1;
+				((Viewer3D)viewer).transz+=1;
 			else if (e.getKeyCode() == e.VK_MINUS)
-				v3d.transz-=1;
+				((Viewer3D)viewer).transz-=1;
 			
 			//v2d.keyPressed(e.getKeyCode());
 		}
@@ -259,7 +248,7 @@ public class ViewerContainer3D extends ViewerContainer implements Runnable{
 		public void keyReleased(KeyEvent e)
 		{
 			if (e.getKeyCode() == e.VK_R)
-				v3d.rotating = false;
+				((Viewer3D)viewer).rotating = false;
 		}
 
 

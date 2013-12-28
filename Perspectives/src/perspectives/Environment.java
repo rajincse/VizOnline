@@ -80,6 +80,8 @@ import properties.POptions;
 import properties.POptionsWidget;
 import properties.PPercent;
 import properties.PPercentWidget;
+import properties.PProgress;
+import properties.PProgressWidget;
 import properties.PString;
 import properties.PStringWidget;
 import properties.Property;
@@ -132,6 +134,7 @@ public class Environment extends PropertyManagerGroup{
 	private JList<String> dataList;
 	
 	private Vector<DataSource> dataSources = new Vector<DataSource>();
+	private Vector<JInternalFrame> dataFrames = new Vector<JInternalFrame>();
 	
 	//used to repain the drwaing area. we need to repaint the entire drawing area because of the links we are dragging around;
 	private Timer timer;
@@ -233,7 +236,61 @@ public class Environment extends PropertyManagerGroup{
 				this.registerNewType(new PList(), new PropertyWidgetFactory() {
 					public PropertyWidget createWidget() {
 						return new PListWidget();
-				}});		
+				}});	
+				
+				this.registerNewType(new PProgress(0), new PropertyWidgetFactory() {
+					public PropertyWidget createWidget() {
+						return new PProgressWidget();
+				}});
+		
+		final Environment ev = this;
+		Timer unresponsive = new Timer(1000, new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+			
+				Vector<ViewerContainer> vc = ev.getViewerContainers();
+				for (int i=0; i<vc.size(); i++)
+				{
+					if (vc.get(i).unresponsive())
+					{
+						String title = ev.viewerWindows.get(i).getTitle();
+						if (!title.endsWith("Unresponsive"))
+							ev.viewerWindows.get(i).setTitle( title +  " -- Unresponsive");
+						vc.get(i).block(true);
+						
+					}
+					else
+					{
+						ev.viewerWindows.get(i).setTitle(vc.get(i).viewer.getName());
+						vc.get(i).block(false);
+					}
+				}
+				
+				Vector<DataSource> ds = ev.getDataSources();
+				for (int i=0; i<ds.size(); i++)
+				{
+					if (ds.get(i).unresponsive())
+					{
+						String title = ev.dataFrames.get(i).getTitle();
+						if (!title.endsWith("Unresponsive"))
+							ev.dataFrames.get(i).setTitle( title +  " -- Unresponsive");
+						ds.get(i).block(true);
+						
+					}
+					else
+					{
+						ev.dataFrames.get(i).setTitle(ds.get(i).getName());
+						ds.get(i).block(false);
+					}
+				}
+			}
+		
+		});
+		unresponsive.setRepeats(true);
+		unresponsive.setDelay(1000);
+		unresponsive.start();
 		
 		if (offline)
 			return;
@@ -744,9 +801,9 @@ public class Environment extends PropertyManagerGroup{
 	{
 		final ViewerContainer vc;
 		if (v.getViewerType().equals("Viewer3D"))
-			vc = new ViewerContainer3D(v,this,1000,700);
+			vc = new ViewerContainer3D((Viewer3D)v,this,1000,700);
 		else if (v.getViewerType().equals("Viewer2D"))
-			vc = new ViewerContainer2D(v,this,1000,700);
+			vc = new ViewerContainer2D((Viewer2D)v,this,1000,700);
 		else vc = null;
 		
 		if (!offline)
@@ -836,9 +893,8 @@ public class Environment extends PropertyManagerGroup{
 		dataFrame.setIconifiable(true);
 		viewerArea.add(dataFrame);	
 		
-		d.taskObserverDialog = new TaskObserverDialog(dataFrame, true);
-		
-		
+		dataFrames.add(dataFrame);
+				
 		newDataY += 30;
 		newDataX += 10;
 		
@@ -898,6 +954,7 @@ public class Environment extends PropertyManagerGroup{
 			return;
 		
 		dataSources.remove(index);
+		dataFrames.remove(index);
 	}
 
 

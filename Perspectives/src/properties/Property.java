@@ -13,6 +13,8 @@ import perspectives.PropertyManager;
 		private boolean readOnly;
 		private boolean publ;
 		
+		private boolean disabled;
+		
 		
 		private PropertyManager pm;
 		
@@ -25,6 +27,7 @@ import perspectives.PropertyManager;
 			visible = true;
 			readOnly = false;
 			publ = false;	
+			disabled = false;
 			
 			pm = null;
 			
@@ -99,6 +102,18 @@ import perspectives.PropertyManager;
 		public boolean getPublic()
 		{
 			return publ;
+		}
+		
+		public void setDisabled(boolean d)
+		{
+			disabled = d;
+			if (pm != null)
+				pm.setPropertyDisabledCallback(this, d);
+		}
+		
+		public boolean getDisabled()
+		{
+			return disabled;
 		}
 		
 		public void addAlias(String alias)

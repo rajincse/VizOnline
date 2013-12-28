@@ -60,7 +60,7 @@ public class GraphData extends DataSource {
 		{
 			final GraphData th = this;
 			final T newvalue_ = newvalue;
-			Task t = new Task("Loading network")
+			Task t = new Task("Load file")
 			{
 				public void task()
 				{
@@ -95,10 +95,16 @@ public class GraphData extends DataSource {
 						}		
 		
 					}
+					
+					done();
 				}
+				
+				
 			};
 			t.indeterminate = true;
-			t.startTask(this.getTaskObserverDialog());
+			t.blocking = true;
+			
+			this.startTask(t);
 		}
 		else if (p.getName() == "Format")
 		{

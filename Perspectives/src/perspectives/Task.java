@@ -10,49 +10,57 @@ import java.util.Date;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
+import properties.PProgress;
+import properties.Property;
+
 public abstract class Task{
 	
-	double progress = 0;
 	
-	MySwingWorker worker = null;
+	private MySwingWorker worker = null;	
 	
-	TaskObserver taskObs = null;
 	
 	public boolean done;
 	
-	public String name;
-	
 	public boolean indeterminate = false;
+	
+	Property<PProgress> pprogress = null;
+	double progress;
+	
+	public boolean blocking = false; 
+	
+	public String name;
 	
 	public Task(String name)
 	{
 		this.name = name;
 	}
 	
-	protected void setProgress(double d)
+	protected void setProgress(double progress)
 	{
-		progress = d;	
-		if (taskObs != null)
-			taskObs.progressChanged(this, d);
+		this.progress = progress;
+		if (pprogress != null)
+			pprogress.setValue(new PProgress(progress));
 	}
 	
 	public abstract void task();
 	
-	
-	public void startTask(TaskObserver t)
+	public void done()
 	{
-		done = false;
-		taskObs = t;		
-		worker = new MySwingWorker();
-		worker.execute();
-		
-		if (taskObs != null)
-			taskObs.addTask(this);
-					
+		if (pprogress != null)
+			pprogress.setValue(new PProgress(2.));	
+		done = true;
 	}
 	
-	public void cancelTask()
+	
+	public void start()
 	{
+		done = false;	
+		worker = new MySwingWorker();
+		worker.execute();		
+	}
+	
+	public void cancel()
+	{		
 		worker.cancel(true);
 		done = true;
 	}
