@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="MouseHook.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/apache-tomcat-7.0.42/lib/servlet-api.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/apache-tomcat-7.0.42/webapps/vizonline/jcommon-1.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/MouseHook.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="lib/gluegen-rt.jar"/>
