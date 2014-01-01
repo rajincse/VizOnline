@@ -329,6 +329,14 @@ public class VizOnlineServlet extends HttpServlet{
 					// TODO Auto-generated method stub
 					
 				}
+
+				@Override
+				public void propertyDisabledChanged(
+						PropertyManager propertyManager, Property p,
+						boolean enabled) {
+					// TODO Auto-generated method stub
+					
+				}
 				
 			};
 			

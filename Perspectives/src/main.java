@@ -40,9 +40,9 @@ public class main {
 	      
 	     e.registerDataSourceFactory(new TableDataFactory());
 	      
-	     e.registerViewerFactory(new PlanarProjectionViewerFactory());
-	      
-	      e.registerViewerFactory(new HierarchicalClusteringViewerFactory());
+//	     e.registerViewerFactory(new PlanarProjectionViewerFactory());
+//	      
+//	      e.registerViewerFactory(new HierarchicalClusteringViewerFactory());
 	      
 	      e.registerViewerFactory(new GraphViewerFactory());
 	      
