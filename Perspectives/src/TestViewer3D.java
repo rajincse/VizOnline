@@ -46,16 +46,17 @@ public class TestViewer3D extends Viewer3D{
 	{
 
 	       // gl.glLoadIdentity();
-	       // gl.glTranslatef(0.0f, 0.0f, -5.0f);
+	       
 
 	        // rotate about the three axes
-	       // gl.glRotatef(rotateT, 1.0f, 0.0f, 0.0f);
-	       // gl.glRotatef(rotateT, 0.0f, 1.0f, 0.0f);
-	       // gl.glRotatef(rotateT, 0.0f, 0.0f, 1.0f);
+//	        gl.glRotatef(rotateT, 1.0f, 0.0f, 0.0f);
+//	        gl.glRotatef(rotateT, 0.0f, 1.0f, 0.0f);
+//	        gl.glRotatef(rotateT, 0.0f, 0.0f, 1.0f);
 		
 	//	sphere(gl);
 
 	        // Draw A Quad
+			gl.glPushMatrix();
 	        gl.glBegin(GL2.GL_QUADS);
 	        gl.glColor3f(0.0f, 0.0f, 0.0f);   // set the color of the quad
 	        
@@ -94,7 +95,13 @@ public class TestViewer3D extends Viewer3D{
 	        gl.glVertex3f(1.0f, 1.0f, 0.0f);   // Bottom Right
 	        gl.glVertex3f(-1.0f, 1.0f, 0.0f);   // Bottom Left
 	        gl.glEnd();	 
-	       
+	        
+	        gl.glPopMatrix();
+	
+	        gl.glTranslatef(2.0f, 2.0f, -2.0f);
+	        gl.glPushMatrix();
+	        this.sphere(gl);
+	        gl.glPopMatrix();
 	        
 	        rotateT += ((PInteger)this.getProperty("speed").getValue()).intValue();
 	        //        

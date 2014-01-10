@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import javax.media.opengl.FPSCounter;
+import javax.media.opengl.GL2;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLException;
 import javax.media.opengl.GLProfile;
@@ -39,6 +40,9 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+
+import perspectives.navigation.ObjectController;
+import perspectives.navigation.UserNavigation;
 
 import com.jogamp.newt.Display;
 import com.jogamp.newt.NewtFactory;
@@ -66,15 +70,17 @@ public class ViewerContainer3D extends ViewerContainer{
 	
 	int renderCount = 0;	
 	
-	
+	UserNavigation userNavigate;
+	ObjectController objectNavigate;
 	public ViewerContainer3D(Viewer3D v, Environment env, int width, int height)
 	{	
 		super(v,env,width,height);
 
 		this.env = env;				
 
-		GLProfile glp = GLProfile.getDefault();	       
-
+		GLProfile glp = GLProfile.getDefault();
+		this.userNavigate = new UserNavigation((Viewer3D)this.viewer);
+		this.objectNavigate = new ObjectController();
 		try {
 			GLCapabilities caps = new GLCapabilities(glp);
 
@@ -223,32 +229,31 @@ public class ViewerContainer3D extends ViewerContainer{
 			zooming = false;
 
 		}
+		public void navigationRender(GL2 gl)
+		{
+			this.userNavigate.render(gl);
+			this.objectNavigate.render(gl);
+		}
 		
 		//for 2D viewers we add automatic zooming and panning; this can happen using the arrow keys and +,- keys; the key strokes are also sent to the viewer as interaction events
 		public void keyPressed(KeyEvent e)
 		{
 			if (e.getKeyCode() == e.VK_R)
 				((Viewer3D)viewer).rotating = true;
-			else if (e.getKeyCode() == e.VK_UP)
-				((Viewer3D)viewer).transy+=1;
-			else if (e.getKeyCode() == e.VK_DOWN)
-				((Viewer3D)viewer).transy-=1;
-			else if (e.getKeyCode() == e.VK_LEFT)
-				((Viewer3D)viewer).transx-=1;
-			else if (e.getKeyCode() == e.VK_RIGHT)
-				((Viewer3D)viewer).transx+=1;
-			else if (e.getKeyCode() == e.VK_PLUS || e.getKeyCode() == 61)
-				((Viewer3D)viewer).transz+=1;
-			else if (e.getKeyCode() == e.VK_MINUS)
-				((Viewer3D)viewer).transz-=1;
+			this.userNavigate.keyPressed(e);
+			this.objectNavigate.keyPressed(e);
 			
 			//v2d.keyPressed(e.getKeyCode());
+			this.viewer.requestRender();
 		}
 		
 		public void keyReleased(KeyEvent e)
 		{
 			if (e.getKeyCode() == e.VK_R)
 				((Viewer3D)viewer).rotating = false;
+			
+			this.userNavigate.keyReleased(e);
+			this.objectNavigate.keyReleased(e);
 		}
 
 

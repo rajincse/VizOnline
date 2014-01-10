@@ -112,10 +112,7 @@ public abstract class Viewer3D extends Viewer implements GLEventListener{
 	
 	   private float rotateT = 0.0f;
 	   
-	   
-	float transx;
-	float transy;
-	float transz;
+	
 	
 	float rotationx;
 	float rotationy;
@@ -218,7 +215,7 @@ public abstract class Viewer3D extends Viewer implements GLEventListener{
 	        
 	        gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_POLYGON);
 	        
-	        
+	        ((ViewerContainer3D)this.container).navigationRender(gl);
 	        render(gl);
 	       
 	        this.writeBufferToImage(gl);
