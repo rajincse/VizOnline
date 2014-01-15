@@ -114,9 +114,7 @@ public abstract class Viewer3D extends Viewer implements GLEventListener{
 	   
 	
 	
-	float rotationx;
-	float rotationy;
-	float rotationz;
+	
 	
 	Quaternion q = new Quaternion(0,0,0,1);
 	

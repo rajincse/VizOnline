@@ -102,11 +102,27 @@ public class TestViewer3D extends Viewer3D{
 	        gl.glPushMatrix();
 	        this.sphere(gl);
 	        gl.glPopMatrix();
-	        
+	        gl.glTranslatef(-2.0f, -3.0f, 2.0f);
+	        this.drawGround(gl);
 	        rotateT += ((PInteger)this.getProperty("speed").getValue()).intValue();
 	        //        
 	        
 	        
+	}
+	private void drawGround(GL2 gl)
+	{
+		gl.glPushMatrix();
+
+        gl.glBegin(GL2.GL_QUADS);
+		gl.glColor3f(0.02f, 0.32f, 0.03f);   // set the color of the quad
+	        
+        gl.glVertex3f(-10.0f, 0.0f, 10.0f);   // Top Left
+        gl.glVertex3f(10.0f, 0.0f, 10.0f);   // Top Right
+        gl.glVertex3f(10.0f, 0.0f, -10.0f);   // Bottom Right
+        gl.glVertex3f(-10.0f, 0.0f, -10.0f);
+        gl.glEnd();	 
+		gl.glPopMatrix();
+		
 	}
 	
 	
