@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <listener>
+        <listener-class>servlets.ContextListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>servlets.SessionListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>VizOnlineServlet</servlet-name>
+        <servlet-class>servlets.VizOnlineServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Uploads</servlet-name>
+        <servlet-class>servlets.Uploads</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VizOnlineServlet</servlet-name>
+        <url-pattern>/VizOnlineServlet</url-pattern>
+    </servlet-mapping>
+    <context-param>
+        <description>Location to store uploaded file</description>
+        <param-name>file-upload</param-name>
+        <param-value>
+            /Uploads/
+        </param-value>
+    </context-param>
+    <servlet-mapping>
+        <servlet-name>Uploads</servlet-name>
+        <url-pattern>/Uploads</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>20</session-timeout>
+    </session-config>
+</web-app>
