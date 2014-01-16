@@ -129,6 +129,12 @@ public class ViewerContainer2D extends ViewerContainer{
 		{
 			public void process() {
 				((Viewer2D)viewer).render(gcf);
+                                
+                                 gcf.setTransform(AffineTransform.getTranslateInstance(0, 0));
+                            //render tooltip
+                            if (((Viewer2D) viewer).getToolTipText().length() > 0) {
+                                ((Viewer2D) viewer).renderTooltip(gcf);
+                            }
 				renderDoneCallback(fimage);
 			}
 		});	
@@ -221,6 +227,9 @@ public class ViewerContainer2D extends ViewerContainer{
 				zoomOriginX = dragPrevX;
 				zoomOriginY = dragPrevY;
 			}
+                        
+                        this.render();
+                        
 		}
 		catch(Exception ee)
 		{
@@ -239,8 +248,11 @@ public class ViewerContainer2D extends ViewerContainer{
 		
 			((Viewer2D)viewer).mousereleased(x,y, button);
 			
-			if (button == MouseEvent.BUTTON3)
-				rightButtonDown = false;
+			if (button == MouseEvent.BUTTON3){
+                            rightButtonDown = false;
+                        }
+				
+                        this.render();
 
 		}
 		catch(Exception ee)
@@ -279,8 +291,11 @@ public class ViewerContainer2D extends ViewerContainer{
 				translatex += (ex-dragPrevX)/zoom;
 				translatey += (ey-dragPrevY)/zoom;
 			}
-			this.render();
+			//this.render();
 		}
+                
+                this.render();
+                
 		dragPrevX = ex;
 		dragPrevY = ey;
 		
@@ -305,6 +320,9 @@ public class ViewerContainer2D extends ViewerContainer{
 			int y = (int)tp.y;	
 
 		((Viewer2D)viewer).mousemoved(x,y);
+                
+                this.render();
+                
 		}
 		catch(Exception ee)
 		{

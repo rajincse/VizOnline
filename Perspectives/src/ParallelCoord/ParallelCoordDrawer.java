@@ -134,7 +134,7 @@ public class ParallelCoordDrawer extends Viewer2D {
         int x = init_x, y = init_y, miny = init_miny, maxy = init_maxy;
 
         // set background of the canvas to white
-        g.setBackground(new Color(255, 240, 240));
+        g.setBackground(new Color(255, 255, 255));
 
 
         g.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);

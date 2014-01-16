@@ -1,0 +1,196 @@
+name	mpg	cyl	dsp	hp	lbs	acc	year	origin
+volvo	18	8	107	130	504	12	70	2
+mazda	15	18	350	165	3693	11.5	55	1
+chev	5	10	100	65	693	10	25	0
+buick	15	8	350	165	3693	11.5	70	1
+plym	18	8	318	150	3436	11	70	1
+amc	16	8	304	150	3433	12	70	1
+ford	17	8	302	140	3449	10.5	70	1
+ford	16	8	429	192	4341	10	70	1
+impala	14	8	454	220	4354	9	70	1
+fury 	14	8	440	215	4312	8.5	70	1
+galaxie	14	8	351	153	4129	13	72	1	
+ambassador	17	8	304	150	3672	11.5	72	1
+mercury	11	8	429	208	4633	11	72	1
+lesabre	13	8	350	155	4502	13.5	72	1	
+oldsmobile delta 	12	8	350	160	4456	13.5	72	1
+chrysler newport	13	8	400	190	4422	12.5	72	1
+mazda rx2 coupe	19	3	70	97	2330	13.5	72	3
+amc matador	15	8	304	150	3892	12.5	72	1
+chevrolet chevelle 	13	8	307	130	4098	14	72	1
+ford gran torino	13	8	302	140	4294	16	72	1
+plymouth satellite	14	8	318	150	4077	14	72	1
+volvo 145e	18	4	121	112	2933	14.5	72	2	
+volkswagen 411	22	4	121	76	2511	18	72	2
+peugeot 504	21	4	120	87	2979	19.5	72	2
+renault 12	26	4	96	69	2189	18	72	2
+ford pinto	22	4	122	86	2395	16	72	1
+volkswagen super beetle 117  	0	4	97	48	1978	20	71	2
+amc gremlin  	19	6	232	100	2634	13	71	1
+plymouth satellite custom  	16	6	225	105	3439	15.5	71	1
+chevrolet chevelle malibu  	17	6	250	100	3329	15.5	71	1
+ford torino 500  	19	6	250	88	3302	15.5	71	1
+amc matador  	18	6	232	100	3288	15.5	71	1
+chevrolet impala  	14	8	350	165	4209	12	71	1
+pontiac catalina brougham  	14	8	400	175	4464	11.5	71	1
+ford galaxie 500  	14	8	351	153	4154	13.5	71	1
+plymouth fury iii  	14	8	318	150	4096	13	71	1
+dodge monaco (sw)  	12	8	383	180	4955	11.5	71	1
+ford country squire (sw)  	13	8	400	170	4746	12	71	1
+pontiac safari (sw)  	13	8	400	175	5140	12	71	1
+amc hornet sportabout (sw)  	18	6	258	110	2962	13.5	71	1
+chevrolet vega (sw)  	22	4	140	72	2408	19	71	1
+pontiac firebird  	19	6	250	100	3282	15	71	1
+ford mustang  	18	6	250	88	3139	14.5	71	1
+ mercury capri 2000  	23	4	122	86	2220	14	71	1
+ opel 1900  	28	4	116	90	2123	14	71	2
+ peugeot 304  	30	4	79	70	2074	19.5	71	2
+ fiat 124b  	30	4	88	76	2065	14.5	71	2
+ toyota corolla 1200  	31	4	71	65	1773	19	71	3
+ datsun 1200  	35	4	72	69	1613	18	71	3
+ volkswagen model 111  	27	4	97	60	1834	19	71	2
+ plymouth cricket  	26	4	91	70	1955	20.5	71	1
+ toyota corona hardtop  	24	4	113	95	2278	15.5	72	3
+ dodge colt hardtop  	25	4	97.5	80	2126	17	72	1
+ volkswagen type 3  	23	4	97	54	2254	23.5	72	2
+ chevrolet vega  	20	4	140	90	2408	19.5	72	1
+ ford pinto runabout  	21	4	122	86	2226	16.5	72	1
+ chevrolet impala  	13	8	350	165	4274	12	72	1
+ pontiac catalina  	14	8	400	175	4385	12	72	1
+ plymouth fury iii  	15	8	318	150	4135	13.5	72	1
+ ford galaxie 500  	14	8	351	153	4129	13	72	1
+ amc ambassador sst  	17	8	304	150	3672	11.5	72	1
+ mercury marquis  	11	8	429	208	4633	11	72	1
+ buick lesabre custom  	13	8	350	155	4502	13.5	72	1
+ oldsmobile delta 88 royale  	12	8	350	160	4456	13.5	72	1
+ chrysler newport royal  	13	8	400	190	4422	12.5	72	1
+ mazda rx2 coupe  	19	3	70	97	2330	13.5	72	3
+ amc matador (sw)  	15	8	304	150	3892	12.5	72	1
+ chevrolet chevelle concours (sw)  	13	8	307	130	4098	14	72	1
+ ford gran torino (sw)  	13	8	302	140	4294	16	72	1
+ plymouth satellite custom (sw)  	14	8	318	150	4077	14	72	1
+ volvo 145e (sw)  	18	4	121	112	2933	14.5	72	2
+ volkswagen 411 (sw)  	22	4	121	76	2511	18	72	2
+ peugeot 504 (sw)  	21	4	120	87	2979	19.5	72	2
+ renault 12 (sw)  	26	4	96	69	2189	18	72	2
+ ford pinto (sw)  	22	4	122	86	2395	16	72	1
+ datsun 510 (sw)  	28	4	97	92	2288	17	72	3
+ toyouta corona mark ii (sw)  	23	4	120	97	2506	14.5	72	3
+ dodge colt (sw)  	28	4	98	80	2164	15	72	1
+ toyota corolla 1600 (sw)  	27	4	97	88	2100	16.5	72	3
+ buick century 350  	13	8	350	175	4100	13	73	1
+ amc matador  	14	8	304	150	3672	11.5	73	1
+ chevrolet malibu  	13	8	350	145	3988	13	73	1
+ ford gran torino  	14	8	302	137	4042	14.5	73	1
+ dodge coronet custom  	15	8	318	150	3777	12.5	73	1
+ mercury marquis brougham  	12	8	429	198	4952	11.5	73	1
+ chevrolet caprice classic  	13	8	400	150	4464	12	73	1
+ ford ltd  	13	8	351	158	4363	13	73	1
+ plymouth fury gran sedan  	14	8	318	150	4237	14.5	73	1
+ chrysler new yorker brougham  	13	8	440	215	4735	11	73	1
+ buick electra 225 custom  	12	8	455	225	4951	11	73	1
+ amc ambassador brougham  	13	8	360	175	3821	11	73	1
+ plymouth valiant  	18	6	225	105	3121	16.5	73	1
+ chevrolet nova custom  	16	6	250	100	3278	18	73	1
+ amc hornet  	18	6	232	100	2945	16	73	1
+ ford maverick  	18	6	250	88	3021	16.5	73	1
+ plymouth duster  	23	6	198	95	2904	16	73	1
+ volkswagen super beetle  	26	4	97	46	1950	21	73	2
+ chevrolet impala  	11	8	400	150	4997	14	73	1
+ ford country  	12	8	400	167	4906	12.5	73	1
+ plymouth custom suburb  	13	8	360	170	4654	13	73	1
+ oldsmobile vista cruiser  	12	8	350	180	4499	12.5	73	1
+ amc gremlin  	18	6	232	100	2789	15	73	1
+ toyota carina  	20	4	97	88	2279	19	73	3
+ chevrolet vega  	21	4	140	72	2401	19.5	73	1
+ datsun 610  	22	4	108	94	2379	16.5	73	3
+ maxda rx3  	18	3	70	90	2124	13.5	73	3
+ ford pinto  	19	4	122	85	2310	18.5	73	1
+ mercury capri v6  	21	6	155	107	2472	14	73	1
+ fiat 124 sport coupe  	26	4	98	90	2265	15.5	73	2
+ chevrolet monte carlo s  	15	8	350	145	4082	13	73	1
+ pontiac grand prix  	16	8	400	230	4278	9.5	73	1
+ fiat 128  	29	4	68	49	1867	19.5	73	2
+ opel manta  	24	4	116	75	2158	15.5	73	2
+ audi 100ls  	20	4	114	91	2582	14	73	2
+ volvo 144ea  	19	4	121	112	2868	15.5	73	2
+ dodge dart custom  	15	8	318	150	3399	11	73	1
+ saab 99le  	24	4	121	110	2660	14	73	2
+ toyota mark ii  	20	6	156	122	2807	13.5	73	3
+ oldsmobile omega  	11	8	350	180	3664	11	73	1
+ plymouth duster  	20	6	198	95	3102	16.5	74	1
+ ford maverick  	21	6	200	0	2875	17	74	1
+ amc hornet  	19	6	232	100	2901	16	74	1
+ chevrolet nova  	15	6	250	100	3336	17	74	1
+ datsun b210  	31	4	79	67	1950	19	74	3
+ ford pinto  	26	4	122	80	2451	16.5	74	1
+ toyota corolla 1200  	32	4	71	65	1836	21	74	3
+ chevrolet vega  	25	4	140	75	2542	17	74	1
+ chevrolet chevelle malibu classic  	16	6	250	100	3781	17	74	1
+ amc matador  	16	6	258	110	3632	18	74	1
+ plymouth satellite sebring  	18	6	225	105	3613	16.5	74	1
+ ford gran torino  	16	8	302	140	4141	14	74	1
+ buick century luxus (sw)  	13	8	350	150	4699	14.5	74	1
+ dodge coronet custom (sw)  	14	8	318	150	4457	13.5	74	1
+ ford gran torino (sw)  	14	8	302	140	4638	16	74	1
+ amc matador (sw)  	14	8	304	150	4257	15.5	74	1
+ audi fox  	29	4	98	83	2219	16.5	74	2
+ volkswagen dasher  	26	4	79	67	1963	15.5	74	2
+ opel manta  	26	4	97	78	2300	14.5	74	2
+ toyota corona  	31	4	76	52	1649	16.5	74	3
+ datsun 710  	32	4	83	61	2003	19	74	3
+ dodge colt  	28	4	90	75	2125	14.5	74	1
+ fiat 128  	24	4	90	75	2108	15.5	74	2
+ fiat 124 tc  	26	4	116	75	2246	14	74	2
+ honda civic  	24	4	120	97	2489	15	74	3
+ subaru  	26	4	108	93	2391	15.5	74	3
+ fiat x1.9  	31	4	79	67	2000	16	74	2
+ plymouth valiant custom  	19	6	225	95	3264	16	75	1
+ chevrolet nova  	18	6	250	105	3459	16	75	1
+ mercury monarch  	15	6	250	72	3432	21	75	1
+ ford maverick  	15	6	250	72	3158	19.5	75	1
+ pontiac catalina  	16	8	400	170	4668	11.5	75	1
+ chevrolet bel air  	15	8	350	145	4440	14	75	1
+ plymouth grand fury  	16	8	318	150	4498	14.5	75	1
+ ford ltd  	14	8	351	148	4657	13.5	75	1
+ buick century  	17	6	231	110	3907	21	75	1
+ chevroelt chevelle malibu  	16	6	250	105	3897	18.5	75	1
+ amc matador  	15	6	258	110	3730	19	75	1
+ plymouth fury  	18	6	225	95	3785	19	75	1
+ buick skyhawk  	21	6	231	110	3039	15	75	1
+ chevrolet monza 2+2  	20	8	262	110	3221	13.5	75	1
+ ford mustang ii  	13	8	302	129	3169	12	75	1
+ toyota corolla  	29	4	97	75	2171	16	75	3
+ ford pinto  	23	4	140	83	2639	17	75	1
+ amc gremlin  	20	6	232	100	2914	16	75	1
+ pontiac astro  	23	4	140	78	2592	18.5	75	1
+ toyota corona  	24	4	134	96	2702	13.5	75	3
+ volkswagen dasher  	25	4	90	71	2223	16.5	75	2
+ datsun 710  	24	4	119	97	2545	17	75	3
+ ford pinto  	18	6	171	97	2984	14.5	75	1
+ volkswagen rabbit  	29	4	90	70	1937	14	75	2
+ amc pacer  	19	6	232	90	3211	17	75	1
+ audi 100ls  	23	4	115	95	2694	15	75	2
+ peugeot 504  	23	4	120	88	2957	17	75	2
+ volvo 244dl  	22	4	121	98	2945	14.5	75	2
+ saab 99le  	25	4	121	115	2671	13.5	75	2
+ honda civic cvcc  	33	4	91	53	1795	17.5	75	3
+ fiat 131  	28	4	107	86	2464	15.5	76	2
+ opel 1900  	25	4	116	81	2220	16.9	76	2
+ capri ii  	25	4	140	92	2572	14.9	76	1
+ dodge colt  	26	4	98	79	2255	17.7	76	1
+ renault 12tl  	27	4	101	83	2202	15.3	76	2
+ chevrolet chevelle malibu classic  	17.5	8	305	140	4215	13	76	1
+ dodge coronet brougham  	16	8	318	150	4190	13	76	1
+ amc matador  	15.5	8	304	120	3962	13.9	76	1
+ ford gran torino  	14.5	8	351	152	4215	12.8	76	1
+ plymouth valiant  	22	6	225	100	3233	15.4	76	1
+ chevrolet nova  	22	6	250	105	3353	14.5	76	1
+ ford maverick  	24	6	200	81	3012	17.6	76	1
+ amc hornet  	22.5	6	232	90	3085	17.6	76	1
+ chevrolet chevette  	29	4	85	52	2035	22.2	76	1
+ chevrolet woody  	24.5	4	98	60	2164	22.1	76	1
+ vw rabbit  	29	4	90	70	1937	14.2	76	2
+ honda civic  	33	4	91	53	1795	17.4	76	3
+ dodge aspen se  	20	6	225	100	3651	17.7	76	1
+ 

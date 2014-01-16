@@ -1,0 +1,414 @@
+@charset "utf-8";
+body {
+    font-family:calibri, arial, verdana, sans-serif;
+    background: #FFF;
+    margin: 0;
+    padding: 0;
+    color: #000;
+}
+
+
+/* ~~ Element/tag selectors ~~ */
+ul, ol, dl { /* Due to variations between browsers, it's best practices to zero padding and margin on lists. For consistency, you can either specify the amounts you want here, or on the list items (LI, DT, DD) they contain. Remember that what you do here will cascade to the .nav list unless you write a more specific selector. */
+    padding: 0;
+    margin: 0;
+}
+h1{
+    font-size: 18px;
+    font-weight:bold;
+    text-align:center;
+}
+
+p{
+    margin-top: 0;	 /* removing the top margin gets around an issue where margins can escape from their containing div. The remaining bottom margin will hold it away from any elements that follow. */
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+h2, h3, h4, h5, h6 {
+    margin-top: 0;	 /* removing the top margin gets around an issue where margins can escape from their containing div. The remaining bottom margin will hold it away from any elements that follow. */
+    padding-right: 15px;
+    padding-left: 15px; /* adding the padding to the sides of the elements within the divs, instead of the divs themselves, gets rid of any box model math. A nested div with side padding can also be used as an alternate method. */
+}
+a img { /* this selector removes the default blue border displayed in some browsers around an image when it is surrounded by a link */
+    border: none;
+}
+
+/* ~~ Styling for your site's links must remain in this order - including the group of selectors that create the hover effect. ~~ */
+
+
+a:hover, a:active, a:focus { /* this group of selectors will give a keyboard navigator the same hover experience as the person using a mouse. */
+    text-decoration: none;
+}
+
+/* ~~ this container surrounds all other divs giving them their percentage-based width ~~ */
+.container {
+    min-width: 1260px;
+    max-width: 1260px;/* a max-width may be desirable to keep this layout from getting too wide on a large monitor. This keeps line length more readable. IE6 does not respect this declaration. */
+    margin: 0 auto; /* the auto value on the sides, coupled with the width, centers the layout. It is not needed if you set the .container's width to 100%. */
+    white-space: nowrap;
+    overflow:hidden;
+
+}
+
+/* ~~ the header is not given a width. It will extend the full width of your layout. It contains an image placeholder that should be replaced with your own linked logo ~~ */
+.header {
+    background: #6F7D94;
+}
+
+/* ~~ These are the columns for the layout. ~~ 
+
+1) Padding is only placed on the top and/or bottom of the divs. The elements within these divs have padding on their sides. This saves you from any "box model math". Keep in mind, if you add any side padding or border to the div itself, it will be added to the width you define to create the *total* width. You may also choose to remove the padding on the element in the div and place a second div within it with no width and the padding necessary for your design.
+
+2) No margin has been given to the columns since they are all floated. If you must add margin, avoid placing it on the side you're floating toward (for example: a right margin on a div set to float right). Many times, padding can be used instead. For divs where this rule must be broken, you should add a "display:inline" declaration to the div's rule to tame a bug where some versions of Internet Explorer double the margin.
+
+3) Since classes can be used multiple times in a document (and an element can also have multiple classes applied), the columns have been assigned class names instead of IDs. For example, two sidebar divs could be stacked if necessary. These can very easily be changed to IDs if that's your preference, as long as you'll only be using them once per document.
+
+4) If you prefer your nav on the right instead of the left, simply float these columns the opposite direction (all right instead of all left) and they'll render in reverse order. There's no need to move the divs around in the HTML source.
+
+*/
+.sidebar1 {
+    margin-top:10px;
+    text-align:left;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+}
+
+.dropdown{
+    width: 70%;
+}
+
+.listpara{
+    border-bottom-style: ridge;
+    border-bottom-width: 3px;
+    line-height: 200%;    
+}
+
+.hiddenLabel{
+    display: none;
+}
+
+.leftVdiv{
+    margin-top:10px;
+    text-align:left;
+    position: absolute;
+    float: left;
+    width: 290px;
+
+    margin-left: 0px !important;
+    padding-left: 5px !important;
+
+    font-size: 5;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;
+}
+.rightVdiv{
+    margin-top:10px;
+    text-align:left;
+    position: absolute; 
+    float:left ;
+    width: 600px;   
+    height: 600px;
+    margin-left: 300px;
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;
+}
+
+.leftdiv {
+    margin-top:10px;
+    text-align:left;
+    position: relative;
+    float: left;
+    width: 45%;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+}
+.rightdiv {
+    margin-top:10px;
+    margin-left: 10px;
+    text-align:left;
+    float: left;
+    display: inline-block;
+    width: 45%;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+
+}
+.bottomdiv {
+    margin-top:10px;
+    margin-left: 10px;
+    text-align:left;
+    position: absolute; bottom:0;
+    float: left;
+    width: 50%;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+
+}
+
+
+
+.rightdata {
+    margin-top:10px;
+    margin-left: 10px;
+    text-align:left;
+    float: left;
+    width: 30%;
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+}
+.leftdata {
+    margin-top:10px;
+    margin-left: 10px;
+    text-align:left;
+    float: left;
+    width: 30%;
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;	
+}
+
+
+
+.popup{
+    margin-top:10px;
+    margin-left: 10px;
+    text-align:left;
+    float: left;
+    background: -moz-linear-gradient(top,  rgba(181,181,181,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(181,181,181,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  rgba(181,181,181,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b5b5b5', endColorstr='#00ffffff',GradientType=0 ); /* IE6-9 */
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;
+    display: none;
+
+}
+.content {
+    padding: 10px 0;
+    width: 80%;
+    float: left;
+}
+
+/* ~~ This grouped selector gives the lists in the .content area space ~~ */
+.content ul, .content ol { 
+
+    padding: 0 15px 15px 40px; /* this padding mirrors the right padding in the headings and paragraph rule above. Padding was placed on the bottom for space between other elements on the lists and on the left to create the indention. These may be adjusted as you wish. */
+}
+
+/* ~~ The navigation list styles (can be removed if you choose to use a premade flyout menu like Spry) ~~ */
+
+.nav{
+    background: #3a3a3a url(Images/gradient-white.png) repeat-x 0 -110px; 
+
+    padding: 5px 10px 6px; 
+    line-height: 100%;
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+}
+
+ul.nav {
+    list-style: none; /* this removes the list marker */
+    border-top: 1px solid #666; /* this creates the top border for the links - all others are placed using a bottom border on the LI */
+    margin-bottom: 15px; /* this creates the space between the navigation on the content below */
+}
+ul.nav li {
+    border-bottom: 1px solid #666; /* this creates the button separation */
+}
+ul.nav a, ul.nav a:visited { /* grouping these selectors makes sure that your links retain their button look even after being visited */
+    padding: 5px 5px 5px 15px;
+    display: block; /* this gives the link block properties causing it to fill the whole LI containing it. This causes the entire area to react to a mouse click. */
+    text-decoration: none;
+    background: #8090AB;
+    color: #000;
+}
+ul.nav a:hover, ul.nav a:active, ul.nav a:focus { /* this changes the background and text color for both mouse and keyboard navigators */
+    background: #6F7D94;
+    color: #FFF;
+}
+
+/* ~~ The footer ~~ */
+.footer {
+    padding: 10px 0;
+    background: #6F7D94;
+    position: relative;/* this gives IE6 hasLayout to properly clear */
+    clear: both; /* this clear property forces the .container to understand where the columns end and contain them */
+}
+
+/* ~~ miscellaneous float/clear classes ~~ */
+.fltrt {  /* this class can be used to float an element right in your page. The floated element must precede the element it should be next to on the page. */
+    float: right;
+    margin-left: 8px;
+}
+.fltlft { /* this class can be used to float an element left in your page. The floated element must precede the element it should be next to on the page. */
+    float: left;
+    margin-right: 8px;
+}
+.clearfloat { /* this class can be placed on a <br /> or empty div as the final element following the last floated div (within the #container) if the #footer is removed or taken out of the #container */
+    clear:both;
+    height:0;
+    font-size: 1px;
+    line-height: 0px;
+}
+
+#dark{
+    background-color:#333;
+    border:1px solid #000;
+    padding:10px;
+    margin-top:20px;}
+
+#light{
+    background-color:#FFF;
+    border:1px solid #dedede;
+    padding:10px;
+    margin-top:20px;}	
+
+li{ 
+    list-style:none;
+    padding-top:10px;
+    padding-bottom:10px;}	
+
+
+.button, .button:visited {
+    background: #222 url(Images/overlay.png) repeat-x; 
+    font-family:calibri, arial, verdana, sans-serif;
+    display: inline-block; 
+    padding: 5px 10px 6px; 
+    color: #fff; 
+    text-decoration: none;
+    -moz-border-radius: 6px; 
+    -webkit-border-radius: 6px;
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+    border-bottom: 1px solid rgba(0,0,0,0.25);
+    position: relative;
+    cursor: pointer
+}
+
+.proplabel{
+    display: inline-block;
+    width: 130px;
+}
+
+#generalHolder{
+    margin: 0px;
+    padding:0px;
+    position:absolute;
+}
+
+
+.button:hover							{ background-color: #111; color: #fff; }
+.button:active							{ top: 1px; }
+.small.button, .small.button:visited 			{ font-size: 11px}
+.button, .button:visited,
+.medium.button, .medium.button:visited 		{ font-size: 13px; 
+                                           font-weight: bold; 
+                                           line-height: 1; 
+                                           text-shadow: 0 -1px 1px rgba(0,0,0,0.25); 
+}
+
+.large.button, .large.button:visited 			{ font-size:15px; 
+                                          padding: 8px 14px 9px; }
+
+.super.button, .super.button:visited 			{ font-size: 34px; 
+                                          padding: 8px 14px 9px; }
+
+.pink.button, .magenta.button:visited		{ background-color: #e22092; }
+.pink.button:hover							{ background-color: #c81e82; }
+.green.button, .green.button:visited		{ background-color: #91bd09; }
+.green.button:hover						    { background-color: #749a02; }
+.red.button, .red.button:visited			{ background-color: #e62727; }
+.red.button:hover							{ background-color: #cf2525; }
+.orange.button, .orange.button:visited		{ background-color: #ff5c00; }
+.orange.button:hover						{ background-color: #d45500; }
+.blue.button, .blue.button:visited		    { background-color: #3cb1dc; }
+.blue.button:hover							{ background-color: #30a0bb; }
+.yellow.button, .yellow.button:visited		{ background-color: #ffb515; }
+.yellow.button:hover						{ background-color: #fc9200; }
+.gray.button, .gray.button:visited			{ background-color: #7d7d7d; }
+
+

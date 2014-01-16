@@ -875,6 +875,7 @@ public class Environment extends PropertyManagerGroup{
 		if (index < 0) return;
 		
 		viewers.remove(index);
+                viewerContainers.remove(index);
 		
 		if (!offline)
 			viewerWindows.get(index).dispose();
