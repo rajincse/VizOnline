@@ -85,152 +85,129 @@ public class VizOnlineServlet extends HttpServlet {
 
         PrintWriter out;
         String outResponse = null;
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(true);
 
         try {
-            switch (request.getParameter("page")) {
+            String requestType = request.getParameter("page");
 
-                //Request to Initialize environment (Happens at Homepage)
-                case "home":
-                    System.out.println("Home....");
-                    if (e == null) {
-                        session = request.getSession(true);
-                        e = new Environment(true);
+            //Request to Initialize environment (Happens at Homepage)
+            if (requestType.equalsIgnoreCase("home")) {
 
-                        propsInit();    //call the propsInit again for new sessions.
+                System.out.println("Home....");
+                if (e == null) {
+                    session = request.getSession(true);
+                    e = new Environment(true);
 
-                        //Thread.sleep(3000);
+                    propsInit();    //call the propsInit again for new sessions.
+
+                    //Thread.sleep(3000);
 
 
-                        e.registerDataSourceFactory(new TableDataFactory());
-                        e.registerViewerFactory(new HeatMapViewerFactory());
-                        e.registerViewerFactory(new GraphViewerFactory());
-                        e.registerViewerFactory(new ParallelCoordinateViewerFactory());
+                    e.registerDataSourceFactory(new TableDataFactory());
+                    e.registerViewerFactory(new HeatMapViewerFactory());
+                    e.registerViewerFactory(new GraphViewerFactory());
+                    e.registerViewerFactory(new ParallelCoordinateViewerFactory());
 
-                        outResponse = "Environment has been Initialized";
+                    outResponse = "Environment has been Initialized";
 
-                    } else {
-                        outResponse = "Environment already exists";
-                    }
-                    break;
+                } else {
+                    outResponse = "Environment already exists";
+                }
+            } else if (requestType.equalsIgnoreCase("getviewerfact")) {
+                //Request to get Available Viewers from Perspectives       
+                System.out.println("get Viewer Fact....");
+                outResponse = getViewerFact();
+            } //Request to get Current Viewers from Perspectives
+            else if (requestType.equalsIgnoreCase("getcurrviewers")) {
 
-                //Request to get Available Viewers from Perspectives
-                case "getviewerfact":
-                    System.out.println("get Viewer Fact....");
-                    outResponse = getViewerFact();
-                    break;
-
-                //Request to get Current Viewers from Perspectives
-                case "getcurrviewers":
-                    System.out.println("get Current Viewers....");
-                    outResponse = getCurrViewers();
-                    break;
-//
-//            case "getCurrentLinks":
-//                outResponse = getLinks();
-//                System.out.println(outResponse);
-//                break;
-
-                //Request to Create Viewer
-                case "createViewer":
-                    System.out.println("create Viewer....");
-                    type = request.getParameter("type").toLowerCase();
-                    dataname = request.getParameter("data");
-                    int vindex = createViewer(type, dataname);
-                    outResponse = vindex + "";
-                    break;
-
-                //Request to Delete Viewer
-                case "delViewer":
-                    int delIndex = Integer.parseInt(request.getParameter("index"));
-                    e.deleteViewer(e.getViewers().get(delIndex));
-                    System.out.println(allProp.get(delIndex));
-                    allProp.remove(delIndex);
-                    viewerIndex--;
-                    outResponse = getCurrViewers();
-                    break;
-
-                //Request to Launch Viewer Page
-                case "viewerLaunch":
-                    int theIndex = Integer.parseInt(request.getParameter("index"));
-                    currentViewerIndex = theIndex;
-                    outResponse = "viewer.html";
-                    break;
-
-                //Request to Link Viewers
-//            case "linkViewers":
-//                int firstV = Integer.parseInt(request.getParameter("first"));
-//                int secondV = Integer.parseInt(request.getParameter("second"));
-//                e.linkViewers(firstV, secondV);
-//                outResponse = getLinks();
-//                System.out.println(outResponse);
-//                break;
-
-//            case "unlinkViewers":
-//                int linkIndex = Integer.parseInt(request.getParameter("index"));
-//                e.unlinkViewers(linkIndex);
-//                outResponse = getLinks();
-//                break;
-
-                //Request to Display Viewer Image
-                case "viewer":
-                    // System.out.println("viewer Image....");
-                    loadViewer(currentViewerIndex, request, response);
-                    break;
-
-                //Request to get Initial Properties    
-                case "properties":
-                    outResponse = allProp.get(currentViewerIndex);
-                    break;
-
-                case "getDatas":
-                    // System.out.println("GETTING DATAS");
-                    String filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
-                    System.out.println(filePath + "***********************");
-                    String files = "";
-                    File folder = new File(filePath);
-                    File[] listOfFiles = folder.listFiles();
-
-                    for (int i = 0; i < listOfFiles.length; i++) {
-
-                        if (listOfFiles[i].isFile()) {
-                            if (files.equals("")) {
-                                files = listOfFiles[i].getName();
-                            } else {
-                                files = files + "," + listOfFiles[i].getName();
-                            }
+                System.out.println("get Current Viewers....");
+                outResponse = getCurrViewers();
+            } //
+            //            case "getCurrentLinks":
+            //                outResponse = getLinks();
+            //                System.out.println(outResponse);
+            //                break;
+            //Request to Create Viewer
+            else if (requestType.equalsIgnoreCase("createViewer")) {
+                System.out.println("create Viewer....");
+                type = request.getParameter("type").toLowerCase();
+                dataname = request.getParameter("data");
+                int vindex = createViewer(type, dataname);
+                outResponse = vindex + "";
+                //break;
+            } //Request to Delete Viewer
+            else if (requestType.equalsIgnoreCase("delViewer")) {
+                int delIndex = Integer.parseInt(request.getParameter("index"));
+                e.deleteViewer(e.getViewers().get(delIndex));
+                System.out.println(allProp.get(delIndex));
+                allProp.remove(delIndex);
+                viewerIndex--;
+                outResponse = getCurrViewers();
+                //break;
+            } //Request to Launch Viewer Page
+            else if (requestType.equalsIgnoreCase("viewerLaunch")) {
+                int theIndex = Integer.parseInt(request.getParameter("index"));
+                currentViewerIndex = theIndex;
+                outResponse = "viewer.html";
+            } //Request to Link Viewers
+            //            case "linkViewers":
+            //                int firstV = Integer.parseInt(request.getParameter("first"));
+            //                int secondV = Integer.parseInt(request.getParameter("second"));
+            //                e.linkViewers(firstV, secondV);
+            //                outResponse = getLinks();
+            //                System.out.println(outResponse);
+            //                break;
+            //            case "unlinkViewers":
+            //                int linkIndex = Integer.parseInt(request.getParameter("index"));
+            //                e.unlinkViewers(linkIndex);
+            //                outResponse = getLinks();
+            //                break;
+            //Request to Display Viewer Image
+            else if (requestType.equalsIgnoreCase("viewer")) // System.out.println("viewer Image....");
+            {
+                loadViewer(currentViewerIndex, request, response);
+            } //Request to get Initial Properties    
+            else if (requestType.equalsIgnoreCase("properties")) {
+                outResponse = allProp.get(currentViewerIndex);
+            } else if (requestType.equalsIgnoreCase("getDatas")) {
+                String filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
+                String files = "";
+                File folder = new File(filePath);
+                File[] listOfFiles = folder.listFiles();
+                for (int i = 0; i < listOfFiles.length; i++) {
+                    if (listOfFiles[i].isFile()) {
+                        if (files.equals("")) {
+                            files = listOfFiles[i].getName();
+                        } else {
+                            files = files + "," + listOfFiles[i].getName();
                         }
                     }
-                    if (files.equals("")) {
-                        outResponse = "No Content";
-                    } else {
-                        outResponse = files;
+                }
+                if (files.equals("")) {
+                    outResponse = "No Content";
+                } else {
+                    outResponse = files;
+                }
+
+            } //Request to update Properties    
+            else if (requestType.equalsIgnoreCase(
+                    "updateProperty")) {
+                String newvalue = request.getParameter("newValue");
+                String property = request.getParameter("property");
+                System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
+                if (property != null && property != null) {
+                    String type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
+                    if ("PBoolean".equals(type)) {
+                        newvalue = (newvalue.equals("true") ? "1" : "0");
                     }
-                    break;
-
-                //Request to update Properties    
-                case "updateProperty":
-
-
-                    String newvalue = request.getParameter("newValue");
-                    String property = request.getParameter("property");
-                    System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
-                    if (property != null && property != null) {
-                        String type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
-                        if ("PBoolean".equals(type)) {
-                            newvalue = (newvalue.equals("true") ? "1" : "0");
-                        }
-                        e.getViewers().get(currentViewerIndex).getProperty(property).setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
-                    }
-                    break;
-                default:
-                    break;
+                    e.getViewers().get(currentViewerIndex).getProperty(property).setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        if (outResponse != null) {
+        if (outResponse
+                != null) {
             out = response.getWriter();
             out.write(outResponse);
             out.flush();
