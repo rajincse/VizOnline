@@ -9,6 +9,7 @@ var current;
 var propID = 1;
 var hash = {};
 hash['first'] = 0;
+var viewerIndex;
 
 /* 
  * creates a new XMLHttpRequest object which is the backbone of AJAX  
@@ -99,11 +100,6 @@ function makeRequest(thepage) {
     } else if (thepage === 'deleteData') {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "Uploads?del=y", true);
-        xmlHttpRequest.send(document.getElementById());
-
-    } else if (thepage === 'launchViewer') {
-        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=viewer", true);
         xmlHttpRequest.send(document.getElementById());
 
     } else if (thepage === 'linkViewers') {
@@ -268,7 +264,7 @@ function updateColorInfo(color, id) {
     var prop = get('HL' + id);
     var propName = prop.value;
 
-    makeRequest("updateProperty&newValue=" + newcolor + "&property=" + propName);
+    makeRequest("updateProperty&newValue=" + newcolor + "&property=" + propName +"&viewerIndex="+viewerIndex );
     //alert("after update");
     //makeRequest('updateProperty&newValue='+color.rgb+'&property='+get('L'+id).text());
 }
@@ -281,7 +277,7 @@ function  updateInputValueInfo(id){
     var propInput = get("I"+id);
     var propValue = propInput.value;
      
-    makeRequest("updateProperty&newValue="+propValue+"&property="+propName);
+    makeRequest("updateProperty&newValue="+propValue+"&property="+propName + "&viewerIndex="+viewerIndex);
  }
 
 
@@ -472,16 +468,17 @@ function addProperties(string) {
     var propString = string;
     //alert("hey");
     var propArr = propString.split(";");
-    //alert(string);
+  //  alert(string);
     var prop;
     for (var i = 0; i < propArr.length; i++) {
         prop = propArr[i];
         var tempPropArr = prop.split(",");
         var addremove = tempPropArr[0];
         var viewer_name = tempPropArr[1];
-        var label = tempPropArr[2];
+         var label="";
 
         if (addremove === "addProperty") {
+            label = tempPropArr[2];
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
             hash[label] = propID;
             var type = tempPropArr[3];
@@ -523,11 +520,21 @@ function addProperties(string) {
                 default:
                     //tbd
             }
-        } else if (addremove === "removeProperty") {
+        } else if(addremove === "setViewerIndex"){ //set the viewerIndex
+                value = tempPropArr[1];
+                viewerIndex = value;
+                document.getElementById("viewerIndex").value= value;    
+                //call the clientImageUpdate
+                clientImageUpdate();
+        }
+        
+    else if (addremove === "removeProperty") {
+            label = tempPropArr[2];
             // example: removeProperty,graphvi,Appearance.Node Size,10
             alert("remove " + hash[label]);
             removeElement(hash[label]);
         } else if (addremove === "changeProperty") {
+            label = tempPropArr[2];
             // example: changeProperty,graphvi,Appearance.Node Size,12
             var newValue = tempPropArr[3];
             //alert("update " + hash[label] + " to " + newValue);
@@ -576,7 +583,7 @@ function updateCheckBoxInfo(id){
     var propInput = get("I"+id);
     var propValue = propInput.checked;
     
-    makeRequest("updateProperty&newValue="+propValue+"&property="+propName);
+    makeRequest("updateProperty&newValue="+propValue+"&property="+propName+"&viewerIndex="+viewerIndex);
     
     
     
@@ -756,6 +763,7 @@ function launchRequest(index) {
     var xmlHttpRequest = getXMLHttpRequest();
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "launchViewer");
     xmlHttpRequest.open("GET", "VizOnlineServlet?page=viewerLaunch&index=" + index, true);
+    
     xmlHttpRequest.send(null);
 }
 

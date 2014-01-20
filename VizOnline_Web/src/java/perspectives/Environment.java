@@ -700,7 +700,8 @@ public class Environment extends PropertyManagerGroup{
 	       timer = new Timer(50, new ActionListener()
 	       {
 	    	   public void actionPerformed(ActionEvent arg0) {
-	    		   viewerArea.repaint();				
+	    		   if (showingLinks)
+	    			   viewerArea.repaint();				
 	    		   }	    	   
 	       });
 	       timer.start();	                 
@@ -997,6 +998,7 @@ public class Environment extends PropertyManagerGroup{
 		PropertyManager.registerType(c);
 		PropertyManagerViewer.registerNewType(c, pwf);	
 	}	
+	
 	
 	
 
