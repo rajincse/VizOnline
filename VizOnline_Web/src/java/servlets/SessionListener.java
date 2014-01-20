@@ -31,7 +31,7 @@ public class SessionListener implements HttpSessionListener {
          session.setAttribute("sessionID", session.getId());
        //  session.setAttribute("sessionCnt", 0);
          System.out.println("The session ID has been created  and sessionID is "+ session.getId());
-         Environment e = new Environment(true);
+      //   Environment e = new Environment(true);
        //  session.setAttribute("environment", );
     }
 
@@ -40,7 +40,7 @@ public class SessionListener implements HttpSessionListener {
        
         HttpSession session = sessionEvent.getSession();        
         
-        Environment e = (Environment) session.getAttribute("environment");
+    //    Environment e = (Environment) session.getAttribute("environment");
         
         /*
         if(e == null){

@@ -965,7 +965,7 @@ public class HeatMapDrawer extends Viewer2D {
             columnList[i] = data[i][columnid];
         }
         //convert the Strings to a Set array, which can subsequently have the unique items.
-        Set<String> strset = new HashSet<>(Arrays.asList(columnList));
+        Set<String> strset = new HashSet<String>(Arrays.asList(columnList));
 
         distinctColVals = strset.toArray(new String[0]);  //convert the set to an array
 

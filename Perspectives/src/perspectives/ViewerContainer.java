@@ -19,6 +19,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
@@ -35,6 +36,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
+import com.keypoint.PngEncoder;
+
 import properties.Property;
 
 
@@ -48,7 +51,19 @@ public class ViewerContainer{
 	
 	//used to implement double buffering for 2d and 3d viewers
 	private BufferedImage viewerImage = null;
-	private BufferedImage image;
+	private BufferedImage image = null;
+	private BufferedImage lastImage = null;
+	
+	private BufferedImage[][] tiles;
+	private BufferedImage[][] outTiles;
+	private BufferedImage[][] tilesDif;
+	
+	Object o1 = new Object();
+	Object o2 = new Object();
+	
+	int tilesX = 2;
+	int tilesY = 2;
+	
 	
 	ViewerWindow window = null;
 		 
@@ -63,6 +78,9 @@ public class ViewerContainer{
 	
 	boolean tooltipOn;
 	String prevTooltip;
+	
+	BufferedImage savedImage = null;
+	boolean blocked = false;
 	
 	public ViewerContainer(Viewer v, Environment env, int width, int height)
 	{		
@@ -108,23 +126,23 @@ public class ViewerContainer{
 	}
 	
 	public void setViewerImage(BufferedImage im)
-	{
+	{		
 		this.viewerImage = im;
 		
 		if (!blocked)
-			this.image = im;
+			changeImage(im);
 		else
 			this.savedImage = im;
 		
-	     if (tooltipOn && prevTooltip.equals(viewer.getToolTipText()))
+	    if (tooltipOn && prevTooltip.equals(viewer.getToolTipText()))
 	     {
 	        		BufferedImage imm = new BufferedImage(viewerImage.getWidth(), viewerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 					Graphics2D gc = (Graphics2D)imm.getGraphics();
 					
 					gc.drawImage(viewerImage, 0, 0, null);					
 					viewer.renderTooltip(gc);
-					if (!blocked)
-						image = imm;
+					if (!blocked)					
+						changeImage(imm);
 					else
 						savedImage = imm;
 	     }
@@ -179,8 +197,7 @@ public class ViewerContainer{
 		return viewer.em.unresponsive(2000);
 	}
 	
-	BufferedImage savedImage = null;
-	boolean blocked = false;
+
 	public void block(boolean blocked)
 	{
 		if (this.blocked == blocked)
@@ -192,6 +209,8 @@ public class ViewerContainer{
 		for (int i=0; i<ps.length; i++)
 			ps[i].setDisabled(blocked);
 		
+		lastImage = image;
+		
 		if (blocked)
 		{
 			BufferedImage im = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -200,10 +219,12 @@ public class ViewerContainer{
 			g.setColor(new Color(100,100,100,100));
 			g.fillRect(0,0,im.getWidth(),im.getHeight());
 			savedImage = image;
-			image = im;
+			changeImage(im);
 		}
 		else if (savedImage != null)
-			image = savedImage;
+			changeImage(savedImage);
+		
+		
 	}
 	
 	public void renderTooltip()
@@ -226,8 +247,154 @@ public class ViewerContainer{
 					gc.drawImage(viewerImage, 0, 0, null);					
 					viewer.renderTooltip(gc);
 					
-					image = im;
+					changeImage(im);
+					
 	     }  		
+	}
+	
+	public void changeImage(BufferedImage newimage)
+	{
+		synchronized(o2)
+		{
+			image = newimage;
+			tiles = tileImage(image, tilesX, tilesY);				
+		
+			BufferedImage difImage = diffImage(image,lastImage);		
+			tilesDif = tileImage(difImage, tilesX, tilesY);		
+			
+			o2.notifyAll();
+		}
+	}
+	
+	
+	
+	
+	public BufferedImage getTile(int x, int y, boolean diff, boolean wait)
+	{
+		BufferedImage ret = null;
+		synchronized(o1)
+		{
+		if (outTiles == null)
+		{
+			System.out.println("out tiles ============null");
+			synchronized(o2)
+			{
+				if (wait && lastImage == image)
+				{System.out.println("-------before waiting");
+					try {
+						o2.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}			
+			
+				lastImage = image;
+				boolean sendFullTiles = false;
+				if (diff)
+				{
+					outTiles = tilesDif; 
+					//we can't send the diff images multiple times; if one of the
+					//dif tiles is null it means it was already sent; so we will send full tiles instead
+					
+					for (int i=0; i<outTiles.length; i++)
+						for (int j=0; j<outTiles[i].length; j++)
+							if (outTiles[i][j] == null)
+								sendFullTiles = true;
+				}
+				
+				if (!diff || sendFullTiles)
+				{
+					outTiles = new BufferedImage[tiles.length][];
+					for (int i=0; i<outTiles.length; i++)
+					{
+						outTiles[i] = new BufferedImage[tiles[i].length];
+						for (int j=0; j<outTiles[i].length; j++)
+							outTiles[i][j] = tiles[i][j];
+					}
+				}
+			}			
+			
+			o1.notify();	
+		}
+		else if (outTiles != null && outTiles[x][y] == null)
+		{
+			synchronized(o1)
+			{
+				try {
+					o1.wait();
+				
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		ret = outTiles[x][y];		
+		
+		outTiles[x][y] = null;
+		for (int i=0; i<outTiles.length; i++)
+			for (int j=0; j<outTiles[i].length; j++)
+				if (outTiles[i][j] != null)
+					return ret;
+		
+		outTiles = null;
+		}
+		return ret;
+	}
+	
+	
+	
+	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
+	{   
+
+	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	        dif.createGraphics().drawImage(image, 0,0,null);
+	        
+	        if (lastImage == null) return dif;
+	        
+	        int[] cpixels = ((DataBufferInt) dif.getRaster().getDataBuffer()).getData();
+	        int[] spixels = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();
+
+	        int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
+
+	        for (int i = 0; i < cpixels.length; i += 1)
+	        {
+	                int r1 = (cpixels[i]) & 0xFF;
+	                int g1 = (cpixels[i] >> 8) & 0xFF;
+	                int b1 = (cpixels[i] >> 16) & 0xFF;
+	                int r2 = (spixels[i]) & 0xFF;
+	                int g2 = (spixels[i] >> 8) & 0xFF;
+	                int b2 = (spixels[i] >> 16) & 0xFF;
+
+	                if (r1 == r2 && g1 == g2 && b1 == b2)
+	                {
+	                    cpixels[i] = 0;
+	                    calpha[i] = 0;
+	                }
+	        }
+
+	        return dif;
+	}
+	
+	private BufferedImage[][] tileImage(BufferedImage image, int tileX, int tileY)
+	{
+		BufferedImage[][] tiles = new BufferedImage[tileX][];
+		int tileWidth = image.getWidth()/tileX;
+		int tileHeight = image.getHeight()/tileY;
+		for (int i=0; i<tileX; i++)
+		{
+			tiles[i] = new BufferedImage[tileY];
+			for (int j=0; j<tileY; j++)
+			{
+				tiles[i][j] = new BufferedImage(tileWidth, tileHeight, BufferedImage.TYPE_INT_ARGB);
+				tiles[i][j].createGraphics().drawImage(image, 0, 0, tileWidth, tileHeight,  i*tileWidth, j*tileHeight, (i+1)*tileWidth, (j+1)*tileHeight, null);
+			}
+		}
+		
+		return tiles;
 	}
 
 }
