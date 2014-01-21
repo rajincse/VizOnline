@@ -26,6 +26,10 @@ public class Trackball
      
         s = new Sphere(x,y,z,radius);
     }
+    public Quaternion getRot()
+    {
+    	return this.rot;
+    }
     
     public void setCenter(float x, float y, float z)
     {
@@ -73,7 +77,7 @@ public class Trackball
         double angle = Math.acos(dot);
         
         v1_ = v2_;
-        
+        System.out.println("Angle :"+angle);
         if (Double.isInfinite(angle) || Double.isNaN(angle))
         	return;
         
