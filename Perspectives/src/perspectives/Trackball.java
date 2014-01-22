@@ -17,12 +17,14 @@ public class Trackball
     double projmatrix[] = new double[16];
     
     Quaternion rot;
+    Quaternion allRot;
 
     public Trackball (float x, float y, float z, float radius)
     {
         v1_ = new float[4];
         v2_ = new float[4];
         rot = new Quaternion(new float[]{1,0,0},0);
+        allRot = new Quaternion(new float[]{1,0,0},0);
      
         s = new Sphere(x,y,z,radius);
     }
@@ -77,21 +79,24 @@ public class Trackball
         double angle = Math.acos(dot);
         
         v1_ = v2_;
-        System.out.println("Angle :"+angle);
+        
         if (Double.isInfinite(angle) || Double.isNaN(angle))
         	return;
         
-        System.out.println("rot: " + angle + "   " + rotAxis[0] + "," + rotAxis[1] + "," + rotAxis[2]);
+      //  System.out.println("rot: " + angle + "   " + rotAxis[0] + "," + rotAxis[1] + "," + rotAxis[2]);
         
-        Quaternion q = new Quaternion(new float[]{rotAxis[0], rotAxis[1], rotAxis[2]}, (float)angle);
+        Quaternion q = new Quaternion(new float[]{rotAxis[0], rotAxis[1], rotAxis[2]}, (float)angle*3);
         
-        rot.mult(q);
-      
-        
+        rot = q;       
+  
     }
   
     public float[] project(float x, float y)
     {
+    	
+    	double[] mvmatrix = new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-10,1};
+    	int[] viewport = new int[]{0,0,700,700};
+    	double[] projmatrix = new double[]{1.2124354839324951, 0.0, 0.0, 0.0, 0.0, 1.7320507764816284, 0.0, 0.0, 0.0, 0.0, -1.0202020406723022, -1.0, 0.0, 0.0, -2.0202019214630127, 0.0};
     	
     	int realy = viewport[3] - (int) y - 1;
     	

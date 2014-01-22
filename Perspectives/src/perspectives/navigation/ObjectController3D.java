@@ -33,7 +33,6 @@ public class ObjectController3D extends Controller3D{
 	 
 		public void mouseDragged(int ex, int ey) {
 			
-			System.out.println("Mouse drag");
 			glw.getContext().makeCurrent();
 			GL2 gl = GLContext.getCurrent().getGL().getGL2();
 			
