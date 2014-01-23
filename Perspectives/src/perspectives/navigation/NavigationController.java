@@ -6,7 +6,6 @@ import javax.media.opengl.GL2;
 
 public abstract class NavigationController {
 	public static float UNIT_STEP =0.5f;
-	public static float UNIT_ANGLE_STEP =10.0f;
 	
 	abstract public void keyPressed(KeyEvent e);
 	abstract public void keyReleased(KeyEvent e);
