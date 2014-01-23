@@ -475,10 +475,10 @@ function addProperties(string) {
         var tempPropArr = prop.split(",");
         var addremove = tempPropArr[0];
         var viewer_name = tempPropArr[1];
-         var label="";
+        
 
         if (addremove === "addProperty") {
-            label = tempPropArr[2];
+            var label = tempPropArr[2];
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
             hash[label] = propID;
             var type = tempPropArr[3];
@@ -522,19 +522,18 @@ function addProperties(string) {
             }
         } else if(addremove === "setViewerIndex"){ //set the viewerIndex
                 value = tempPropArr[1];
-                viewerIndex = value;
-                document.getElementById("viewerIndex").value= value;    
-                //call the clientImageUpdate
-                clientImageUpdate();
+                 viewerIndex = value;
+                document.getElementById("viewerIndex").value= value;
+                
         }
         
     else if (addremove === "removeProperty") {
-            label = tempPropArr[2];
+        var label = tempPropArr[2];
             // example: removeProperty,graphvi,Appearance.Node Size,10
             alert("remove " + hash[label]);
             removeElement(hash[label]);
         } else if (addremove === "changeProperty") {
-            label = tempPropArr[2];
+            var label = tempPropArr[2];
             // example: changeProperty,graphvi,Appearance.Node Size,12
             var newValue = tempPropArr[3];
             //alert("update " + hash[label] + " to " + newValue);

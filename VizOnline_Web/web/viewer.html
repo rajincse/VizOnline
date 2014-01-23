@@ -11,6 +11,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>The Viewer</title>
 
+        <title>A Viewer with Properties</title>
         <link href="Styles.css" rel="stylesheet" type="text/css" />
         <script src="jQuery/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -26,19 +27,17 @@
         
         
         <script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="image-transferer.js"></script>
 
 
         <script type="text/javascript">
             window.onload = function() {
                 makeRequest('properties');
 
-                
-                //firstTime();
+                firstTime();
 
                 var xMargin = 300;
                 var yMargin = 10;
-                
-                var vIndex = document.getElementById("viewerIndex").value;
 
                 var ims = [];
 
@@ -75,165 +74,18 @@
                 var inmousemove = false;
 
                 var ts = 0;
-		var imageCounter = 0;
-
 		
-                setTimeout(clientImageUpdate, 100); //the viewerIndex need to be set before
-		setInterval(pollprops, 500);
+		var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000,700, 2,2);
+		imageTransf.imageUpdate();
+		
+               
+                setInterval(pollprops, 500);
 
                 window.oncontextmenu = handleContextMenu;
-              
+               // window.onunload = myUnloadFunction;
 
-                var counter = 0;	
+                var counter = 0;
 
-
-                function fimloaded(images) {
-
-                    if (images[0].loaded && images[1].loaded && images[2].loaded && images[3].loaded)
-                    {
-                        document.getElementById("canv").appendChild(images[0]);
-                        images[0].style.width = "500px";
-                        images[0].style.height = "350px";
-                        images[0].style.position = "absolute";
-                        images[0].style.top = "0px";
-                        images[0].style.left = "0px";
-
-                        document.getElementById("canv").appendChild(images[2]);
-                        images[2].style.width = "500px";
-                        images[2].style.height = "350px";
-                        images[2].style.position = "absolute";
-                        images[2].style.top = "0px";
-                        images[2].style.left = "500px";
-
-                        document.getElementById("canv").appendChild(images[1]);
-                        images[1].style.width = "500px";
-                        images[1].style.height = "350px";
-                        images[1].style.position = "absolute";
-                        images[1].style.top = "350px";
-                        images[1].style.left = "0px";
-
-                        document.getElementById("canv").appendChild(images[3]);
-                        images[3].style.width = "500px";
-                        images[3].style.height = "350px";
-                        images[3].style.position = "absolute";
-                        images[3].style.top = "350px";
-                        images[3].style.left = "500px";
-
-			if (imageCounter == 10)
-			{
-				imageCounter = 0;
-				//alert(document.getElementById("canv").children.length);
-				for (var i=0; i<ims.length; i++)
-				{
-					
-					document.getElementById("canv").removeChild(ims[i]);
-					ims[i] = null;
-				}
-				ims = [];
-			}
-                        ims.push(images[0]);
-                        ims.push(images[1]);
-                        ims.push(images[2]);
-                        ims.push(images[3]);
-
-			images[0] = null; images[1]= null; images[2] = null; images[3]=null;
-			images = [];
-
-                        
-                        rendercnt++;
-
-
-
-                        var frametime = ((new Date()).getTime() - prevtimerender);
-                        prevtimerender = (new Date()).getTime();
-
-                        var fps = (prevtimerender - starttime);
-                        if (fps < 50000)
-                            fps = rendercnt / fps * 1000;
-                        else
-                        {
-                            fps = rendercnt / fps * 1000;
-                            rendercnt = 0;
-                            starttime = prevtimerender;
-                        }
-
-
-
-                        var t2 = (new Date()).getTime();
-                        ttt = (t2 - ts);
-
-                        //	document.getElementById("fps").innerHTML = frametime + "sec;" + "    " + fps + "fps" + ";chn" + cttt;
-
-                        loading--;
-
-			clientImageUpdate();
-			//setTimeout(clientImageUpdate, 100);
-
-                    }
-                }
-
-
-                function clientImageUpdate() {
-                    
-                    imageCounter = imageCounter+1;
-                  
-                    vIndex = document.getElementById("viewerIndex").value;
-                  
-                    document.getElementById("loading").value = "" + loading;
-
-                    var imurl1 = "VizOnlineServlet?page=viewer&tileX=0&tileY=0&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl2 = "VizOnlineServlet?page=viewer&tileX=0&tileY=1&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl3 = "VizOnlineServlet?page=viewer&tileX=1&tileY=0&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl4 = "VizOnlineServlet?page=viewer&tileX=1&tileY=1&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-
-
-		    if (imageCounter == 10)
-		    {
-                    	imurl1 = "VizOnlineServlet?page=viewer&tileX=0&tileY=0&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl2 = "VizOnlineServlet?page=viewer&tileX=0&tileY=1&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl3 = "VizOnlineServlet?page=viewer&tileX=1&tileY=0&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl4 = "VizOnlineServlet?page=viewer&tileX=1&tileY=1&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-		    }
-
-			
-
-
-
-                    var images = [];
-                    images.push(new Image());
-                    images.push(new Image());
-                    images.push(new Image());
-                    images.push(new Image());
-
-                    images[0].src = imurl1;
-                    images[1].src = imurl2;
-                    images[2].src = imurl3;
-                    images[3].src = imurl4;
-
-                    images[0].loaded = false;
-                    images[1].loaded = false;
-                    images[2].loaded = false;
-                    images[3].loaded = false;
-
-
-                    images[0].onload = function() {
-                        images[0].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[1].onload = function() {
-                        images[1].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[2].onload = function() {
-                        images[2].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[3].onload = function() {
-                        images[3].loaded = true;
-                        fimloaded(images);
-                    };
-
-                }
 
 
                 var inpollprops = false;
@@ -268,15 +120,14 @@
                             inpollprops = false;
                         }
                     }
-                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' 
-                            + cnt + "&viewerIndex="+vIndex, true);
+                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' + cnt, true);
                     xmlhttp.send();
                 }
 
 
                 function sendCommand(url) {
-
                     xmlhttp = new XMLHttpRequest();
+		console.log(url);
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
@@ -313,9 +164,7 @@
                         mouseType = "left ";
                     }
 
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                            + '&cmd=mouseUp&mx=' + mousePos.x + '&my=' + mousePos.y 
-                            + "&r=" + cnt + "&viewerIndex="+vIndex;
+                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseUp&mx=' + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                     sendCommand(theUrl);
 
                 }
@@ -330,6 +179,7 @@
                 }
 
                 function handleMouseDown(event) {
+		
                     cnt++;
                     event = event || window.event; // IE-ism                  
                     var elem = event.target;
@@ -339,7 +189,7 @@
                         x: event.clientX + document.body.scrollLeft - xMargin,
                         y: event.clientY + document.body.scrollTop - yMargin
                     };
-                    //alert(mousePos.x  + " " + mousePos.y);  
+                  //  alert(mousePos.x  + " " + mousePos.y);  
 
                     if ((mousePos.x) >= 1000 || mousePos.y >= 800)
                     {
@@ -356,13 +206,21 @@
                     }
                     else if (event.target.id == "button2")
                     {
-                        theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value + "&r=" + cnt;
                         //alert(theUrl);  
                         sendCommand(theUrl);
                         return true;
                     }
 
                     dragFlag = 1;
+
+
+
+
+
+
+
+
 
                     if (event.which === 3) {
                         mouseType = "right";
@@ -372,14 +230,17 @@
                     }
 
 
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                            + '&cmd=mouseDown&mx=' + mousePos.x + '&my=' + mousePos.y 
-                            + "&r=" + cnt  + "&viewerIndex="+vIndex;
+                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDown&mx=' + mousePos.x
+                            + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
 
                     sendCommand(theUrl);
 
+
+
                     return false; //this is to prevent image dragging.
                 }
+
+
 
 
                 function handleMouseMove(event) {
@@ -424,15 +285,13 @@
                     }
 
                     if (dragFlag === 1) {//mouse is being dragged
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                                + '&cmd=mouseDragged&mx=' + mousePos.x + '&my=' + mousePos.y 
-                                + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDragged&mx='
+                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                         sendCommand(theUrl);
                     }
                     else { //normal mouse move
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                                + '&cmd=mouseMoved&mx='+ mousePos.x + '&my=' + mousePos.y
-                                + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseMoved&mx='
+                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                         sendCommand(theUrl);
                     }
                     inmousemove = false;
@@ -653,6 +512,14 @@
                     }, 2000);*/
                 }
 
+                function firstTime() {
+
+                    //   alert("firstTime");
+
+                    xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&firstTime=1&r=' + cnt, true);
+                    xmlhttp.send();
+                }
             };
 
         </script>
@@ -682,7 +549,6 @@
                     <h1>Viewer Properties</h1>
                     <form>
 
-                        <input type="text" value="-1" id="viewerIndex" name="viewerIndex"/> 
                         <!--   <input type ="button" class="small button blue" value="Show Properties"
                                          onclick="makeRequest('properties')"/>  -->    
                         <div  id='properties' > 
@@ -696,7 +562,7 @@
                 <!-- IMAGE DIV -->
 
                 <div id='output'  class="rightVdiv">
-                    <div id="canv" style="width:600pt; height:600pt;"></div>                
+                    <div id="canv" style="width:800pt; height:450pt;"></div>                
                 </div>
 
                 <!--  -->

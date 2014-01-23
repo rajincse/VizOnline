@@ -20,9 +20,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -257,15 +260,11 @@ public class ViewerContainer{
 		synchronized(o2)
 		{
 			image = newimage;
-			tiles = tileImage(image, tilesX, tilesY);				
-		
-			BufferedImage difImage = diffImage(image,lastImage);		
-			tilesDif = tileImage(difImage, tilesX, tilesY);		
+			
 			
 			o2.notifyAll();
 		}
 	}
-	
 	
 	
 	
@@ -275,46 +274,31 @@ public class ViewerContainer{
 		synchronized(o1)
 		{
 		if (outTiles == null)
-		{
-			System.out.println("out tiles ============null");
+		{			
 			synchronized(o2)
 			{
-				if (wait && lastImage == image)
-				{System.out.println("-------before waiting");
+				if (wait && difPixels == 0)
+				{
 					try {
 						o2.wait();
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}			
-			
-				lastImage = image;
-				boolean sendFullTiles = false;
-				if (diff)
-				{
-					outTiles = tilesDif; 
-					//we can't send the diff images multiple times; if one of the
-					//dif tiles is null it means it was already sent; so we will send full tiles instead
-					
-					for (int i=0; i<outTiles.length; i++)
-						for (int j=0; j<outTiles[i].length; j++)
-							if (outTiles[i][j] == null)
-								sendFullTiles = true;
 				}
-				
-				if (!diff || sendFullTiles)
+
+				if (!diff)
 				{
-					outTiles = new BufferedImage[tiles.length][];
-					for (int i=0; i<outTiles.length; i++)
-					{
-						outTiles[i] = new BufferedImage[tiles[i].length];
-						for (int j=0; j<outTiles[i].length; j++)
-							outTiles[i][j] = tiles[i][j];
-					}
+					outTiles = tileImage(image, tilesX, tilesY);
+					difPixels = 0;
+					lastImage = image;
+				}
+				else
+				{
+					BufferedImage difImage = diffImage(image,lastImage);						
+					outTiles = tileImage(difImage, tilesX, tilesY);	
 				}
 			}			
-			
 			o1.notify();	
 		}
 		else if (outTiles != null && outTiles[x][y] == null)
@@ -346,10 +330,12 @@ public class ViewerContainer{
 	}
 	
 	
-	
+	int start = 0;
+	int blocksize = 15;
+	int difPixels = 0;
+	int blabla = 0;
 	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
-	{   
-
+	{ 
 	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	        dif.createGraphics().drawImage(image, 0,0,null);
 	        
@@ -359,7 +345,8 @@ public class ViewerContainer{
 	        int[] spixels = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();
 
 	        int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
-
+	        
+	        difPixels = 0;
 	        for (int i = 0; i < cpixels.length; i += 1)
 	        {
 	                int r1 = (cpixels[i]) & 0xFF;
@@ -369,12 +356,43 @@ public class ViewerContainer{
 	                int g2 = (spixels[i] >> 8) & 0xFF;
 	                int b2 = (spixels[i] >> 16) & 0xFF;
 
-	                if (r1 == r2 && g1 == g2 && b1 == b2)
+	                if (r1 != r2 || g1 != g2 || b1 != b2)
+	                   difPixels++;
+	        }
+	        
+	        System.out.println("difPixels === " + difPixels);
+	        
+	        double p = difPixels / (double)cpixels.length;
+	        p = 10*p;
+	        
+	        int steps = 5-(int)Math.floor(p*5);
+	        if (steps<1) steps = 1;
+	  
+	        
+	       
+  	        
+	        for (int i = 0; i < cpixels.length; i += 1)
+	        {
+	                int r1 = (cpixels[i]) & 0xFF;
+	                int g1 = (cpixels[i] >> 8) & 0xFF;
+	                int b1 = (cpixels[i] >> 16) & 0xFF;
+	                int r2 = (spixels[i]) & 0xFF;
+	                int g2 = (spixels[i] >> 8) & 0xFF;
+	                int b2 = (spixels[i] >> 16) & 0xFF;
+	                
+	                int block = (i/blocksize)%5 - start;
+	                if (block < 0) block = 5+block;
+
+	                if ((r1 == r2 && g1 == g2 && b1 == b2) || block>=steps)
 	                {
 	                    cpixels[i] = 0;
 	                    calpha[i] = 0;
 	                }
+	                else
+	                	spixels[i] = cpixels[i];
 	        }
+	        
+	        start = (start+steps)%5;
 
 	        return dif;
 	}
