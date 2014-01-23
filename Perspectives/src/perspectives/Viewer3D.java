@@ -32,7 +32,6 @@ public abstract class Viewer3D extends Viewer{
 	
 		
 	public Viewer3D(String name) {
-<<<<<<< HEAD
 		super(name);
 		// TODO Auto-generated constructor stub
 		
@@ -84,9 +83,7 @@ public abstract class Viewer3D extends Viewer{
 		gl.glEnd();
 	    }
 
-=======
-		super(name);	
->>>>>>> upstream/master
+    	//super(name);	
 	}
 	  
 
