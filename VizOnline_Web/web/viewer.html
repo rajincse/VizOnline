@@ -10,8 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>The Viewer</title>
-
-        <title>A Viewer with Properties</title>
+       
         <link href="Styles.css" rel="stylesheet" type="text/css" />
         <script src="jQuery/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -105,17 +104,9 @@
 
                             if (xmlhttp.responseText.length != 0)
                             {
-                                // alert("in pollprops = 4");
-
-                                var split = xmlhttp.responseText.split(";");
+                                                               
+                               addProperty(xmlhttp.responseText);
                                 
-                                for (var i = 0; i < split.length; i++)
-                                {
-
-                                    var pchange = split[i].split(",");
-
-                                    addProperty(pchange[2], pchange[3], pchange[4]);
-                                }
                             }
                             inpollprops = false;
                         }
@@ -314,202 +305,7 @@
 
                 function addProperty(name, type, value)
                 {
-                   /*
-
-                    cpt++;
-                    var split = name.split(".");
-                    var name2, name3;
-                    if (split.length > 1) {
-                        name2 = (name.split("."))[0]; //get the first part of the name                   
-                        name3 = (name.split("."))[1]; //the second part of the name to be used for the buttons                   
-                    }
-                    else {//for names that have only one part of the name.
-                        name2 = (name.split("."))[0]; //get the first part of the name
-                        name3 = name2;
-                    }
-
-                    var propslot = document.getElementById("propslot");
-
-                    // var rowDiv = document.createElement("div");
-
-
-                    var newlabel = document.createElement("div");
-                    newlabel.setAttribute("class", "propLabel");
-                    // newlabel.appendChild(document.createTextNode(name3));
-                    newlabel.innerHTML = name3;
-                    propslot.appendChild(newlabel);
-                    // rowDiv.appendChild(newlabel);
-
-                    var input = null;
-                    if (type === "PDouble") {//create a textbox control
-                        input = document.createElement("input");
-                        input.type = "text";
-
-                        input.setAttribute("id", "prop_" + name);
-
-                        input.value = value;
-                        input.setAttribute("class", "txtbox");
-                        input.onblur = function() {
-                            var value2;
-                            if (input.value === "") {
-                                value2 = 0; //
-                            }
-                            else {
-                                value2 = input.value;
-                            }
-
-                            theUrl = 'VizOnlineServlet?changeProp=' + 1
-                                    + '&name=' + name + '&value=' + value2
-                                    + "&updateType=server" + "&r=" + cpt;
-
-                            sendCommand(theUrl);
-
-                        };
-
-                    }
-                    else if (type === "PColor") {
-                        input = document.createElement("input");
-                        input.type = "text";
-
-                        input.setAttribute("id", "prop_" + name);
-
-                        input.setAttribute("class", "color");
-
-                    }
-
-
-
-                    else if (type === "PPercent") { //create a slider control
-
-                        input = document.createElement("div");
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "slider");
-
-                    } else if (type === "PInteger") { //create a spinner control
-                        input = document.createElement("input");
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "spinner");
-                        input.setAttribute("value", value);
-
-                        alert("after PInteger p1a");
-
-                    } else if (type === "PBoolean") {
-                        input = document.createElement("input");
-                        input.type = "checkbox"
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "chkbx");
-                        input.onclick = function() {
-
-                            var value2 = 0;  //not checked 
-
-                            if (input.checked) {
-                                value2 = 1;  //checked
-                            }
-
-
-                            theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-
-                            sendCommand(theUrl);
-
-                        };
-                    }
-
-                    if (input !== null) { //we append it and create create a button for it
-                        propslot.appendChild(input);  // put it into the DOM
-
-                        var myPicker, spinner;
-                        if (type === "PColor") {
-                            myPicker = new jscolor.color(document.getElementById("prop_" + name), {});
-                            //set the color with the rgb values;
-
-                            var split = value.split("-");
-                            var red =
-                                    myPicker.fromRGB(parseInt((split[0]) / 255), Math.round(parseInt(split[1]) / 255), parseInt(split[2]) / 255);
-
-
-                            input.onchange = function() {
-                                //set the color for it
-
-                                var r = Math.round(myPicker.rgb[0] * 255);
-                                var b = Math.round(myPicker.rgb[1] * 255);
-                                var g = Math.round(myPicker.rgb[2] * 255);
-                                var value2 = r + "-" + g + "-" + b;
-
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                sendCommand(theUrl);
-
-                            };
-
-
-
-                            // }
-
-                        }
-                        else if (type === "PPercent") {
-                            var x = parseInt(value) * 100;
-                            $("#prop_" + name2).slider({
-                                range: "min",
-                                max: 100,
-                                value: x,
-                                slide: function(event, ui) {
-                                    var value2 = ui.value;  //get the value of 
-                                    value2 = value2 / 100;  //find the fraction of the percentage.
-                                    theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                    sendCommand(theUrl);
-                                }
-                            });
-                        }
-                        else if (type === "PInteger") {
-                            spinner = $("#prop_" + name2).spinner({
-                                min: 0,
-                                stop: function(event, ui) {
-                                    var value2 = $(this).spinner("value");
-                                    theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                    sendCommand(theUrl);
-                                    alert("After PInteger p1")
-                                }
-
-                            });
-
-                        }
-
-
-
-
-                        prop_cnt++;
-
-                    }
-
-                    setTimeout(function() {
-                        document.getElementById("set_" + name).onclick = function()
-                        {
-
-                            if (type === "PColor") {
-                                var r = document.getElementById("set_" + name).color.rgb[0] * 255;
-                                var g = document.getElementById("set_" + name).color.rgb[1] * 255;
-                                var b = document.getElementById("set_" + name).color.rgb[2] * 255;
-                                var value = r + "," + g + "," + b;
-                                alert("The colors are " + value);
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value + "&updateType=server" + "&r=" + 1;
-                            }
-
-                            else {
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + document.getElementById("prop_" + name).value + "&updateType=server" + "&r=" + 1;
-
-                            }
-                            // alert("ha2 " + theUrl);
-                            xmlhttp = new XMLHttpRequest();
-                            //alert("ha3 " + theUrl);
-                            xmlhttp.open("GET", theUrl, true);
-                            //alert("ha4 " + theUrl);
-                            xmlhttp.send();
-                            //alert("ha5 " + theUrl);
-
-                        };
-                    }, 2000);*/
+                   
                 }
 
                 function firstTime() {
