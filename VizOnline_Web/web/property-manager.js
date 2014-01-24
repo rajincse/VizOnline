@@ -7,8 +7,7 @@ function addProperties(div, propertiesString){
     var propArr = propertiesString.split(";");
     
     //if the div already has the properties  remove properties
-    removeDivChildren(div);
-    
+    removeDivChildren(div);    
   
     var prop;
     for (var i = 0; i < propArr.length; i++) {
@@ -88,26 +87,25 @@ function addProperties(div, propertiesString){
     
 }
 
-
-
 function removeDivChildren(div){
     while(div.firstChild){
         div.removeChild(div.firstChild);
     }
 }
 
+/* Example Property String:
+ "addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;addProperty,graphvi,Appearance.Node Color,ColorPropertyType,200-150-150-255;addProperty,graphvi,Appearance.Node Alpha,PercentPropertyType,0.5;addProperty,graphvi,Appearance.Edge Color,ColorPropertyType,200-150-150-255;addProperty,graphvi,Appearance.Sel Edge Color,ColorPropertyType,100-50-50-255;addProperty,graphvi,Appearance.Edge Alpha,PercentPropertyType,0.2;addProperty,graphvi,bgimx,IntegerPropertyType,0;addProperty,graphvi,bgimy,IntegerPropertyType,0;addProperty,graphvi,Load Positions,OpenFilePropertyType,null;addProperty,graphvi,Simulation.K_REP,DoublePropertyType,5000000.0;addProperty,graphvi,Simulation.K_ATT,DoublePropertyType,100.0;addProperty,graphvi,Simulation.SPRING_LENGTH,DoublePropertyType,30.0;addProperty,graphvi,Simulation.MAX_STEP,DoublePropertyType,100.0;addProperty,graphvi,Simulation.Simulate,BooleanPropertyType,0;addProperty,graphvi,Save,SaveFilePropertyType,null;addProperty,graphvi,Tiles,IntegerPropertyType,0;addProperty,graphvi,ToImage,IntegerPropertyType,0;addProperty,graphvi,SelectedNodes,StringPropertyType,"
+ "changeProperty,graphvi,Appearance.Node Size,12"
+ "removeProperty,graphvi,Appearance.Node Size,10"
+ */
+function hexToRgb(hex) {
+    var bigint = parseInt(hex, 16);
+    var r = (bigint >> 16) & 255;
+    var g = (bigint >> 8) & 255;
+    var b = bigint & 255;
 
-
-function dataSourceProperty(){
-    
+    return r + "-" + g + "-" + b + "-255";
 }
-
-function viewerProperty(){
-    
-}
-
-
-
 
 function updateColorInfo(color, id) {
     var propValue = hexToRgb(color);
@@ -127,7 +125,6 @@ function updateColorInfo(color, id) {
     //alert("after update");
     //makeRequest('updateProperty&newValue='+color.rgb+'&property='+get('L'+id).text());
 }
-
 
 function  updateInputValueInfo(id){
  //get the name and value of the property and make the update request
@@ -187,10 +184,6 @@ function updateFileInfo(id){
     makeRequest(url);
  }
 
-
-
-
-
 //creation of a selection box and options
 function showOptionBox(div, id, name, value){
     var hiddenInput = createHiddenInput(id, name);
@@ -231,7 +224,6 @@ function showOptionBox(div, id, name, value){
     
     
 }
-
 
 function showColorPicker(div, id, name, value) {
     //add hidden input to hold the name of the property
@@ -477,218 +469,6 @@ function setInitialColor(id, value){
                               parseInt(split[2]) / 255);
 }
 
-
-function removeElement(id) {
-    var element = get(id);
-    element.parentNode.removeChild(element);
-    var label = get('L' + id);
-    label.parentNode.removeChild(label);
-}
-
-function getDatasets(datalist) {
-    if (datalist === "No Content") {
-        get("cdatas").innerHTML = "No Datasets available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            current = dataArray[i];
-            var par = document.createElement('p');
-            par.setAttribute('id', 'par' + i);
-            par.setAttribute('name', current);
-            par.setAttribute('class', 'listpara');
-            par.textContent = current;
-            document.getElementById("cdatas").appendChild(par);
-            var but = document.createElement('button');
-            but.setAttribute('id', i);
-            but.setAttribute('name', current);
-            but.setAttribute('style', 'float: right');
-            but.innerHTML = 'Delete';
-            but.setAttribute('class', 'small button blue');
-            var theSet = document.getElementById('par' + i).getAttribute('name').toString();
-            but.setAttribute('onclick', 'deleteRequest("' + theSet + '")');
-            document.getElementById('par' + i).appendChild(but);
-        }
-    }
-}
-
-function getDataForViewer(datalist) {
-    if (datalist === "No Content") {
-        get("viewers").innerHTML = "No Datasets available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-
-            var list = get("datalist");
-            current = dataArray[i];
-            var option = document.createElement('option');
-            option.setAttribute('value', current);
-            option.text = current;
-            list.add(option, null);
-        }
-        get("viewers").appendChilds(list);
-    }
-}
-
-function getViewers(datalist) {
-
-    if (datalist === "") {
-        get("viewers").innerHTML = "No Viewers available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-
-            var list = get("viewerlist");
-            current = dataArray[i];
-            var option = document.createElement('option');
-            option.setAttribute('value', current);
-            option.text = current;
-            list.add(option, null);
-        }
-        get("viewers").appendChilds(list);
-    }
-}
-
-function getCurrentViewers(datalist) {
-    if (datalist === "No Content") {
-        get("currviewers").innerHTML = "No Viewers available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            current = dataArray[i];
-            var nameArray = current.split(":");
-            var currIndex = nameArray[0];
-            var currName = nameArray[1];
-            var printNum = parseInt(currIndex, 10);
-            printNum++;
-            var par = document.createElement('p');
-            par.setAttribute('id', 'v' + currIndex);
-            par.setAttribute('name', currIndex);
-            par.setAttribute('class', 'listpara');
-            par.textContent = printNum + ": " + currName;
-            document.getElementById("currviewers").appendChild(par);
-            var but1 = document.createElement('button');
-            but1.setAttribute('id', 'b' + currIndex);
-            but1.setAttribute('name', currIndex);
-            but1.setAttribute('style', 'float: right');
-            but1.innerHTML = 'Launch';
-            but1.setAttribute('class', 'small button blue');
-            var theViewer = document.getElementById('v' + currIndex).getAttribute('name');
-            but1.setAttribute('onclick', 'launchRequest("' + theViewer + '")');
-            var but2 = document.createElement('button');
-            but2.setAttribute('id', 'bdel' + currIndex);
-            but2.setAttribute('name', currIndex);
-            but2.setAttribute('style', 'float: right');
-            but2.innerHTML = 'Delete';
-            but2.setAttribute('class', 'small button blue');
-            but2.setAttribute('onclick', 'delVRequest("' + theViewer + '")');
-            document.getElementById('v' + currIndex).appendChild(but2);
-            document.getElementById('v' + currIndex).appendChild(but1);
-        }
-    }
-}
-
-function getCurrentViewersLink1(datalist) {
-    if (datalist === "No Content") {
-        get("links").innerHTML = "No Viewers available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            var list = get("vlist1");
-            current = dataArray[i];
-            var option = document.createElement('option');
-            option.setAttribute('value', current);
-            option.text = current;
-            list.add(option, null);
-        }
-        get("links").appendChilds(list);
-    }
-}
-
-function getCurrentViewersLink2(datalist) {
-    if (datalist === "No Content") {
-        get("links").innerHTML = "No Viewers available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            var list2 = get("vlist2");
-            current = dataArray[i];
-            var option = document.createElement('option');
-            option.setAttribute('value', current);
-            option.text = current;
-            list2.add(option, null);
-        }
-        get("links").appendChilds(list2);
-    }
-}
-
-function deleteRequest(string) {
-
-    var xmlHttpRequest = getXMLHttpRequest();
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "deleteData");
-    xmlHttpRequest.open("GET", "Uploads?del=" + string, true);
-    xmlHttpRequest.send(null);
-
-}
-
-function launchRequest(index) {
-    var xmlHttpRequest = getXMLHttpRequest();
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "launchViewer");
-    xmlHttpRequest.open("GET", "VizOnlineServlet?page=viewerLaunch&index=" + index, true);
-    
-    xmlHttpRequest.send(null);
-}
-
-function delVRequest(index) {
-    var xmlHttpRequest = getXMLHttpRequest();
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "delViewer");
-    xmlHttpRequest.open("GET", "VizOnlineServlet?page=delViewer&index=" + index, true);
-    xmlHttpRequest.send(null);
-}
-
-function currentLinks(datalist) {
-    if (datalist === "No Content") {
-        get("currlinks").innerHTML = "No Links available";
-    } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            current = dataArray[i];
-            var linkArray = current.split(":");
-            var currIndex = linkArray[0];
-            var firstView = linkArray[1];
-            var secondView = linkArray[2];
-            var par = document.createElement('p');
-            par.setAttribute('id', 'l' + currIndex);
-            par.setAttribute('name', currIndex);
-            par.setAttribute('class', 'listpara');
-            par.textContent = "Viewer: " + firstView + " - Viewer: " + secondView;
-            document.getElementById("currlinks").appendChild(par);
-            var but1 = document.createElement('button');
-            but1.setAttribute('id', 'b' + currIndex);
-            but1.setAttribute('name', currIndex);
-            but1.setAttribute('style', 'float: right');
-            but1.innerHTML = 'Unlink';
-            but1.setAttribute('class', 'small button blue');
-            var theLink = document.getElementById('l' + currIndex).getAttribute('name');
-            but1.setAttribute('onclick', 'unlinkViewers("' + theLink + '")');
-            document.getElementById('l' + currIndex).appendChild(but1);
-        }
-    }
-}
-
-function unlinkViewers(index) {
-    var xmlHttpRequest = getXMLHttpRequest();
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "linkViewers");
-    xmlHttpRequest.open("GET", "VizOnlineServlet?page=unlinkViewers&index=" + index, true);
-    xmlHttpRequest.send(null);
-
-}
-
-function getURL() {
-    var arr = window.location.href.split("/");
-    delete arr[arr.length - 1];
-    return arr.join("/");
-}
-
 function createParagraph() {
     var newParagraph = document.createElement('p');
     newParagraph.innerHTML = "";
@@ -718,8 +498,4 @@ function createLabel(id, name) {
     label.innerHTML = getName(name);
 
     return label;
-}
-
-function get(id) {
-    return document.getElementById(id);
 }
