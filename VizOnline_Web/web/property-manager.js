@@ -3,12 +3,12 @@ var propID = 1;
 var viewerIndex;
 
 function addProperties(div, propertiesString){
-     //var propString = "addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;addProperty,graphvi,Appearance.Node Color,ColorPropertyType,200-150-150-255;addProperty,graphvi,Appearance.Node Alpha,PercentPropertyType,0.5;addProperty,graphvi,Appearance.Edge Color,ColorPropertyType,200-150-150-255;addProperty,graphvi,Appearance.Sel Edge Color,ColorPropertyType,100-50-50-255;addProperty,graphvi,Appearance.Edge Alpha,PercentPropertyType,0.2;addProperty,graphvi,bgimx,IntegerPropertyType,0;addProperty,graphvi,bgimy,IntegerPropertyType,0;addProperty,graphvi,Load Positions,OpenFilePropertyType,null;addProperty,graphvi,Simulation.K_REP,DoublePropertyType,5000000.0;addProperty,graphvi,Simulation.K_ATT,DoublePropertyType,100.0;addProperty,graphvi,Simulation.SPRING_LENGTH,DoublePropertyType,30.0;addProperty,graphvi,Simulation.MAX_STEP,DoublePropertyType,100.0;addProperty,graphvi,Simulation.Simulate,BooleanPropertyType,0;addProperty,graphvi,Save,SaveFilePropertyType,null;addProperty,graphvi,Tiles,IntegerPropertyType,0;addProperty,graphvi,ToImage,IntegerPropertyType,0;addProperty,graphvi,SelectedNodes,StringPropertyType,;changeProperty,graphvi,Appearance.Node Size,12;removeProperty,graphvi,Appearance.Node Alpha,0.5";
-    
-   // alert("adding properties");
-    //alert(propertiesString);
-    
+        
     var propArr = propertiesString.split(";");
+    
+    //if the div already has the properties  remove properties
+    removeDivChildren(div);
+    
   
     var prop;
     for (var i = 0; i < propArr.length; i++) {
@@ -17,10 +17,7 @@ function addProperties(div, propertiesString){
         var addremove = tempPropArr[0];
         var viewer_name = tempPropArr[1];        
         
-          //  alert(addremove);
-
-      //  alert("property  beginnig "+i);
-
+     
         if (addremove === "addProperty") {
             var label = tempPropArr[2];
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
@@ -82,14 +79,24 @@ function addProperties(div, propertiesString){
         
     
     
-    //jscolor.init();
+    jscolor.init();
     
-    //alert("property  finished "+i);
+    
 
 }  
     
     
 }
+
+
+
+function removeDivChildren(div){
+    while(div.firstChild){
+        div.removeChild(div.firstChild);
+    }
+}
+
+
 
 function dataSourceProperty(){
     
