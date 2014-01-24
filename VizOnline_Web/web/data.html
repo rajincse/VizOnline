@@ -18,18 +18,16 @@
                 </style>-->
         <script src="datalist.js"></script>
         <script src="jQuery/jquery-1.10.2.js"></script>
+        
         <script type="text/javascript" src="ajax.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script>
+        
         <script>
             window.onload = function() {
-                var iframe = document.getElementById("iframeid"),
-                textBox = document.getElementById("textBox");
-                iframe.onload = function() {
-                /* parsing the data i.e. send from server side */
-                var filePath = (iframe.contentWindow.document).getElementsByTagName('pre')[0].childNodes[0].nodeValue;
-                alert("file is saved at your disk " + "\n" + filePath);
-
-                }
-            }</script>
+                //make request for the dataFactories
+                  makeRequest('dataFactories');
+                };
+                    </script>
     </head>
 
     <body>
@@ -50,23 +48,35 @@
             
 
             <div class="leftdiv">
-                <h1>Create Dataset</h1>
-<!--                <input type="Text" id="dname" placeholder="Enter Name" size="28" maxlength="28"> 
-                <button onClick="popUp()" class="small button blue">Create</button>
-                <div id="cdata" class="popup">
-                    <h1 id="Title"> </h1>                -->
-                <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post">
-                    <input id ="theFile" type="file" name="fileTxtUpload">
-                    <input type="submit" value="Upload" class="small button blue">
-                    </form>               
+                <h1>Create Dataset</h1>             
+                
+                    <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post">
+                        
+                        <select id="dataFactories" onchange="javascript:makeRequest('dataFactoryProperties')">
+                                <option value="selectOne">Select One</option>                
+                                
+                        </select>
+                        
+                        <div id="dataFactoryProperties">
+                            
+                        </div>
+                        
+                        <input type="hidden" id="factoryType" value="DataSource" />
+                        <input type ="hidden" id="factoryTypeIndex" value="" />
+                        
+                        <!--<input id ="theFile" type="file" name="fileTxtUpload">
+                        <input type="submit" value="Upload" class="small button blue"> -->
+                    </form> 
                     
-<!--                    <input type="file" id ="theFile" name="File"/>
-                    <button onClick="makeRequest('upload')" name ="upbttn" class="blue button small">Upload</button>-->
-<!--                    <iframe name="iframe" id="iframeid" width="0" height="0" style="visibility: hidden">  </iframe>
-                    <button onClick="closePopup()" class="small button blue">Cancel</button>-->
-                </div>               
+               
+                
+                
 
-            
+                    
+                
+            </div>       
+          
+         
 
             <div class="rightdiv">
                 <h1>Current Datasets</h1>

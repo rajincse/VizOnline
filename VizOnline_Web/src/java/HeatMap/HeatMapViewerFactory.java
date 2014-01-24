@@ -29,6 +29,9 @@ public class HeatMapViewerFactory extends ViewerFactory {
 		if (this.isAllDataPresent()){
 			return new HeatMapViewer(name, (TableData)this.getData().get(0));
                 }
+                else{
+                    System.out.println("Heatmap data is Null");
+                }
 		return null;
 	}
 

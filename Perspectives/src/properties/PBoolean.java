@@ -26,7 +26,7 @@ public class PBoolean extends PropertyType
 	
 	public String typeName() {
 		// TODO Auto-generated method stub
-		return "BooleanPropertyType";
+		return "PBoolean";
 	}
 
 	@Override

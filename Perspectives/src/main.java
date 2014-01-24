@@ -36,7 +36,7 @@ public class main {
 		  Environment e = new Environment(false);
 	    
 	       
-	      e.registerDataSourceFactory(new GraphDataFactory());
+	     e.registerDataSourceFactory(new GraphDataFactory());
 	      
 	     e.registerDataSourceFactory(new TableDataFactory());
 	      

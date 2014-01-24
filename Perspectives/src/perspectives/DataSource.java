@@ -28,8 +28,7 @@ public abstract class DataSource extends PropertyManager
 		
 		em = new EventManager();
 		
-		
-		lastUpdate = new Date().getTime();
+                lastUpdate = new Date().getTime();
 	}
 	
 	
@@ -89,6 +88,10 @@ public abstract class DataSource extends PropertyManager
 		for (int i=0; i<ps.length; i++)
 			ps[i].setDisabled(blocked);
 	}
+        
+        public String getName(){
+            return this.name;
+        }
 		
 	
 

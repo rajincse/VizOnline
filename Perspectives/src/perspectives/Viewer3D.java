@@ -32,7 +32,58 @@ public abstract class Viewer3D extends Viewer{
 	
 		
 	public Viewer3D(String name) {
-		super(name);	
+		super(name);
+		// TODO Auto-generated constructor stub
+		
+
+        
+	}
+	
+	float[] camloc = new float[]{0,0,10};
+	
+	public float[] getCameraLocation()
+	{
+		return camloc;
+	}
+	
+	public void setCameraLocation(float[] c)
+	{
+		camloc = c;
+	}
+	
+	
+	   private float rotateT = 0.0f;
+	   
+	
+	
+	float rotationx;
+	float rotationy;
+	float rotationz;
+	
+	Quaternion q = new Quaternion(0,0,0,1);
+	
+	
+	private void sphere(GL2 gl, double r) {
+
+		final double deg_to_rad = Math.PI / 180;
+		final double rad_to_deg = 180 / Math.PI;
+	    // Quadrilateral strips
+	    for (double phi = -90.0; phi < 90.0; phi += 10.0) {
+		gl.glBegin (gl.GL_QUAD_STRIP);
+		
+		for (double thet = -180.0; thet <= 180.0; thet += 10.0) {
+		    gl.glVertex3d (r*Math.sin (deg_to_rad * thet) * Math.cos (deg_to_rad * (phi + 10.0)),
+		    		r*Math.sin (deg_to_rad * (phi + 10.0)),
+		    		r*Math.cos (deg_to_rad * thet) * Math.cos (deg_to_rad * (phi + 10.0))	);
+		    gl.glVertex3d (r*Math.sin (deg_to_rad * thet) * Math.cos (deg_to_rad * phi),
+		    		 r*Math.sin (deg_to_rad * phi),
+				   r*Math.cos (deg_to_rad * thet) * Math.cos (deg_to_rad * phi)  );
+
+		}
+		gl.glEnd();
+	    }
+
+    	//super(name);	
 	}
 	  
 

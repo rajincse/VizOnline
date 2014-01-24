@@ -28,6 +28,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyVetoException;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -107,7 +108,7 @@ import util.Util;
  * a target ViewerContainer those two viewwers will be linked, meaning a property change in one viewer will be transmitted to the other. 
  *
  */
-public class Environment extends PropertyManagerGroup{
+public class Environment extends PropertyManagerGroup implements Serializable{
 	
 	private boolean offline = false;
 	
@@ -947,6 +948,12 @@ public class Environment extends PropertyManagerGroup{
 	
 		
 	}
+        
+        
+        //to add DataSource
+        public void addDataSource(DataSource d, boolean offline){
+            dataSources.add(d);
+        }
 	
 	public void deleteDataSource(DataSource d)
 	{

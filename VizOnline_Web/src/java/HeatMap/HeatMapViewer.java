@@ -8,6 +8,7 @@ import data.TableData;
 import java.util.ArrayList;
 import properties.PColor;
 import properties.PColorWidget;
+import properties.PFile;
 import properties.PInteger;
 //import perspectives.DefaultProperties.*;
 import properties.PropertyType;
@@ -39,33 +40,9 @@ public class HeatMapViewer extends HeatMapDrawer {
             Property<PInteger> p7 = new Property<PInteger>("Appearance.Header Angle", new PInteger(20));
             this.addProperty(p7);
 
-            /*Property<BooleanPropertyType> p4 = new Property<BooleanPropertyType>("ClusterLinkedType.Single-Linkage");
-            p4.setValue(new BooleanPropertyType(false));
-            this.addProperty(p4);
-
-            Property<BooleanPropertyType> p5 = new Property<BooleanPropertyType>("ClusterLinkedType.Complete-Linkage");
-            p5.setValue(new BooleanPropertyType(false));
-            this.addProperty(p5);
-            Property<BooleanPropertyType> p6 = new Property<BooleanPropertyType>("ClusterLinkedType.Average-Linkage");
-            p6.setValue(new BooleanPropertyType(false));
-            this.addProperty(p6); */
-
             Property<PColor> p8 = new Property<PColor>("Appearance.Selection Color", new PColor(new Color(255, 0, 0)));
             this.addProperty(p8);
-
-           /* Property<ColorArrayChooser> p9 = new Property<ColorArrayChooser>("Appearance.Scale Colors");
-            ArrayList<Color> ac = new ArrayList<Color>();
-            ac.add(Color.red);
-            ac.add(Color.blue);
-            p9.setValue(new ColorArrayChooser(ac));
-            this.addProperty(p9); */
-            
-          /*  Property<StudyEvaluation> p10 = new Property<StudyEvaluation>("Evaluation.Evaluation");
-            p10.setValue(new StudyEvaluation());
-            this.addProperty(p10);*/
-            
-            //this.
-            
+                        
         } catch (Exception e) {
             e.printStackTrace();
         }

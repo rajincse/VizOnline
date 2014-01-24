@@ -55,6 +55,7 @@ import tree.HierarchicalClusteringViewerFactory;
 import HeatMap.*;
 import java.util.ArrayList;
 import java.util.Vector;
+import perspectives.DataSource;
 import perspectives.ViewerFactory;
 import properties.PFile;
 
@@ -79,6 +80,8 @@ public class VizOnlineServlet extends HttpServlet {
     int currentViewerIndex = 0;
     int viewerIndex = 0;
     int imgCount = 0;
+    String uploadsPath;
+    int dataSourceIndex = 0;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -86,6 +89,8 @@ public class VizOnlineServlet extends HttpServlet {
         PrintWriter out;
         String outResponse = null;
         HttpSession session = request.getSession();
+
+
 
         try {
             if (request.getParameter("page").equals("home")) {
@@ -96,13 +101,16 @@ public class VizOnlineServlet extends HttpServlet {
 
                     propsInit();    //call the propsInit again for new sessions.
 
-                    //Thread.sleep(3000);
-
-
+                    //register DataSource Factories
                     e.registerDataSourceFactory(new TableDataFactory());
+                    e.registerDataSourceFactory(new GraphDataFactory());
+                    dataSourceIndex = 0;
+
+                    //register Viewers
                     e.registerViewerFactory(new HeatMapViewerFactory());
                     e.registerViewerFactory(new GraphViewerFactory());
                     e.registerViewerFactory(new ParallelCoordinateViewerFactory());
+
 
                     outResponse = "Environment has been Initialized";
 
@@ -135,52 +143,75 @@ public class VizOnlineServlet extends HttpServlet {
                 allProp.remove(delIndex);
                 viewerIndex--;
                 outResponse = getCurrViewers();
+            } else if (request.getParameter("page").equals("deleteDataSource")) {
+                int dsIndex = Integer.parseInt(request.getParameter("dataSourceIndex"));
+
             } else if (request.getParameter("page").equals("viewerLaunch")) {
                 //Request to Launch Viewer Page               
                 int theIndex = Integer.parseInt(request.getParameter("index"));
                 currentViewerIndex = theIndex;
                 outResponse = "viewer.html";
 
-            } //Request to Link Viewers
-            //            case "linkViewers":
-            //                int firstV = Integer.parseInt(request.getParameter("first"));
-            //                int secondV = Integer.parseInt(request.getParameter("second"));
-            //                e.linkViewers(firstV, secondV);
-            //                outResponse = getLinks();
-            //                System.out.println(outResponse);
-            //                break;
-            //            case "unlinkViewers":
-            //                int linkIndex = Integer.parseInt(request.getParameter("index"));
-            //                e.unlinkViewers(linkIndex);
-            //                outResponse = getLinks();
-            //                break;
-            else if (request.getParameter("page").equals("viewer")) {
-                //Request to Display Viewer Image               
-                // System.out.println("viewer Image....");
-                //loadViewer(currentViewerIndex, request, response);
+            } else if (request.getParameter("page").equals("dataFactories")) {
+                //return the dataFactories
+                String dataFactNames = "";
 
-                String requestViewerIndex = request.getParameter("viewerIndex");
-
-                if (requestViewerIndex != null) { //we expect the viewerIndex to be passed all the time            
-                    int index = Integer.parseInt(requestViewerIndex.trim());
-                    if (index >= 0) //by default it is -1
-                    {
-                        loadViewer(index, request, response);
+                for (int i = 0; i < e.getDataFactories().size(); i++) {
+                    if (i > 0) {
+                        dataFactNames += ",";
                     }
-                } else {
-                    System.out.println("ERROR: Request for a Viewer without viewerIndex parameter");
+                    dataFactNames += e.getDataFactories().get(i).creatorType();
+                }
+                outResponse = dataFactNames;
+            } else if (request.getParameter("page").equals("dataFactoryProperties")) {
+
+                String dataFactoryType = request.getParameter("dataFactoryType");
+                DataSource ds = null;
+                if (dataFactoryType != null) { //get the dataFactory and its properties
+                    for (int i = 0; i < e.getDataFactories().size(); i++) {
+                        if (dataFactoryType.equalsIgnoreCase(e.getDataFactories().get(i).creatorType())) {
+
+                            ds = e.getDataFactories().get(i).create("DataSource" + (dataSourceIndex));
+
+                            //add the dataSource
+                            e.addDataSource(ds, true);
+
+                            // v.addPropertyChangeListener(listener);
+
+                        }
+                    }
                 }
 
+                if (ds != null) {
+                    Property[] ps = ds.getProperties();
+                    propertyCommands = "";
+                    for (int i = 0; i < ps.length; i++) {
+                        if (i != 0) {
+                            propertyCommands += ";";
+                        }
 
-            } else if (request.getParameter("page").equals("properties")) { //Request to get Initial Properties    
+                        propertyCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
 
-                //append the ViewerIndex to the properties
-                String properties = allProp.get(currentViewerIndex) + ";setViewerIndex, " + currentViewerIndex;
-                outResponse = properties;
+                    }
+
+                }
+
+                propertyCommands += ";factoryTypeIndex," + dataSourceIndex;
+
+                dataSourceIndex++;
+                outResponse = propertyCommands;
+
+            } else if (request.getParameter("page").equals("viewer")) {
+                //Request to Display Viewer Image               
+                // System.out.println("viewer Image....");
+                loadViewer(currentViewerIndex, request, response);
+            } else if (request.getParameter("page").equals("properties")) {
+                //Request to get Initial Properties    
+
+                outResponse = allProp.get(currentViewerIndex);
             } else if (request.getParameter("page").equals("getDatas")) {
                 // System.out.println("GETTING DATAS");
-                String filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
-                System.out.println(filePath + "***********************");
+                String filePath = getServletContext().getRealPath(uploadsPath);
                 String files = "";
                 File folder = new File(filePath);
                 File[] listOfFiles = folder.listFiles();
@@ -200,27 +231,54 @@ public class VizOnlineServlet extends HttpServlet {
                 } else {
                     outResponse = files;
                 }
-            } else if (request.getParameter("page").equals("updateProperty")) { //Request to update Properties    
+            } else if (request.getParameter("page").equals("updateProperty")) {
+                //Request to update Properties    
                 String newvalue = request.getParameter("newValue");
                 String property = request.getParameter("property");
+                /* String factoryType = request.getParameter("factoryType");
+                 String factoryTypeIndexStr = request.getParameter("factoryTypeIndex");
+                 int factoryTypeIndex = -1;
+                 if (factoryTypeIndexStr != null && !factoryTypeIndexStr.equals("")) {
+                 factoryTypeIndex = Integer.parseInt(factoryTypeIndexStr);
+                 }*/
+
+
+
                 System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
 
-                String requestViewerIndex = request.getParameter("viewerIndex");
+                String type = "";
+                //Do according to the factoryType
+               /* if (factoryType.equals("DataSource")) {
+                 System.out.println("the Size of the DataSource is "+e.getDataSources().size());
+                 for(int i=0; i<e.getDataSources().size(); i++){
+                 System.out.println(e.getDataSources().get(i).getName());
+                 }
+                    
+                 //get the type
+                 type = e.getDataSources().get(factoryTypeIndex).getProperty(property).getValue().typeName();
+                 //set the value
+                 e.getDataSources().get(factoryTypeIndex).getProperty(property)
+                 .setValue((e.getDataSources().get(factoryTypeIndex)).deserialize(type, newvalue));
+                 } else {*/
+                //TO-DO it may mean it is a property for a viewer at least for now
+                if (property != null && newvalue != null) {
+                    type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
 
-                if (property != null && newvalue != null && requestViewerIndex != null) {
-                    int index = Integer.parseInt(requestViewerIndex.trim());
-                    if (index >= 0) { //do the actual update
-                        String type = e.getViewers().get(index).getProperty(property).getValue().typeName();
-                        if ("PBoolean".equals(type)) {
-                            newvalue = (newvalue.equals("true") ? "1" : "0");
-                        }
-                        e.getViewers().get(index).getProperty(property).setValue(e.getViewers().get(index).deserialize(type, newvalue));
-                    } else {
-                        System.out.println("ERROR: viewerIndex is Null");
+                    if (type.equals("PBoolean")) {
+                        newvalue = (newvalue.equals("true") ? "1" : "0");
+                    } else if (type.equals("PFile")) {
+                        newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                     }
-                } else {
-                    System.out.println("ERROR: Either property, newValue, or viewerIndex is null");
+
+                    e.getViewers().get(currentViewerIndex).getProperty(property)
+                            .setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
                 }
+                // }
+
+
+
+
+
 
             }
         } catch (Exception e) {
@@ -354,7 +412,7 @@ public class VizOnlineServlet extends HttpServlet {
                     }
 
                 } else if (cmd.equalsIgnoreCase("mouseMoved")) {
-                    //System.out.println("MouseMoved");
+                    System.out.println("MouseMoved");
 
                     e.getViewerContainers().get(index).mouseMoved(x, y);
 
@@ -406,6 +464,8 @@ public class VizOnlineServlet extends HttpServlet {
     public void init() throws ServletException {
         // TODO Auto-generated method stub
         //System.out.println("servlet init");
+
+        uploadsPath = "/WEB-INF/Uploads/";
 
         propsInit();
 
@@ -578,7 +638,7 @@ public class VizOnlineServlet extends HttpServlet {
 
             PngEncoder p = new PngEncoder(capture, true);
 
-            System.out.println(capture.getWidth() + " " + capture.getHeight());
+            //  System.out.println(capture.getWidth() + " " + capture.getHeight());
             p.setFilter(PngEncoder.FILTER_NONE);
 
             p.setCompressionLevel(encoding);
@@ -592,7 +652,7 @@ public class VizOnlineServlet extends HttpServlet {
 
             long t3 = new Date().getTime();
 
-            //System.out.println("T1: " +  (t2-t1) + ";       T2: " + (t3-t2) + "      Econding:" + encoding);
+            System.out.println("T: " + (t3 - t2) + "      Econding:" + encoding + "      size:" + (bs.length / 1024));
 
         } catch (Exception e) {
             System.out.println("-e-");
@@ -652,7 +712,7 @@ public class VizOnlineServlet extends HttpServlet {
         Viewer v = null;
 
         System.out.println(data);
-        String filePath = (getServletContext().getRealPath("/WEB-INF/Uploads/") + "\\" + data);
+        String filePath = (getServletContext().getRealPath(uploadsPath + data));
         System.out.println("TEST #2: " + filePath);
         propertyCommands = "";
 

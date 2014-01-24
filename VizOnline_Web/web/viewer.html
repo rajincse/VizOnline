@@ -10,7 +10,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>The Viewer</title>
-
+       
         <link href="Styles.css" rel="stylesheet" type="text/css" />
         <script src="jQuery/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -26,19 +26,18 @@
         
         
         <script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="image-transferer.js"></script>
+       <!-- <script type="text/javascript" src="property-manager.js"></script> -->
 
 
         <script type="text/javascript">
             window.onload = function() {
                 makeRequest('properties');
 
-                
-                //firstTime();
+                firstTime();
 
                 var xMargin = 300;
                 var yMargin = 10;
-                
-                var vIndex = document.getElementById("viewerIndex").value;
 
                 var ims = [];
 
@@ -75,165 +74,18 @@
                 var inmousemove = false;
 
                 var ts = 0;
-		var imageCounter = 0;
-
 		
-                setTimeout(clientImageUpdate, 100); //the viewerIndex need to be set before
-		setInterval(pollprops, 500);
+		var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000,700, 2,2);
+		imageTransf.imageUpdate();
+		
+               
+                setInterval(pollprops, 500);
 
                 window.oncontextmenu = handleContextMenu;
-              
+               // window.onunload = myUnloadFunction;
 
-                var counter = 0;	
+                var counter = 0;
 
-
-                function fimloaded(images) {
-
-                    if (images[0].loaded && images[1].loaded && images[2].loaded && images[3].loaded)
-                    {
-                        document.getElementById("canv").appendChild(images[0]);
-                        images[0].style.width = "500px";
-                        images[0].style.height = "350px";
-                        images[0].style.position = "absolute";
-                        images[0].style.top = "0px";
-                        images[0].style.left = "0px";
-
-                        document.getElementById("canv").appendChild(images[2]);
-                        images[2].style.width = "500px";
-                        images[2].style.height = "350px";
-                        images[2].style.position = "absolute";
-                        images[2].style.top = "0px";
-                        images[2].style.left = "500px";
-
-                        document.getElementById("canv").appendChild(images[1]);
-                        images[1].style.width = "500px";
-                        images[1].style.height = "350px";
-                        images[1].style.position = "absolute";
-                        images[1].style.top = "350px";
-                        images[1].style.left = "0px";
-
-                        document.getElementById("canv").appendChild(images[3]);
-                        images[3].style.width = "500px";
-                        images[3].style.height = "350px";
-                        images[3].style.position = "absolute";
-                        images[3].style.top = "350px";
-                        images[3].style.left = "500px";
-
-			if (imageCounter == 10)
-			{
-				imageCounter = 0;
-				//alert(document.getElementById("canv").children.length);
-				for (var i=0; i<ims.length; i++)
-				{
-					
-					document.getElementById("canv").removeChild(ims[i]);
-					ims[i] = null;
-				}
-				ims = [];
-			}
-                        ims.push(images[0]);
-                        ims.push(images[1]);
-                        ims.push(images[2]);
-                        ims.push(images[3]);
-
-			images[0] = null; images[1]= null; images[2] = null; images[3]=null;
-			images = [];
-
-                        
-                        rendercnt++;
-
-
-
-                        var frametime = ((new Date()).getTime() - prevtimerender);
-                        prevtimerender = (new Date()).getTime();
-
-                        var fps = (prevtimerender - starttime);
-                        if (fps < 50000)
-                            fps = rendercnt / fps * 1000;
-                        else
-                        {
-                            fps = rendercnt / fps * 1000;
-                            rendercnt = 0;
-                            starttime = prevtimerender;
-                        }
-
-
-
-                        var t2 = (new Date()).getTime();
-                        ttt = (t2 - ts);
-
-                        //	document.getElementById("fps").innerHTML = frametime + "sec;" + "    " + fps + "fps" + ";chn" + cttt;
-
-                        loading--;
-
-			clientImageUpdate();
-			//setTimeout(clientImageUpdate, 100);
-
-                    }
-                }
-
-
-                function clientImageUpdate() {
-                    
-                    imageCounter = imageCounter+1;
-                  
-                    vIndex = document.getElementById("viewerIndex").value;
-                  
-                    document.getElementById("loading").value = "" + loading;
-
-                    var imurl1 = "VizOnlineServlet?page=viewer&tileX=0&tileY=0&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl2 = "VizOnlineServlet?page=viewer&tileX=0&tileY=1&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl3 = "VizOnlineServlet?page=viewer&tileX=1&tileY=0&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-                    var imurl4 = "VizOnlineServlet?page=viewer&tileX=1&tileY=1&diff=1&r=" + cnt + "&viewerIndex="+vIndex;
-
-
-		    if (imageCounter == 10)
-		    {
-                    	imurl1 = "VizOnlineServlet?page=viewer&tileX=0&tileY=0&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl2 = "VizOnlineServlet?page=viewer&tileX=0&tileY=1&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl3 = "VizOnlineServlet?page=viewer&tileX=1&tileY=0&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-                    	imurl4 = "VizOnlineServlet?page=viewer&tileX=1&tileY=1&diff=0&r=" + cnt + "&viewerIndex="+vIndex;
-		    }
-
-			
-
-
-
-                    var images = [];
-                    images.push(new Image());
-                    images.push(new Image());
-                    images.push(new Image());
-                    images.push(new Image());
-
-                    images[0].src = imurl1;
-                    images[1].src = imurl2;
-                    images[2].src = imurl3;
-                    images[3].src = imurl4;
-
-                    images[0].loaded = false;
-                    images[1].loaded = false;
-                    images[2].loaded = false;
-                    images[3].loaded = false;
-
-
-                    images[0].onload = function() {
-                        images[0].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[1].onload = function() {
-                        images[1].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[2].onload = function() {
-                        images[2].loaded = true;
-                        fimloaded(images);
-                    };
-                    images[3].onload = function() {
-                        images[3].loaded = true;
-                        fimloaded(images);
-                    };
-
-                }
 
 
                 var inpollprops = false;
@@ -253,30 +105,21 @@
 
                             if (xmlhttp.responseText.length != 0)
                             {
-                                // alert("in pollprops = 4");
-
-                                var split = xmlhttp.responseText.split(";");
+                                                               
+                               addProperty(xmlhttp.responseText);
                                 
-                                for (var i = 0; i < split.length; i++)
-                                {
-
-                                    var pchange = split[i].split(",");
-
-                                    addProperty(pchange[2], pchange[3], pchange[4]);
-                                }
                             }
                             inpollprops = false;
                         }
                     }
-                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' 
-                            + cnt + "&viewerIndex="+vIndex, true);
+                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' + cnt, true);
                     xmlhttp.send();
                 }
 
 
                 function sendCommand(url) {
-
                     xmlhttp = new XMLHttpRequest();
+		console.log(url);
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
@@ -313,9 +156,7 @@
                         mouseType = "left ";
                     }
 
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                            + '&cmd=mouseUp&mx=' + mousePos.x + '&my=' + mousePos.y 
-                            + "&r=" + cnt + "&viewerIndex="+vIndex;
+                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseUp&mx=' + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                     sendCommand(theUrl);
 
                 }
@@ -330,6 +171,7 @@
                 }
 
                 function handleMouseDown(event) {
+		
                     cnt++;
                     event = event || window.event; // IE-ism                  
                     var elem = event.target;
@@ -339,7 +181,7 @@
                         x: event.clientX + document.body.scrollLeft - xMargin,
                         y: event.clientY + document.body.scrollTop - yMargin
                     };
-                    //alert(mousePos.x  + " " + mousePos.y);  
+                  //  alert(mousePos.x  + " " + mousePos.y);  
 
                     if ((mousePos.x) >= 1000 || mousePos.y >= 800)
                     {
@@ -356,13 +198,21 @@
                     }
                     else if (event.target.id == "button2")
                     {
-                        theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value + "&r=" + cnt;
                         //alert(theUrl);  
                         sendCommand(theUrl);
                         return true;
                     }
 
                     dragFlag = 1;
+
+
+
+
+
+
+
+
 
                     if (event.which === 3) {
                         mouseType = "right";
@@ -372,14 +222,17 @@
                     }
 
 
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                            + '&cmd=mouseDown&mx=' + mousePos.x + '&my=' + mousePos.y 
-                            + "&r=" + cnt  + "&viewerIndex="+vIndex;
+                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDown&mx=' + mousePos.x
+                            + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
 
                     sendCommand(theUrl);
 
+
+
                     return false; //this is to prevent image dragging.
                 }
+
+
 
 
                 function handleMouseMove(event) {
@@ -424,15 +277,13 @@
                     }
 
                     if (dragFlag === 1) {//mouse is being dragged
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                                + '&cmd=mouseDragged&mx=' + mousePos.x + '&my=' + mousePos.y 
-                                + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDragged&mx='
+                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                         sendCommand(theUrl);
                     }
                     else { //normal mouse move
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType 
-                                + '&cmd=mouseMoved&mx='+ mousePos.x + '&my=' + mousePos.y
-                                + "&r=" + cnt + "&viewerIndex="+vIndex;
+                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseMoved&mx='
+                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
                         sendCommand(theUrl);
                     }
                     inmousemove = false;
@@ -455,204 +306,17 @@
 
                 function addProperty(name, type, value)
                 {
-                   /*
-
-                    cpt++;
-                    var split = name.split(".");
-                    var name2, name3;
-                    if (split.length > 1) {
-                        name2 = (name.split("."))[0]; //get the first part of the name                   
-                        name3 = (name.split("."))[1]; //the second part of the name to be used for the buttons                   
-                    }
-                    else {//for names that have only one part of the name.
-                        name2 = (name.split("."))[0]; //get the first part of the name
-                        name3 = name2;
-                    }
-
-                    var propslot = document.getElementById("propslot");
-
-                    // var rowDiv = document.createElement("div");
-
-
-                    var newlabel = document.createElement("div");
-                    newlabel.setAttribute("class", "propLabel");
-                    // newlabel.appendChild(document.createTextNode(name3));
-                    newlabel.innerHTML = name3;
-                    propslot.appendChild(newlabel);
-                    // rowDiv.appendChild(newlabel);
-
-                    var input = null;
-                    if (type === "PDouble") {//create a textbox control
-                        input = document.createElement("input");
-                        input.type = "text";
-
-                        input.setAttribute("id", "prop_" + name);
-
-                        input.value = value;
-                        input.setAttribute("class", "txtbox");
-                        input.onblur = function() {
-                            var value2;
-                            if (input.value === "") {
-                                value2 = 0; //
-                            }
-                            else {
-                                value2 = input.value;
-                            }
-
-                            theUrl = 'VizOnlineServlet?changeProp=' + 1
-                                    + '&name=' + name + '&value=' + value2
-                                    + "&updateType=server" + "&r=" + cpt;
-
-                            sendCommand(theUrl);
-
-                        };
-
-                    }
-                    else if (type === "PColor") {
-                        input = document.createElement("input");
-                        input.type = "text";
-
-                        input.setAttribute("id", "prop_" + name);
-
-                        input.setAttribute("class", "color");
-
-                    }
-
-
-
-                    else if (type === "PPercent") { //create a slider control
-
-                        input = document.createElement("div");
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "slider");
-
-                    } else if (type === "PInteger") { //create a spinner control
-                        input = document.createElement("input");
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "spinner");
-                        input.setAttribute("value", value);
-
-                        alert("after PInteger p1a");
-
-                    } else if (type === "PBoolean") {
-                        input = document.createElement("input");
-                        input.type = "checkbox"
-                        name2 = name2 + prop_cnt;
-                        input.setAttribute("id", "prop_" + name2);
-                        input.setAttribute("class", "chkbx");
-                        input.onclick = function() {
-
-                            var value2 = 0;  //not checked 
-
-                            if (input.checked) {
-                                value2 = 1;  //checked
-                            }
-
-
-                            theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-
-                            sendCommand(theUrl);
-
-                        };
-                    }
-
-                    if (input !== null) { //we append it and create create a button for it
-                        propslot.appendChild(input);  // put it into the DOM
-
-                        var myPicker, spinner;
-                        if (type === "PColor") {
-                            myPicker = new jscolor.color(document.getElementById("prop_" + name), {});
-                            //set the color with the rgb values;
-
-                            var split = value.split("-");
-                            var red =
-                                    myPicker.fromRGB(parseInt((split[0]) / 255), Math.round(parseInt(split[1]) / 255), parseInt(split[2]) / 255);
-
-
-                            input.onchange = function() {
-                                //set the color for it
-
-                                var r = Math.round(myPicker.rgb[0] * 255);
-                                var b = Math.round(myPicker.rgb[1] * 255);
-                                var g = Math.round(myPicker.rgb[2] * 255);
-                                var value2 = r + "-" + g + "-" + b;
-
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                sendCommand(theUrl);
-
-                            };
-
-
-
-                            // }
-
-                        }
-                        else if (type === "PPercent") {
-                            var x = parseInt(value) * 100;
-                            $("#prop_" + name2).slider({
-                                range: "min",
-                                max: 100,
-                                value: x,
-                                slide: function(event, ui) {
-                                    var value2 = ui.value;  //get the value of 
-                                    value2 = value2 / 100;  //find the fraction of the percentage.
-                                    theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                    sendCommand(theUrl);
-                                }
-                            });
-                        }
-                        else if (type === "PInteger") {
-                            spinner = $("#prop_" + name2).spinner({
-                                min: 0,
-                                stop: function(event, ui) {
-                                    var value2 = $(this).spinner("value");
-                                    theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value2 + "&updateType=server" + "&r=" + cpt;
-                                    sendCommand(theUrl);
-                                    alert("After PInteger p1")
-                                }
-
-                            });
-
-                        }
-
-
-
-
-                        prop_cnt++;
-
-                    }
-
-                    setTimeout(function() {
-                        document.getElementById("set_" + name).onclick = function()
-                        {
-
-                            if (type === "PColor") {
-                                var r = document.getElementById("set_" + name).color.rgb[0] * 255;
-                                var g = document.getElementById("set_" + name).color.rgb[1] * 255;
-                                var b = document.getElementById("set_" + name).color.rgb[2] * 255;
-                                var value = r + "," + g + "," + b;
-                                alert("The colors are " + value);
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + value + "&updateType=server" + "&r=" + 1;
-                            }
-
-                            else {
-                                theUrl = 'VizOnlineServlet?changeProp=' + 1 + '&name=' + name + '&value=' + document.getElementById("prop_" + name).value + "&updateType=server" + "&r=" + 1;
-
-                            }
-                            // alert("ha2 " + theUrl);
-                            xmlhttp = new XMLHttpRequest();
-                            //alert("ha3 " + theUrl);
-                            xmlhttp.open("GET", theUrl, true);
-                            //alert("ha4 " + theUrl);
-                            xmlhttp.send();
-                            //alert("ha5 " + theUrl);
-
-                        };
-                    }, 2000);*/
+                   
                 }
 
+                function firstTime() {
+
+                    //   alert("firstTime");
+
+                    xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&firstTime=1&r=' + cnt, true);
+                    xmlhttp.send();
+                }
             };
 
         </script>
@@ -682,7 +346,6 @@
                     <h1>Viewer Properties</h1>
                     <form>
 
-                        <input type="text" value="-1" id="viewerIndex" name="viewerIndex"/> 
                         <!--   <input type ="button" class="small button blue" value="Show Properties"
                                          onclick="makeRequest('properties')"/>  -->    
                         <div  id='properties' > 
@@ -696,11 +359,13 @@
                 <!-- IMAGE DIV -->
 
                 <div id='output'  class="rightVdiv">
-                    <div id="canv" style="width:600pt; height:600pt;"></div>                
+                    <div id="canv" style="width:800pt; height:450pt;"></div>                
                 </div>
 
                 <!--  -->
 
+                <input type="hidden" id="factoryType" value="Viewer" />
+                <input type ="hidden" id="factoryTypeIndex" value="" />
 
             </div>
 
