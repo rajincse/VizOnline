@@ -948,6 +948,12 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 	
 		
 	}
+        
+        
+        //to add DataSource
+        public void addDataSource(DataSource d, boolean offline){
+            dataSources.add(d);
+        }
 	
 	public void deleteDataSource(DataSource d)
 	{

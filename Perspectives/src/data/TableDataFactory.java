@@ -5,6 +5,7 @@
 package data;
 
 
+import java.io.Serializable;
 import perspectives.DataSource;
 import perspectives.DataSourceFactory;
 
@@ -12,7 +13,7 @@ import perspectives.DataSourceFactory;
  *
  * @author mershack
  */
-public class TableDataFactory extends DataSourceFactory {
+public class TableDataFactory extends DataSourceFactory implements Serializable {
    @Override
 	public DataSource create(String name) {
 		return new TableData(name);

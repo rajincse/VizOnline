@@ -45,7 +45,13 @@ public class PFile extends PropertyType
 	}
 	@Override
 	public PFile deserialize(String s) {
-		return null;
+	    //we will be returning a PFile with the selected filepath
+            PFile pf = new PFile();
+            pf.path = s;
+            
+            return pf;
+            
+            //return null;
 		
 	}
 }

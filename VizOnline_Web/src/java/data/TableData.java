@@ -61,7 +61,7 @@ public class TableData extends DataSource {
             Property<POptions> p3 = new Property<POptions>("Delimiter", new POptions(new String[]{"TAB","SPACE","COMMA"}));
             this.addProperty(p3);
 
-        	PFile f = new PFile();
+            PFile f = new PFile();
             f.dialogTitle = "Open Data File";
             f.extensions = new String[]{"*", "txt", "xml"};
             Property<PFile> p1 = new Property<PFile>("Tabular File",f);
@@ -89,7 +89,6 @@ public class TableData extends DataSource {
            if(!js){
                 boolean ch = ((PBoolean) getProperty("Col Headers?").getValue()).boolValue();
                 boolean rh = ((PBoolean) getProperty("Row Headers?").getValue()).boolValue();
-
 
               //hide the others if it is a json file
 

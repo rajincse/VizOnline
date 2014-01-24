@@ -1,5 +1,4 @@
 
-
 var sourceFiles = new Array();
 var fileID = 0;
 var count = 0;
@@ -101,6 +100,14 @@ function makeRequest(thepage) {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "Uploads?del=y", true);
         xmlHttpRequest.send(document.getElementById());
+        
+        //deleteThe datasource also
+       /* var dataSourceIndex = document.getElementById("factoryTypeIndex").value;
+        
+        xmlHttpRequest = getXMLHttpRequest();
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=deleteDataSource&dataSourceIndex"
+                +dataSourceIndex, true);*/
+        
 
     } else if (thepage === 'linkViewers') {
         var v1index = get("vlist1").selectedIndex;
@@ -118,7 +125,19 @@ function makeRequest(thepage) {
         xmlHttpRequest.send(null);
 
 
-    } else {
+    }else if(thepage ==='dataFactories') {
+        //alert("request for DataFactories");
+        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" +thepage, true);
+        xmlHttpRequest.send(null);
+    } else if (thepage === 'dataFactoryProperties'){
+        var dataFactoryType = document.getElementById("dataFactories").value;
+        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" +thepage +"&dataFactoryType="+dataFactoryType, true);
+        xmlHttpRequest.send(null);
+    }
+    
+    else {
 
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, true);
@@ -163,6 +182,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                 else if (thepage === 'properties') {
                     //alert(xmlHttpRequest.responseText)
                     //document.getElementById("properties").innerHTML = xmlHttpRequest.responseText;
+                   
                     addProperties(xmlHttpRequest.responseText);
                 }
                 else if (thepage === 'createViewer') {
@@ -208,7 +228,35 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     currentLinks(xmlHttpRequest.responseText);
 
 
-                } else {
+                } else if(thepage === 'dataFactories') {
+                    
+                    //we will be creating a combo box options for the datafactories
+                    var dataSplit = (xmlHttpRequest.responseText).split(",");
+                    
+                    var dataFactories = document.getElementById("dataFactories");                    
+                    
+                    for(var i=0; i<dataSplit.length; i++){
+                        
+                        var opt  = document.createElement('option');
+                        opt.setAttribute("value", dataSplit[i]);
+                        opt.innerHTML = dataSplit[i];
+                                          
+                        dataFactories.appendChild(opt);
+                                            
+                    }
+                    
+                } else  if(thepage === 'dataFactoryProperties') {
+                    //alert(xmlHttpRequest.responseText);
+                    
+                    
+                    var div = get('dataFactoryProperties');
+                    
+                    addProperties(div, xmlHttpRequest.responseText);
+                    
+                }
+                
+                
+                else {
                     //alert("Http error " + xmlHttpRequest.status + ":" + xmlHttpRequest.statusText);
                 }
             }

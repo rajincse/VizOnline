@@ -22,19 +22,35 @@ public class POptions extends PropertyType
 	
 	public String typeName() {
 		// TODO Auto-generated method stub
-		return "OptionsPropertyType";
+		return "POptions";
 	}
 
 
 	@Override
 	public String serialize() {
 		// TODO Auto-generated method stub
-		return null;
+		//It should return the options;
+            	String optionString="";
+                for(int i=0; i<options.length; i++){
+                    if(i==0){
+                     optionString = options[i];
+                    }else{
+                        optionString +="-" + options[i];
+                    }
+                }
+                return optionString;
 	}
 
 	@Override
 	public POptions deserialize(String s) {
-		return null;
+	    //it should return a POptions object with the selected index property
+            POptions pOptions = new POptions(options);
+            for(int i=0; i<options.length; i++){
+                if(options[i].equalsIgnoreCase(s)){
+                    pOptions.selectedIndex = i;
+                }
+            }
+                return pOptions;
 		
 	}
 }

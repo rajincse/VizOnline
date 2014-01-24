@@ -1,4 +1,4 @@
-﻿function ImageTransferer(div, w,h, tch, tcv)
+function ImageTransferer(div, w,h, tch, tcv)
 {
 	this.div = div;
 	this.tch = tch;
