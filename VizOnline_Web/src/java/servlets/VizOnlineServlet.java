@@ -235,12 +235,12 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to update Properties    
                 String newvalue = request.getParameter("newValue");
                 String property = request.getParameter("property");
-                /* String factoryType = request.getParameter("factoryType");
-                 String factoryTypeIndexStr = request.getParameter("factoryTypeIndex");
-                 int factoryTypeIndex = -1;
-                 if (factoryTypeIndexStr != null && !factoryTypeIndexStr.equals("")) {
-                 factoryTypeIndex = Integer.parseInt(factoryTypeIndexStr);
-                 }*/
+                String factoryType = request.getParameter("factoryType");
+                String factoryTypeIndexStr = request.getParameter("factoryTypeIndex");
+                int factoryTypeIndex = -1;
+                if (factoryTypeIndexStr != null && !factoryTypeIndexStr.equals("")) {
+                    factoryTypeIndex = Integer.parseInt(factoryTypeIndexStr);
+                }
 
 
 
@@ -248,21 +248,14 @@ public class VizOnlineServlet extends HttpServlet {
 
                 String type = "";
                 //Do according to the factoryType
-               /* if (factoryType.equals("DataSource")) {
-                 System.out.println("the Size of the DataSource is "+e.getDataSources().size());
-                 for(int i=0; i<e.getDataSources().size(); i++){
-                 System.out.println(e.getDataSources().get(i).getName());
-                 }
-                    
-                 //get the type
-                 type = e.getDataSources().get(factoryTypeIndex).getProperty(property).getValue().typeName();
-                 //set the value
-                 e.getDataSources().get(factoryTypeIndex).getProperty(property)
-                 .setValue((e.getDataSources().get(factoryTypeIndex)).deserialize(type, newvalue));
-                 } else {*/
-                //TO-DO it may mean it is a property for a viewer at least for now
-                if (property != null && newvalue != null) {
-                    type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
+                if (factoryType.equals("DataSource")) {
+                    System.out.println("the Size of the DataSource is " + e.getDataSources().size());
+                    for (int i = 0; i < e.getDataSources().size(); i++) {
+                        System.out.println(e.getDataSources().get(i).getName());
+                    }
+
+                    //get the type
+                    type = e.getDataSources().get(factoryTypeIndex).getProperty(property).getValue().typeName();
 
                     if (type.equals("PBoolean")) {
                         newvalue = (newvalue.equals("true") ? "1" : "0");
@@ -270,16 +263,26 @@ public class VizOnlineServlet extends HttpServlet {
                         newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                     }
 
-                    e.getViewers().get(currentViewerIndex).getProperty(property)
-                            .setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
+
+
+                    //set the value
+                    e.getDataSources().get(factoryTypeIndex).getProperty(property)
+                            .setValue((e.getDataSources().get(factoryTypeIndex)).deserialize(type, newvalue));
+                } else {
+                    //TO-DO it may mean it is a property for a viewer at least for now
+                    if (property != null && newvalue != null) {
+                        type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
+
+                        if (type.equals("PBoolean")) {
+                            newvalue = (newvalue.equals("true") ? "1" : "0");
+                        } else if (type.equals("PFile")) {
+                            newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
+                        }
+
+                        e.getViewers().get(currentViewerIndex).getProperty(property)
+                                .setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
+                    }
                 }
-                // }
-
-
-
-
-
-
             }
         } catch (Exception e) {
             e.printStackTrace();
