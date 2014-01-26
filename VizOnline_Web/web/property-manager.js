@@ -169,6 +169,7 @@ function updateFileInfo(id){
     xmlHttpRequest.send(formData);
     
     
+    
     //split the file path and get the filename which will be the last item
     var slashType;
     if(propValue.indexOf("/") >= 0){

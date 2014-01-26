@@ -163,12 +163,51 @@ public class Uploads extends HttpServlet {
                             out.close();
                         }
                     }
+                    else{
+                        String name = fileItem.getFieldName();
+                        String value = fileItem.getString();
+                        
+                        //System.out.println("VALUESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS "+ name + "      -         "+ value);
+                    }
                 }
 
-                System.out.println("DataSource Name  and file name " + dataSourceName + "-" + myFileName);
+               System.out.println("DataSource Name  and file name " + dataSourceName + "-" + myFileName);
 
                 //Put the name of the data in the hashmap
                 theDataSources.put(dataSourceName, myFileName);
+                
+                
+                
+                 /*//now Send request to the VizOnlineServlet to update the PFile property
+                
+                String url = "VizOnlineServlet?updateProperty&newValue=";*/
+                        
+                         //split the file path and get the filename which will be the last item
+    /*var slashType;
+    if(propValue.indexOf("/") >= 0){
+        slashType =  "/";
+     }
+    else if(propValue.indexOf("\\") >=0){
+        slashType = "\\";
+     }
+    
+    
+    var pathSplit = propValue.split(slashType)
+         //get the fileName;
+    propValue = pathSplit[pathSplit.length-1];
+    
+    
+    //update PFile property
+    var factoryType = document.getElementById("factoryType").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
+       
+    var url = "="+propValue+"&property="+propName;
+        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
+        
+    makeRequest(url);*/
+                
+                
+                
 
             }
 
