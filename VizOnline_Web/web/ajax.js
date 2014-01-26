@@ -48,11 +48,11 @@ function makeRequest(thepage) {
         var formData = new FormData();
         formData.append("File", document.getElementById("theFile").files[0]);
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("POST", "Uploads", true);
+        xmlHttpRequest.open("POST", "Uploads?page=uploadData", true);
         xmlHttpRequest.send(formData);
     } else if (thepage === 'data' || thepage === 'viewdatas') {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=getDatas", true);
+        xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
         xmlHttpRequest.send(null);
 
     } else if (thepage === 'createViewer') {
@@ -62,8 +62,11 @@ function makeRequest(thepage) {
         var dindex = get("datalist").selectedIndex;
         var doptions = get("datalist").options;
         var data = doptions[dindex].text;
+        var dataSourceName = document.getElementById("DS"+dindex).value;
+        
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage + "&type=" + type + "&data=" + data, true);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage + "&type="
+                + type + "&data=" + data +"&dataSourceName="+dataSourceName, true);
         xmlHttpRequest.send(null);
 
     } else if (thepage === 'views') {
@@ -93,23 +96,24 @@ function makeRequest(thepage) {
 
     } else if (thepage === 'update') {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "Uploads", true);
+        xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
         xmlHttpRequest.send(null);
 
-    } else if (thepage === 'deleteData') {
-        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "Uploads?del=y", true);
-        xmlHttpRequest.send(document.getElementById());
-        
-        //deleteThe datasource also
-       /* var dataSourceIndex = document.getElementById("factoryTypeIndex").value;
-        
-        xmlHttpRequest = getXMLHttpRequest();
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=deleteDataSource&dataSourceIndex"
-                +dataSourceIndex, true);*/
-        
-
-    } else if (thepage === 'linkViewers') {
+    } /*else if (thepage === 'deleteData') {
+     alert("deleteData in make request");
+     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+     xmlHttpRequest.open("GET", "Uploads?page=deleteData&del=y", true);
+     xmlHttpRequest.send(document.getElementById());
+     
+     //deleteThe datasource also
+     /* var dataSourceIndex = document.getElementById("factoryTypeIndex").value;
+     
+     xmlHttpRequest = getXMLHttpRequest();
+     xmlHttpRequest.open("GET", "VizOnlineServlet?page=deleteDataSource&dataSourceIndex"
+     +dataSourceIndex, true);
+     
+     
+     } */ else if (thepage === 'linkViewers') {
         var v1index = get("vlist1").selectedIndex;
         var voptions = get("vlist1").options;
         var first = voptions[v1index].text;
@@ -125,18 +129,18 @@ function makeRequest(thepage) {
         xmlHttpRequest.send(null);
 
 
-    }else if(thepage ==='dataFactories') {
+    } else if (thepage === 'dataFactories') {
         //alert("request for DataFactories");
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" +thepage, true);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, true);
         xmlHttpRequest.send(null);
-    } else if (thepage === 'dataFactoryProperties'){
+    } else if (thepage === 'dataFactoryProperties') {
         var dataFactoryType = document.getElementById("dataFactories").value;
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" +thepage +"&dataFactoryType="+dataFactoryType, true);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage + "&dataFactoryType=" + dataFactoryType, true);
         xmlHttpRequest.send(null);
     }
-    
+
     else {
 
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
@@ -173,6 +177,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     getCurrentViewersLink2(xmlHttpRequest.responseText);
                 }
                 else if (thepage === 'viewdatas') {
+
                     getDataForViewer(xmlHttpRequest.responseText);
                     //alert(xmlHttpRequest.responseText);
                 }
@@ -182,9 +187,9 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                 else if (thepage === 'properties') {
                     //alert(xmlHttpRequest.responseText)
                     //document.getElementById("properties").innerHTML = xmlHttpRequest.responseText;
-                   
-                   var div = get("properties");
-                   
+
+                    var div = get("properties");
+
                     addProperties(div, xmlHttpRequest.responseText);
                 }
                 else if (thepage === 'createViewer') {
@@ -203,6 +208,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     win.focus();
                 }
                 else if (thepage === 'upload') {
+
                     sourceFiles[fileID] = xmlHttpRequest.responseText;
                     var tempSourceArr = sourceFiles.toString().split(",");
                     //document.getElementById("cdatas").innerHTML = sourceFiles.toString();
@@ -218,8 +224,6 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                 } else if (thepage === 'update') {
                     document.getElementById("cdatas").innerHTML = "";
                     getDatasets(xmlHttpRequest.responseText);
-
-
                 } else if (thepage === 'deleteData') {
                     alert(xmlHttpRequest.responseText);
                     document.getElementById("cdatas").innerHTML = "";
@@ -230,34 +234,32 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     currentLinks(xmlHttpRequest.responseText);
 
 
-                } else if(thepage === 'dataFactories') {
-                    
+                } else if (thepage === 'dataFactories') {
+
                     //we will be creating a combo box options for the datafactories
                     var dataSplit = (xmlHttpRequest.responseText).split(",");
-                    
-                    var dataFactories = document.getElementById("dataFactories");                    
-                    
-                    for(var i=0; i<dataSplit.length; i++){
-                        
-                        var opt  = document.createElement('option');
+
+                    var dataFactories = document.getElementById("dataFactories");
+
+                    for (var i = 0; i < dataSplit.length; i++) {
+
+                        var opt = document.createElement('option');
                         opt.setAttribute("value", dataSplit[i]);
                         opt.innerHTML = dataSplit[i];
-                                          
+
                         dataFactories.appendChild(opt);
-                                            
+
                     }
-                    
-                } else  if(thepage === 'dataFactoryProperties') {
-                    //alert(xmlHttpRequest.responseText);
-                    
-                    
+
+                } else if (thepage === 'dataFactoryProperties') {
+
                     var div = get('dataFactoryProperties');
-                    
+
                     addProperties(div, xmlHttpRequest.responseText);
-                    
+
                 }
-                
-                
+
+
                 else {
                     //alert("Http error " + xmlHttpRequest.status + ":" + xmlHttpRequest.statusText);
                 }
@@ -304,25 +306,44 @@ function getDatasets(datalist) {
     if (datalist === "No Content") {
         get("cdatas").innerHTML = "No Datasets available";
     } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
-            current = dataArray[i];
+        //Format: datasource0,file1.txt; datasource1,file2.txt
+        var datalist2 = datalist.split(";");
+        var fileName, dataSourceName;
+        for (var i = 0; i < datalist2.length; i++) {
+            var dataArray = datalist2[i].split(",");
+            // for (var i = 0; i < dataArray.length; i++) {
+
+            dataSourceName = dataArray[0];
+            fileName = dataArray[1];
+
             var par = document.createElement('p');
             par.setAttribute('id', 'par' + i);
-            par.setAttribute('name', current);
+            par.setAttribute('name', fileName);
             par.setAttribute('class', 'listpara');
-            par.textContent = current;
+            par.textContent = fileName;
             document.getElementById("cdatas").appendChild(par);
+
+            //hiddenInput for DataSourceName
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute("type", "hidden");
+            hiddenInput.setAttribute("id", "DS" + i);
+            hiddenInput.setAttribute("value", dataSourceName);
+            document.getElementById("cdatas").appendChild(hiddenInput);
+            //button 
             var but = document.createElement('button');
             but.setAttribute('id', i);
-            but.setAttribute('name', current);
+            but.setAttribute('name', fileName);
             but.setAttribute('style', 'float: right');
             but.innerHTML = 'Delete';
             but.setAttribute('class', 'small button blue');
             var theSet = document.getElementById('par' + i).getAttribute('name').toString();
-            but.setAttribute('onclick', 'deleteRequest("' + theSet + '")');
+            but.setAttribute('onclick', 'deleteRequest(' + i + ')');
             document.getElementById('par' + i).appendChild(but);
+            //}
         }
+        //alert(datalist);
+
+
     }
 }
 
@@ -330,15 +351,32 @@ function getDataForViewer(datalist) {
     if (datalist === "No Content") {
         get("viewers").innerHTML = "No Datasets available";
     } else {
-        var dataArray = datalist.split(",");
-        for (var i = 0; i < dataArray.length; i++) {
+
+        //Format: datasource0,file1.txt; datasource1,file2.txt
+        var datalist2 = datalist.split(";");
+        var fileName, dataSourceName;
+        for (var i = 0; i < datalist2.length; i++) {
+            var dataArray = datalist2[i].split(",");
+
+            dataSourceName = dataArray[0];
+            fileName = dataArray[1];
 
             var list = get("datalist");
-            current = dataArray[i];
             var option = document.createElement('option');
-            option.setAttribute('value', current);
-            option.text = current;
+            option.setAttribute('value', fileName);
+            option.text = fileName;
             list.add(option, null);
+
+
+            //hiddenInput for DataSourceName
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute("type", "hidden");
+            hiddenInput.setAttribute("id", "DS" + i);
+            hiddenInput.setAttribute("value", dataSourceName);
+
+
+            document.getElementById("viewers").appendChild(hiddenInput);
+
         }
         get("viewers").appendChilds(list);
     }
@@ -436,11 +474,23 @@ function getCurrentViewersLink2(datalist) {
     }
 }
 
-function deleteRequest(string) {
+function deleteRequest(id) {
+    //  alert(id);
+
+    var fileName = document.getElementById('par' + id).getAttribute('name').toString();
+    //alert(fileName);
+    var dataSourceName = document.getElementById('DS' + id).value;
+    //alert(dataSourceName);
 
     var xmlHttpRequest = getXMLHttpRequest();
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "deleteData");
-    xmlHttpRequest.open("GET", "Uploads?del=" + string, true);
+    xmlHttpRequest.open("GET", "Uploads?page=deleteData&del=" + fileName, true);
+    xmlHttpRequest.send(null);
+
+
+    //delete the dataSource also
+    xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.open("GET", "VizOnlineServlet?page=deleteDataSource&dataSourceName=" + dataSourceName, true);
     xmlHttpRequest.send(null);
 
 }
@@ -449,7 +499,7 @@ function launchRequest(index) {
     var xmlHttpRequest = getXMLHttpRequest();
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "launchViewer");
     xmlHttpRequest.open("GET", "VizOnlineServlet?page=viewerLaunch&index=" + index, true);
-    
+
     xmlHttpRequest.send(null);
 }
 

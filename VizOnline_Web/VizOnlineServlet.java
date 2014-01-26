@@ -131,8 +131,7 @@ public class VizOnlineServlet extends HttpServlet {
                 dataname = request.getParameter("data");
                 String dataSourceName = request.getParameter("dataSourceName");
                 System.out.println("DATASOURCE-NAME ********** "+dataSourceName);
-               // int vindex = createViewer(type, dataSourceName);
-                int vindex = createViewer(type, dataname);
+                int vindex = createViewer(type, dataSourceName);
                 outResponse = vindex + "";
 
             } else if (request.getParameter("page").equals("delViewer")) {
@@ -506,7 +505,6 @@ public class VizOnlineServlet extends HttpServlet {
         //System.out.println("servlet init");
 
         uploadsPath = "/WEB-INF/Uploads/";
-        //uploadsPath = getServletContext().getRealPath("/WEB-INF/Uploads/");
 
         propsInit();
 
@@ -740,12 +738,12 @@ public class VizOnlineServlet extends HttpServlet {
 
     }
 
-    public int createViewer(String type, String data) {
+    public int createViewer(String type, String dataSourceName) {
             
 
         Viewer v = null;
 
-      /* propertyCommands = "";
+       propertyCommands = "";
         
         //create the viewer
       
@@ -776,22 +774,17 @@ public class VizOnlineServlet extends HttpServlet {
         else{
             System.out.println("Viewer creation failed");
         }
-        */
         
         
-         
-
-        System.out.println(data);
-        String filePath = (getServletContext().getRealPath(uploadsPath + data));
-        System.out.println("TEST #2: " + filePath);
-        propertyCommands = "";
+        
+        
         
         
         
         /**
          * ***********For Heatmap Viewer and Table Data*****************
          */
-        if (type.equalsIgnoreCase("heatmap")) {
+       /* if (type.equalsIgnoreCase("heatmap")) {
 
             TableData tb = new TableData(filePath);
             TableDistances table = new TableDistances();
@@ -823,7 +816,7 @@ public class VizOnlineServlet extends HttpServlet {
          *
          *********** For Graphs Viewer and Graph Data*****************
          */
-        else if (type.equalsIgnoreCase("graph viewer")) {
+        /*else if (type.equalsIgnoreCase("graph viewer")) {
             GraphData gd = new GraphData("d1");
 
             Graph g = new Graph(false);
@@ -879,7 +872,7 @@ public class VizOnlineServlet extends HttpServlet {
             }
 
             v.addPropertyChangeListener(listener);
-        }  
+        }  */
         /**
          * ******* End of graph Viewer ************************************
          */

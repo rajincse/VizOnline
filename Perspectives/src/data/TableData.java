@@ -14,6 +14,7 @@ import properties.PFile;
 import properties.PInteger;
 import properties.POptions;
 import properties.Property;
+import properties.PropertyType;
 
 
 /**
@@ -73,7 +74,7 @@ public class TableData extends DataSource {
 
     }
 
-    public <T> void propertyUpdated(Property p, T newvalue) {
+    public <T extends PropertyType> void propertyUpdated(Property p, T newvalue) {
         boolean js = ((PBoolean) getProperty("JSON File").getValue()).boolValue();
         
         if (js) {

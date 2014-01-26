@@ -3,7 +3,7 @@ var propID = 1;
 var viewerIndex;
 
 function addProperties(div, propertiesString){
-        
+      
     var propArr = propertiesString.split(";");
     
     //if the div already has the properties  remove properties
@@ -53,13 +53,17 @@ function addProperties(div, propertiesString){
                 case "POptions":
                     showOptionBox(div, propID, label, value);
                     break;
+                case "PProgress":
+                      //TO-DO
+                      //do nothing for now;                     
+                      break;
                     
                 default:
                     //tbd
             }
-        } else if(addremove === "factoryTypeIndex"){ //set the factoryTypeIndex
+        } else if(addremove === "factoryItemName"){ //set the factoryItemName
                 value = tempPropArr[1];
-                document.getElementById("factoryTypeIndex").value= value;               
+                document.getElementById("factoryItemName").value= value;               
         }
         
     else if (addremove === "removeProperty") {
@@ -114,10 +118,10 @@ function updateColorInfo(color, id) {
     var propName = prop.value;
 
     var factoryType = document.getElementById("factoryType").value;
-    var factoryTypeIndex = document.getElementById("factoryTypeIndex").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
        
     var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryTypeIndex="+factoryTypeIndex;
+        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
         
     makeRequest(url);
 
@@ -134,10 +138,10 @@ function  updateInputValueInfo(id){
     var propValue = propInput.value;
     
      var factoryType = document.getElementById("factoryType").value;
-    var factoryTypeIndex = document.getElementById("factoryTypeIndex").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
        
     var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryTypeIndex="+factoryTypeIndex;
+        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
         
     makeRequest(url);
     
@@ -150,13 +154,18 @@ function updateFileInfo(id){
     var file = get("I"+id);
     var propValue = file.value;
     
-    
+   
     var xmlHttpRequest = getXMLHttpRequest();
     //first Upload the file
+    
+    
+    var dataSourceName = document.getElementById("factoryItemName").value;
+    //alert(dataSourceName);
+    
     var formData = new FormData();
     formData.append("File", file.files[0]);
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, 'upload');
-    xmlHttpRequest.open("POST", "Uploads", true);
+    xmlHttpRequest.open("POST", "Uploads?page=uploadData&dataSourceName="+dataSourceName, true);
     xmlHttpRequest.send(formData);
     
     
@@ -174,15 +183,17 @@ function updateFileInfo(id){
          //get the fileName;
     propValue = pathSplit[pathSplit.length-1];
     
+    
     //update PFile property
     var factoryType = document.getElementById("factoryType").value;
-    var factoryTypeIndex = document.getElementById("factoryTypeIndex").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
        
     var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryTypeIndex="+factoryTypeIndex;
+        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
         
     makeRequest(url);
- }
+ 
+}
 
 //creation of a selection box and options
 function showOptionBox(div, id, name, value){
@@ -346,7 +357,7 @@ function showCheckBox(div, id, name, value) {
     booleanCheckBox.setAttribute("onchange", "updateCheckBoxInfo("+ id +");"); 
     //create a paragraph and add the label and the checkbox to it
     if(value==="1"){ //set the checked property if it is checked
-        booleanCheckBox.setAttribute("checked");
+        booleanCheckBox.setAttribute("checked","true");
     }
     
     var paragraph = createParagraph();
@@ -446,16 +457,16 @@ function updateCheckBoxInfo(id){
     var propValue = propInput.checked;
     
     var factoryType = document.getElementById("factoryType").value;
-    var factoryTypeIndex = document.getElementById("factoryTypeIndex").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
        
     var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryTypeIndex="+factoryTypeIndex;
+        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
         
     makeRequest(url);
 }
 
 function setInitialColor(id, value){
-    alert(value);
+   // alert(value);
     var colorBox = get("I"+id);
     
       var split = value.split("-");     

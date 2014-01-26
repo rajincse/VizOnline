@@ -725,6 +725,28 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 			addViewer(v);			
 		}
 	}
+        
+        /**
+         * creates a New Viewer without opening a dialog box
+         * @param dataSourceName
+         * @param viewerName
+         * @return 
+         */
+        public Viewer createNewViewer(String dataSourceName, String viewerName){
+           ViewerCreator vc = new ViewerCreator(this, "viewer" + (autoViewerName++), dataSourceName, viewerName) ;
+           Viewer v = null;
+           if (vc.createdViewer != null)
+		{
+			v = vc.createdViewer;
+			v.setPropertyManagerGroup(this);
+			addViewer(v);			
+	     }
+           
+           return v;
+    }
+	
+        
+        
 	
 	/**
 	 * Opens a dialog box where the user can create a new datasource: specify the type, name it, add it to Environment
@@ -1005,8 +1027,5 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 		PropertyManager.registerType(c);
 		PropertyManagerViewer.registerNewType(c, pwf);	
 	}	
-	
-	
-	
 
 }
