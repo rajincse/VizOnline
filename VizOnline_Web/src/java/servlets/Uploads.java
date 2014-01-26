@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -43,93 +44,173 @@ public class Uploads extends HttpServlet {
 //    private int maxMemSize = 4 * 1024;
 //    private File file;
 //    
+    private HashMap<String, String> theDataSources = new HashMap<String, String>();
 
     public void init() {
         // Get the file location where it would be stored.
         //filePath = getServletContext().getRealPath(getInitParameter("file-upload"));
         filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
-       
+
+
+        System.out.println("UPLOADS -- Initialized");
+
+
+        //Delete existing local files when the upload servlet is started.
+        theDataSources = new HashMap<String, String>();
+        deleteExistingLocalFiles();
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        FileItemFactory factory = new DiskFileItemFactory();
-        ServletFileUpload upload = new ServletFileUpload(factory);
-        List uploadedItems = null;
-        FileItem fileItem = null;
 
-        out = response.getWriter();
-        try {
-            uploadedItems = upload.parseRequest(request);
-            Iterator i = uploadedItems.iterator();
-            System.out.println(uploadedItems.isEmpty() + " : " + i.hasNext());
-            while (i.hasNext()) {
-                fileItem = (FileItem) i.next();
-                if (fileItem.isFormField() == false) {
-                    if (fileItem.getSize() > 0) {
-                        File uploadedFile = null;
-                        String myFullFileName = fileItem.getName(), myFileName = "", slashType = (myFullFileName.lastIndexOf("\\") > 0) ? "\\" : "/";
-                        int startIndex = myFullFileName.lastIndexOf(slashType);
-                        myFileName = myFullFileName.substring(startIndex + 1, myFullFileName.length());
-                        uploadedFile = new File(filePath, myFileName);
-                        fileItem.write(uploadedFile);
-                        out.write(myFileName);
-                        out.flush();
-                        out.close();
-                    }
-                }
-            }
-        } catch (FileUploadException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        processRequest(request, response);
     }
 
     public void doGet(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, java.io.IOException {
+        processRequest(request, response);
+
+    }
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         out = response.getWriter();
-        if (request.getParameter("del") == null) {
-            String files = "";
-            File folder = new File(filePath);
-            File[] listOfFiles = folder.listFiles();
 
-            for (int i = 0; i < listOfFiles.length; i++) {
+        String thepage = request.getParameter("page");
 
-                if (listOfFiles[i].isFile()) {
-                    if (files.equals("")) {
-                        files = listOfFiles[i].getName();
+        // System.out.println("THE UPLOAD PAGE REQUEST IS "+ thepage);
+
+
+        try {
+
+
+            if (thepage.equalsIgnoreCase("getDatas")) {//request to get the datas
+             
+                String dataSourceDataNamePairs = "";
+                int cnt = 0;
+                String value;
+                //the key-value pair will be separated by a comma and a semicolon will separate different pairs
+                for (String key : theDataSources.keySet()) {
+                    value = theDataSources.get(key);
+                    if (cnt == 0) {
+                        dataSourceDataNamePairs = key + "," + value;
                     } else {
-                        files = files + "," + listOfFiles[i].getName();
+                        dataSourceDataNamePairs += ";" + key + "," + value;
                     }
-                }
-            }
-            if (files.equals("")) {
-                out.write("No Content");
-            } else {
-                out.write(files);
-            }
-            out.flush();
-            out.close();
-        } else {
-            try {
-                
-                System.out.println("The file " + filePath + request.getParameter("del"));
 
-                File file = new File(filePath + "\\" + request.getParameter("del"));
+                    cnt++;
+
+                }
+
+                if (dataSourceDataNamePairs.equals("")) {
+                    out.write("No Content");
+                } else {
+                    //out.write(files);
+                    out.write(dataSourceDataNamePairs);
+                }
+                out.flush();
+                out.close();
+            } else if (thepage.equalsIgnoreCase("deleteData")) { //request to delete a given data
+                
+                System.out.println("DELETE DATA REQUEST-----------------");
+
+                String fileName = request.getParameter("del");
+                File file = new File(filePath + "\\" + fileName);
 
                 if (file.delete()) {
+                    //remove it from the hashmap
+                    removeValueFromHashMap(theDataSources, fileName);
+
                     out.write(file.getName() + "  was deleted successfully!");
                 } else {
-                    out.write("Delete operation is failed.");
+                    out.write("Delete operation failed.");
                 }
 
-            } catch (Exception e) {
+            } else if (thepage.equalsIgnoreCase("uploadData")) {
 
-                e.printStackTrace();
+                FileItemFactory factory = new DiskFileItemFactory();
+                ServletFileUpload upload = new ServletFileUpload(factory);
+                List uploadedItems = null;
+                FileItem fileItem = null;
+
+                String myFileName = "";
+                // out = response.getWriter();
+                //get the dataSourceName
+
+
+                String dataSourceName = request.getParameter("dataSourceName");
+
+
+                uploadedItems = upload.parseRequest(request);
+                Iterator i = uploadedItems.iterator();
+                System.out.println(uploadedItems.isEmpty() + " : " + i.hasNext());
+                while (i.hasNext()) {
+                    fileItem = (FileItem) i.next();
+                    if (fileItem.isFormField() == false) {
+                        if (fileItem.getSize() > 0) {
+                            File uploadedFile = null;
+                            String myFullFileName = fileItem.getName(), slashType = (myFullFileName.lastIndexOf("\\") > 0) ? "\\" : "/";
+                            int startIndex = myFullFileName.lastIndexOf(slashType);
+                            myFileName = myFullFileName.substring(startIndex + 1, myFullFileName.length());
+                            uploadedFile = new File(filePath, myFileName);
+                            fileItem.write(uploadedFile);
+
+                            System.out.println("MYFILENAME IS " + myFileName);
+                            //out.write(dataSourceName + ";" +myFileName);
+                            out.write(myFileName);
+                            out.flush();
+                            out.close();
+                        }
+                    }
+                }
+
+                System.out.println("DataSource Name  and file name " + dataSourceName + "-" + myFileName);
+
+                //Put the name of the data in the hashmap
+                theDataSources.put(dataSourceName, myFileName);
 
             }
+
+
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+
+    }
+
+    public void deleteExistingLocalFiles() {
+        String files = "";
+
+        File folder = new File(filePath);
+        File[] listOfFiles = folder.listFiles();
+        String filename;
+        for (int i = 0; i < listOfFiles.length; i++) {
+
+            if (listOfFiles[i].isFile()) {
+                filename = listOfFiles[i].getName();
+                //delete the file
+                if (listOfFiles[i].delete()) {
+                    System.out.println("File " + filename + " successfully deleted");
+                    //return false if you cannot delete any of those files
+                    //return false;
+                } else {
+                    System.out.println("File " + filename + "Not Deleted");
+                }
+            }
+        }
+    }
+
+    public void removeValueFromHashMap(HashMap<String, String> hashmap, String value) {
+
+       
+        for (String key : hashmap.keySet()) {
+            if (hashmap.get(key).equalsIgnoreCase(value)) {
+                hashmap.remove(key);
+                break;
+            }
+        }
+
     }
 }

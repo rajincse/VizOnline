@@ -1,4 +1,5 @@
 package perspectives;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -10,7 +11,7 @@ import java.util.Vector;
  * @author rdjianu
  *
  */
-public abstract class ViewerFactory {
+public abstract class ViewerFactory implements Serializable{
 	
 	Vector<DataSource> data = new Vector<DataSource>();
 	

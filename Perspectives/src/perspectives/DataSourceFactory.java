@@ -1,10 +1,13 @@
 package perspectives;
+
+import java.io.Serializable;
+
 /**
  * 
  * @author rdjianu
  * For each new type of DataSource that is created a factory must be defined too. This factory will be added to the Perspectives Environment so that users can create this type of DataSources.
  */
-public abstract class DataSourceFactory {
+public abstract class DataSourceFactory implements Serializable {
 	
 	public abstract DataSource create(String name);
 	

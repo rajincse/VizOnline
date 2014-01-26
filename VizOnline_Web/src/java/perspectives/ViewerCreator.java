@@ -250,33 +250,21 @@ public class ViewerCreator extends JDialog {
        // System.out.println("The index is "+ index);
         for(int i=0; i<env.getDataSources().size();i++){
            DataSource df = env.getDataSources().get(i);
+           
+           System.out.println(df.getName());
+           
             if(df.getName().equalsIgnoreCase(dataSourceName)){
                 System.out.println("The DataSource name is "+dataSourceName);
                 
                 currentViewerFactory.addDataSource(df);
+                break;
                 
             }
         }
+        
         //create the viewer
         createdViewer = currentViewerFactory.create(defaultName+"-"+viewerName);
         
-       
-        
-        
-        //int[] selection = dataList1.getSelectedIndices();
-        //String invalids = "";
-        //for (int i = 0; i < selection.length; i++) {
-          //  DataSource df = finalenv.getDataSources().get(selection[i]);
-
-           /* if (!df.isLoaded()) {
-                invalids += df.getName();
-            } else {
-                currentViewerFactory.addDataSource(df);
-            }*/
-
-
-
-
         }
 
     }
