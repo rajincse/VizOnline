@@ -216,6 +216,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                         alert("File:  " + sourceFiles[fileID] + " was uploaded successfully");
                         count = 1;
                         makeRequest('update');
+                        
                     } else {
                         alert("Please choose a valid file");
                     }

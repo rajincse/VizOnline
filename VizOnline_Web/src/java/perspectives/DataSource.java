@@ -1,6 +1,7 @@
 package perspectives;
 
 import java.awt.Container;
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.swing.JInternalFrame;
@@ -17,7 +18,7 @@ import properties.PropertyType;
  * @see DataSourceFactory
  *
  */
-public abstract class DataSource extends PropertyManager
+public abstract class DataSource extends PropertyManager implements Serializable
 {
 	EventManager em;
 	

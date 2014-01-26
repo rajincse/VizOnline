@@ -601,72 +601,12 @@ public class VizOnlineServlet extends HttpServlet {
 
 
         Environment e = new Environment(true);
-
-
-
-        // String path = (getServletContext().getRealPath("/WEB-INF/table_data_sample.txt"));
-        //  TableData tb = new TableData(path);
-        // TableDistances table = new TableDistances();
-
-
-        // table.fromFile(path, "\t", true, true);  //Function to Get the Data from File
-
-        //tb.setTable(table);
-
-        //System.out.println("Finished loading Table data");
-
-//		        Viewer v = new ParallelCoordViewer("PC", tb);
-//                        
-//		        e.addViewer(v);
-
-        /*Trying HeatMap */
-        //Viewer v = new HeatMapViewer("HM", tb);
-        // e.addViewer(v);
-
-
-
-//        GraphData gd = new GraphData("d1");
-//
-//        Graph g = new Graph(false);
-//        g.fromEdgeList(new File((getServletContext().getRealPath("/WEB-INF/edge_list.txt"))));
-//        gd.setGraph(g);
-//
-//        Viewer v = new GraphViewer("graphvi", gd);
-//        System.out.println(g.numberOfNodes());
-//        OpenFilePropertyType opt = new OpenFilePropertyType();
-//        opt.path = getServletContext().getRealPath("/WEB-INF/pos5.txt");
-//        v.getProperty("Load Positions").setValue(opt);
-//        e.addViewer(v);
-//                        
-//                        System.out.println("Finished Loading Graph data");
-//		        
-        //Property[] ps = v.getProperties();
-
-//        synchronized (pcsync) {
-//            String value;
-//            for (int i = 0; i < ps.length; i++) {
-//                if (i != 0) {
-//                    propertyCommands += ";";
-//                }
-//
-//                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-//
-//            }
-//        }
-        // v.addPropertyChangeListener(listener);
-
+        
         envs.put(this, e);
         this.getServletContext().setAttribute("key", this);  //set the key of the attribute
 
-        // session.setAttribute("environment", e);  //set the environment variable here
-
         propsInitCnt++;
 
-
-
-        //}
-        //Environment e = envs.get(this);
-        //super.init();
     }
 
    public void sendImage(byte[] bs, HttpServletResponse response) {
