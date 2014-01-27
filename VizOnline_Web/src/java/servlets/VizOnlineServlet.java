@@ -53,6 +53,8 @@ import tree.HierarchicalClusteringViewerFactory;
 //import util.ImageTilerFactory;
 
 import HeatMap.*;
+import d3.D3Viewer;
+import d3.D3ViewerFactory;
 import java.util.ArrayList;
 import java.util.Vector;
 import perspectives.DataSource;
@@ -108,7 +110,7 @@ public class VizOnlineServlet extends HttpServlet {
                     e.registerViewerFactory(new HeatMapViewerFactory());
                     e.registerViewerFactory(new GraphViewerFactory());
                     e.registerViewerFactory(new ParallelCoordinateViewerFactory());
-                    
+                    e.registerViewerFactory(new D3ViewerFactory());
 
                     outResponse = "Environment has been Initialized";
 
@@ -177,7 +179,15 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to Launch Viewer Page               
                 int theIndex = Integer.parseInt(request.getParameter("index"));
                 currentViewerIndex = theIndex;
-                outResponse = "viewer.html";
+                String viewerName = e.getViewers().get(currentViewerIndex).getName();
+                if(viewerName.toLowerCase().endsWith(D3ViewerFactory.CREATOR_TYPE.toLowerCase()))
+                {
+                    outResponse = "d3viewer.html";
+                }
+                else
+                {
+                    outResponse = "viewer.html";
+                }
 
             } else if (request.getParameter("page").equals("dataFactories")) {
                 //return the dataFactories
