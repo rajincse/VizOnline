@@ -2,28 +2,34 @@
 var propID = 1;
 var viewerIndex;
 
-function addProperties(div, propertiesString){
-      
+function addProperties(div, propertiesString) {
+
     var propArr = propertiesString.split(";");
-    
+
     //if the div already has the properties  remove properties
-    removeDivChildren(div);    
-  
+    removeDivChildren(div);
+
     var prop;
     for (var i = 0; i < propArr.length; i++) {
         prop = propArr[i];
         var tempPropArr = prop.split(",");
         var addremove = tempPropArr[0];
-        var viewer_name = tempPropArr[1];        
-        
-     
+        var viewer_name = tempPropArr[1];
+
+        //set the name of the viewer if it is the viewer.
+        if (document.getElementById("viewerName")) {
+            document.getElementById("viewerName").value = viewer_name;
+        }
+
+
+
         if (addremove === "addProperty") {
             var label = tempPropArr[2];
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
             hash[label] = propID;
             var type = tempPropArr[3];
             var value = tempPropArr[4];
-            
+
             switch (type) {
                 case "PInteger":     //value format: 10
                     showIntegerBox(div, propID, label, value);
@@ -42,8 +48,8 @@ function addProperties(div, propertiesString){
                     showDoubleBox(div, propID, label, value);
                     break;
                 case "PBoolean":     //value format: 0
-                       showCheckBox(div, propID, label, value);
-                     break;
+                    showCheckBox(div, propID, label, value);
+                    break;
                 case "SaveFilePropertyType":    //value format: null
                     showUploadButton(div, propID, label);
                     break;
@@ -54,20 +60,20 @@ function addProperties(div, propertiesString){
                     showOptionBox(div, propID, label, value);
                     break;
                 case "PProgress":
-                      //TO-DO
-                      //do nothing for now;                     
-                      break;
-                    
+                    //TO-DO
+                    //do nothing for now;                     
+                    break;
+
                 default:
                     //tbd
             }
-        } else if(addremove === "factoryItemName"){ //set the factoryItemName
-                value = tempPropArr[1];
-                document.getElementById("factoryItemName").value= value;               
+        } else if (addremove === "factoryItemName") { //set the factoryItemName
+            value = tempPropArr[1];
+            document.getElementById("factoryItemName").value = value;
         }
-        
-    else if (addremove === "removeProperty") {
-        var label = tempPropArr[2];
+
+        else if (addremove === "removeProperty") {
+            var label = tempPropArr[2];
             // example: removeProperty,graphvi,Appearance.Node Size,10
             alert("remove " + hash[label]);
             removeElement(hash[label]);
@@ -79,20 +85,20 @@ function addProperties(div, propertiesString){
             updateValue(hash[label], newValue);
         }
         propID++;
-        
-    
-    
-    jscolor.init();
-    
-    
 
-}  
-    
-    
+
+
+        jscolor.init();
+
+
+
+    }
+
+
 }
 
-function removeDivChildren(div){
-    while(div.firstChild){
+function removeDivChildren(div) {
+    while (div.firstChild) {
         div.removeChild(div.firstChild);
     }
 }
@@ -113,134 +119,107 @@ function hexToRgb(hex) {
 
 function updateColorInfo(color, id) {
     var propValue = hexToRgb(color);
-    
+
     var prop = get('HL' + id);
     var propName = prop.value;
 
     var factoryType = document.getElementById("factoryType").value;
     var factoryItemName = document.getElementById("factoryItemName").value;
-       
-    var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
-        
+
+    var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
+    url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+
     makeRequest(url);
 
-   //makeRequest("updateProperty&newValue=" + newcolor + "&property=" + propName +"&viewerIndex="+viewerIndex );
+    //makeRequest("updateProperty&newValue=" + newcolor + "&property=" + propName +"&viewerIndex="+viewerIndex );
     //alert("after update");
     //makeRequest('updateProperty&newValue='+color.rgb+'&property='+get('L'+id).text());
 }
 
-function  updateInputValueInfo(id){
- //get the name and value of the property and make the update request
+function  updateInputValueInfo(id) {
+    //get the name and value of the property and make the update request
     var propLabel = get('HL' + id);
     var propName = propLabel.value;
-    var propInput = get("I"+id);
+    var propInput = get("I" + id);
     var propValue = propInput.value;
-    
-     var factoryType = document.getElementById("factoryType").value;
-    var factoryItemName = document.getElementById("factoryItemName").value;
-       
-    var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
-        
-    makeRequest(url);
-    
- }
 
-//function to update files
-function updateFileInfo(id){
-    var propLabel = get('HL' + id);
-    var propName = propLabel.value;
-    var file = get("I"+id);
-    var propValue = file.value;
-    
-   
-    var xmlHttpRequest = getXMLHttpRequest();
-    //first Upload the file
-    
-    
-    var dataSourceName = document.getElementById("factoryItemName").value;
-    //alert(dataSourceName);
-    
-    var formData = new FormData();
-    formData.append("File", file.files[0]);
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, 'upload');
-    xmlHttpRequest.open("POST", "Uploads?page=uploadData&dataSourceName="+dataSourceName, true);
-    xmlHttpRequest.send(formData);
-    
-    
-    
-    //split the file path and get the filename which will be the last item
-    var slashType;
-    if(propValue.indexOf("/") >= 0){
-        slashType =  "/";
-     }
-    else if(propValue.indexOf("\\") >=0){
-        slashType = "\\";
-     }
-    
-    
-    var pathSplit = propValue.split(slashType)
-         //get the fileName;
-    propValue = pathSplit[pathSplit.length-1];
-    
-    
-    //update PFile property
     var factoryType = document.getElementById("factoryType").value;
     var factoryItemName = document.getElementById("factoryItemName").value;
-       
-    var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
-        
+
+    var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
+    url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+
     makeRequest(url);
- 
+
+}
+
+//function to update files
+function updateFileInfo(id) {
+    var propLabel = get('HL' + id);
+    var propName = propLabel.value;
+    var file = get("I" + id);
+    var propValue = file.value;
+
+    var dataSourceName = document.getElementById("factoryItemName").value;
+    var factoryType = document.getElementById("factoryType").value;
+    var url = "Uploads?page=uploadData&dataSourceName=" + dataSourceName
+            + "&property=" + propName + "&factoryType=" + factoryType;
+
+    var formData = new FormData();
+    formData.append("File", file.files[0]);
+
+    var xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, 'upload');
+    xmlHttpRequest.open("POST", url, true);
+    xmlHttpRequest.send(formData);
 }
 
 //creation of a selection box and options
-function showOptionBox(div, id, name, value){
+function showOptionBox(div, id, name, value) {
     var hiddenInput = createHiddenInput(id, name);
-    
+
     div.appendChild(hiddenInput);
-    
+
     var paragraph = createParagraph();
 
     var label = createLabel(id, name);
-    
+
     var optionBox = document.createElement('select');
     optionBox.setAttribute("id", "I" + id);
-    
-    
-    optionBox.setAttribute("onchange", "updateInputValueInfo("+ id +");");;
-    
+
+
+    optionBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
+    ;
+
     var options = value.split("-"); //the options will be separated by "-"
-    for(var i=0; i<options.length; i++){
+    for (var i = 0; i < options.length; i++) {
         var option = document.createElement('option');
         option.setAttribute("value", options[i]);
         option.innerHTML = options[i];
-        
+
         optionBox.appendChild(option);
     }
-    
+
     //create the options and add them to the selectBox
-    
-    
+
+
     //append the label and input box to the paragraph
     paragraph.appendChild(label);
     paragraph.appendChild(optionBox);
 
     //append the paragraph to the properties
     div.appendChild(paragraph);
-    
-    
-    
-    
-    
+
+
+
+
+
 }
 
 function showColorPicker(div, id, name, value) {
     //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
-    
+
     div.appendChild(hiddenInput);
 
     var paragraph = createParagraph();
@@ -255,9 +234,9 @@ function showColorPicker(div, id, name, value) {
 
     //append the paragraph to the properties
     div.appendChild(paragraph);
-    
+
     //setInitialColor(id, value);
-    
+
 }
 
 // accepts only digits
@@ -269,7 +248,7 @@ function showIntegerBox(div, id, name, value) {
 
     //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
-    
+
     div.appendChild(hiddenInput);
 
 
@@ -281,7 +260,7 @@ function showIntegerBox(div, id, name, value) {
     integerInputBox.setAttribute("type", "number");
     integerInputBox.setAttribute("size", 20); //the size of the inputBoxes
 
-    integerInputBox.setAttribute("onchange", "updateInputValueInfo("+ id +");");
+    integerInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
     //create a paragraph and add the label and the integerInputBox to it
     var paragraph = createParagraph();
@@ -296,32 +275,32 @@ function showDoubleBox(div, id, name, value) {
     if (typeof(value) === 'undefined') {
         value = 100;
     }
-   //add hidden input to hold the name of the property
+    //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
-    div.appendChild(hiddenInput); 
-    
-    var label = createLabel(id, name);    
+    div.appendChild(hiddenInput);
+
+    var label = createLabel(id, name);
     var doubleInputBox = document.createElement('input');
     doubleInputBox.setAttribute("id", "I" + id);
     doubleInputBox.setAttribute("value", value);
     doubleInputBox.setAttribute("type", "number");
     doubleInputBox.setAttribute("size", 20); //the size of the inputBoxes
 
-    doubleInputBox.setAttribute("onchange", "updateInputValueInfo("+ id +");");
+    doubleInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
     //create a paragraph and add the label and the doubleInputBox to it
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(doubleInputBox);
-    div.appendChild(paragraph);      
+    div.appendChild(paragraph);
 }
 
 function showLetterBox(div, id, name, value) {
     if (typeof(value) === 'undefined') {
         value = " ";
     }
-    
-     //add hidden input to hold the name of the property
+
+    //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
 
@@ -334,70 +313,70 @@ function showLetterBox(div, id, name, value) {
     letterInputBox.setAttribute("type", "text");
     letterInputBox.setAttribute("size", 20); //the size of the inputBoxes
 
-    letterInputBox.setAttribute("onchange", "updateInputValueInfo("+ id +");");
+    letterInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
     //create a paragraph and add the label and the integerInputBox to it
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(letterInputBox);
     div.appendChild(paragraph);
-    
+
 }
 
 function showCheckBox(div, id, name, value) {
     //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
-    
+
     var label = createLabel(id, name);
 
     var booleanCheckBox = document.createElement('input');
-    
-    booleanCheckBox.setAttribute("id", "I" + id); 
-    booleanCheckBox.setAttribute("type", "checkbox");    
-    booleanCheckBox.setAttribute("onchange", "updateCheckBoxInfo("+ id +");"); 
+
+    booleanCheckBox.setAttribute("id", "I" + id);
+    booleanCheckBox.setAttribute("type", "checkbox");
+    booleanCheckBox.setAttribute("onchange", "updateCheckBoxInfo(" + id + ");");
     //create a paragraph and add the label and the checkbox to it
-    if(value==="1"){ //set the checked property if it is checked
-        booleanCheckBox.setAttribute("checked","true");
+    if (value === "1") { //set the checked property if it is checked
+        booleanCheckBox.setAttribute("checked", "true");
     }
-    
+
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(booleanCheckBox);
-    div.appendChild(paragraph);        
-   
+    div.appendChild(paragraph);
+
 }
 
 function showUploadButton(div, id, name) {
-    
+
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
-    
-    
+
+
     var label = createLabel(id, name);
 
     var fileBox = document.createElement('input');
-    
-    fileBox.setAttribute("id", "I" + id); 
-    fileBox.setAttribute("type", "file");    
-    fileBox.setAttribute("onchange", "updateFileInfo("+ id +");"); 
+
+    fileBox.setAttribute("id", "I" + id);
+    fileBox.setAttribute("type", "file");
+    fileBox.setAttribute("onchange", "updateFileInfo(" + id + ");");
     //create a paragraph and add the label and the checkbox to it
-    
+
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(fileBox);
-    div.appendChild(paragraph);            
-    
+    div.appendChild(paragraph);
+
 }
 
 function showRange(div, id, name, value) {
     if (typeof(value) === 'undefined') {
         value = 0.5;
-    }    
-     //add hidden input to hold the name of the property
+    }
+    //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
-    
+
     var label = createLabel(id, name);
 
     var rangeInputBox = document.createElement('input');
@@ -409,14 +388,14 @@ function showRange(div, id, name, value) {
     rangeInputBox.setAttribute("step", 0.01);
     //rangeInputBox.setAttribute("size", 20); //the size of the inputBoxes
 
-    rangeInputBox.setAttribute("onchange", "updateInputValueInfo("+ id +");");
+    rangeInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
     //create a paragraph and add the label and the integerInputBox to it
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(rangeInputBox);
     div.appendChild(paragraph);
-    
+
 }
 
 //Method to clean the name on the label of the properties
@@ -449,36 +428,36 @@ function updateValue(id, newValue) {
     }
 }
 
-function updateCheckBoxInfo(id){
-   
+function updateCheckBoxInfo(id) {
+
     //get the name and value of the property and make the update request
     var propLabel = get('HL' + id);
     var propName = propLabel.value;
-    var propInput = get("I"+id);
+    var propInput = get("I" + id);
     var propValue = propInput.checked;
-    
+
     var factoryType = document.getElementById("factoryType").value;
     var factoryItemName = document.getElementById("factoryItemName").value;
-       
-    var url = "updateProperty&newValue="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
-        
+
+    var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
+    url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+
     makeRequest(url);
 }
 
-function setInitialColor(id, value){
-   // alert(value);
-    var colorBox = get("I"+id);
-    
-      var split = value.split("-");     
-      alert(parseInt((split[0]) / 255)+ "  "  +
-                             Math.round(parseInt(split[1]) / 255)  
-                              + "  "  +parseInt(split[2]) / 255
-                               + "  "  +parseInt(split[3]) / 255);
-    
-   document.getElementById("I"+id).color.fromRGB(parseInt((split[0]) / 255), 
-                             Math.round(parseInt(split[1]) / 255), 
-                              parseInt(split[2]) / 255);
+function setInitialColor(id, value) {
+    // alert(value);
+    var colorBox = get("I" + id);
+
+    var split = value.split("-");
+    alert(parseInt((split[0]) / 255) + "  " +
+            Math.round(parseInt(split[1]) / 255)
+            + "  " + parseInt(split[2]) / 255
+            + "  " + parseInt(split[3]) / 255);
+
+    document.getElementById("I" + id).color.fromRGB(parseInt((split[0]) / 255),
+            Math.round(parseInt(split[1]) / 255),
+            parseInt(split[2]) / 255);
 }
 
 function createParagraph() {
