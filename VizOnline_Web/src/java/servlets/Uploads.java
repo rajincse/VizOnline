@@ -86,7 +86,7 @@ public class Uploads extends HttpServlet {
 
 
             if (thepage.equalsIgnoreCase("getDatas")) {//request to get the datas
-             
+
                 String dataSourceDataNamePairs = "";
                 int cnt = 0;
                 String value;
@@ -112,7 +112,7 @@ public class Uploads extends HttpServlet {
                 out.flush();
                 out.close();
             } else if (thepage.equalsIgnoreCase("deleteData")) { //request to delete a given data
-                
+
                 System.out.println("DELETE DATA REQUEST-----------------");
 
                 String fileName = request.getParameter("del");
@@ -138,15 +138,15 @@ public class Uploads extends HttpServlet {
                 // out = response.getWriter();
                 //get the dataSourceName
 
-
                 String dataSourceName = request.getParameter("dataSourceName");
-
-
                 uploadedItems = upload.parseRequest(request);
+
+
                 Iterator i = uploadedItems.iterator();
                 System.out.println(uploadedItems.isEmpty() + " : " + i.hasNext());
                 while (i.hasNext()) {
                     fileItem = (FileItem) i.next();
+
                     if (fileItem.isFormField() == false) {
                         if (fileItem.getSize() > 0) {
                             File uploadedFile = null;
@@ -155,59 +155,28 @@ public class Uploads extends HttpServlet {
                             myFileName = myFullFileName.substring(startIndex + 1, myFullFileName.length());
                             uploadedFile = new File(filePath, myFileName);
                             fileItem.write(uploadedFile);
-
-                            System.out.println("MYFILENAME IS " + myFileName);
                             //out.write(dataSourceName + ";" +myFileName);
-                            out.write(myFileName);
-                            out.flush();
-                            out.close();
+                            //out.write(myFileName);
+                            //out.flush();
+                            ///    out.close();
                         }
-                    }
-                    else{
-                        String name = fileItem.getFieldName();
-                        String value = fileItem.getString();
-                        
-                        //System.out.println("VALUESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS "+ name + "      -         "+ value);
+                    } else {
+                        /*String name = fileItem.getFieldName();
+                         String value = fileItem.getString(); */
                     }
                 }
 
-               System.out.println("DataSource Name  and file name " + dataSourceName + "-" + myFileName);
-
                 //Put the name of the data in the hashmap
                 theDataSources.put(dataSourceName, myFileName);
-                
-                
-                
-                 /*//now Send request to the VizOnlineServlet to update the PFile property
-                
-                String url = "VizOnlineServlet?updateProperty&newValue=";*/
-                        
-                         //split the file path and get the filename which will be the last item
-    /*var slashType;
-    if(propValue.indexOf("/") >= 0){
-        slashType =  "/";
-     }
-    else if(propValue.indexOf("\\") >=0){
-        slashType = "\\";
-     }
-    
-    
-    var pathSplit = propValue.split(slashType)
-         //get the fileName;
-    propValue = pathSplit[pathSplit.length-1];
-    
-    
-    //update PFile property
-    var factoryType = document.getElementById("factoryType").value;
-    var factoryItemName = document.getElementById("factoryItemName").value;
-       
-    var url = "="+propValue+"&property="+propName;
-        url +="&factoryType="+factoryType+"&factoryItemName="+factoryItemName;
-        
-    makeRequest(url);*/
-                
-                
-                
+                //send redirect to the vizonline servlet to update the property value
+                String factoryType = request.getParameter("factoryType");
+                String propertyName = request.getParameter("property");
+
+                String url = "VizOnlineServlet?page=updateProperty&newValue=" + myFileName
+                        + "&property=" + propertyName + "&factoryType=" + factoryType
+                        + "&factoryItemName=" + dataSourceName;
+
+                response.sendRedirect(url);
 
             }
 
@@ -243,7 +212,7 @@ public class Uploads extends HttpServlet {
 
     public void removeValueFromHashMap(HashMap<String, String> hashmap, String value) {
 
-       
+
         for (String key : hashmap.keySet()) {
             if (hashmap.get(key).equalsIgnoreCase(value)) {
                 hashmap.remove(key);

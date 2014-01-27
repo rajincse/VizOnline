@@ -43,14 +43,13 @@ function makeRequest(thepage) {
     // alert(thepage);
     var xmlHttpRequest = getXMLHttpRequest();
     //alert("xmlHttpRequest=" + xmlHttpRequest);
-    if (thepage === 'upload') {
-        //   alert("here");
+    /*if (thepage === 'upload') {
         var formData = new FormData();
         formData.append("File", document.getElementById("theFile").files[0]);
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("POST", "Uploads?page=uploadData", true);
         xmlHttpRequest.send(formData);
-    } else if (thepage === 'data' || thepage === 'viewdatas') {
+    } else*/ if (thepage === 'data' || thepage === 'viewdatas') {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
         xmlHttpRequest.send(null);
@@ -216,7 +215,6 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                         alert("File:  " + sourceFiles[fileID] + " was uploaded successfully");
                         count = 1;
                         makeRequest('update');
-                        
                     } else {
                         alert("Please choose a valid file");
                     }
