@@ -10,24 +10,24 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>The Viewer</title>
-       
+
         <link href="Styles.css" rel="stylesheet" type="text/css" />
         <script src="jQuery/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script type="text/javascript" src="jscolor/jscolor.js"></script>
         <!--      <script type="text/javascript" src="proplist.js"></script> -->
-        
-         <!--script and style for jquery slider and spinner -->
+
+        <!--script and style for jquery slider and spinner -->
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
         <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
         <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-        
-        
-        
-        
+
+
+
+
         <script type="text/javascript" src="ajax.js"></script>
-	<script type="text/javascript" src="image-transferer.js"></script>
-       <script type="text/javascript" src="property-manager.js"></script> 
+        <script type="text/javascript" src="image-transferer.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script> 
 
 
         <script type="text/javascript">
@@ -74,15 +74,14 @@
                 var inmousemove = false;
 
                 var ts = 0;
-		
-		var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000,700, 2,2);
-		imageTransf.imageUpdate();
-		
-               
+
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
+                setInterval(function() {imageTransf.imageUpdate()}, 50);
+
                 setInterval(pollprops, 500);
 
                 window.oncontextmenu = handleContextMenu;
-               // window.onunload = myUnloadFunction;
+                // window.onunload = myUnloadFunction;
 
                 var counter = 0;
 
@@ -100,14 +99,14 @@
                     xmlhttp.onreadystatechange = function()
                     {
 
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
                         {
 
                             if (xmlhttp.responseText.length != 0)
                             {
-                                                               
-                               addProperty(xmlhttp.responseText);
-                                
+
+                                addProperty(xmlhttp.responseText);
+
                             }
                             inpollprops = false;
                         }
@@ -119,7 +118,7 @@
 
                 function sendCommand(url) {
                     xmlhttp = new XMLHttpRequest();
-		console.log(url);
+                    console.log(url);
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
@@ -171,7 +170,7 @@
                 }
 
                 function handleMouseDown(event) {
-		
+
                     cnt++;
                     event = event || window.event; // IE-ism                  
                     var elem = event.target;
@@ -181,7 +180,7 @@
                         x: event.clientX + document.body.scrollLeft - xMargin,
                         y: event.clientY + document.body.scrollTop - yMargin
                     };
-                  //  alert(mousePos.x  + " " + mousePos.y);  
+                    //  alert(mousePos.x  + " " + mousePos.y);  
 
                     if ((mousePos.x) >= 1000 || mousePos.y >= 800)
                     {
@@ -306,7 +305,7 @@
 
                 function addProperty(name, type, value)
                 {
-                   
+
                 }
 
                 function firstTime() {
