@@ -172,7 +172,6 @@ function makeRequest(thepage) {
     }
 
     else {
-
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, true);
         //xmlHttpRequest.setRequestHandler("Content-Type", "application/x-www-form-urlencoded");  

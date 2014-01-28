@@ -92,6 +92,7 @@
 
             function pollprops()
             {
+                //TO-DO:REMEMBER TO MAKE THE inpollprops false after handling the properties
                 if (inpollprops)
                     return;
                 inpollprops = true;
@@ -115,8 +116,7 @@
                 };
 
                 var viewerName = document.getElementById("viewerName").value;
-                // alert(viewerName);
-
+                
                 xmlhttp.open("GET", "VizOnlineServlet?page=viewer&pollprops=1&viewerName="+viewerName+"&r=" + cnt, true);
                 xmlhttp.send();
             }
