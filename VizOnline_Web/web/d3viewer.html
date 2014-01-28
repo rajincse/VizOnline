@@ -31,7 +31,6 @@
         <script type="text/javascript" src="property-manager.js"></script> 
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="data-transferer.js"></script>
-        <script type="text/javascript" src="d3/d3-helper.js"></script>
 
 
         <script type="text/javascript">
@@ -43,9 +42,19 @@
               
                 var cnt = 0;
                
-                var data = new DataTransfer(document.getElementById("canv"),1000, 700, computeForceLayout);
-//                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
-//                setInterval(function() {imageTransf.imageUpdate()}, 50);
+                var dataTransfer = new DataTransfer(document.getElementById("canv"),1000, 700);
+                dataTransfer.readCreatorType(function(data)
+                    {
+                        var creatorType = data;
+                        $.getScript('d3/JSClients/'+creatorType+'.js', function(data)
+                            {
+                                var jsD3Client = new JSD3Client();
+                                dataTransfer.readViewerData(jsD3Client.dataUpdated);
+                            }
+                        
+                        );
+                    });
+                
 
                 setInterval(pollprops, 500);
                 

@@ -1,40 +1,22 @@
 package servlets;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.*;
 import java.util.Date;
 import java.util.Hashtable;
 
-import com.keypoint.*;
-
-import javax.imageio.ImageIO;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import multidimensional.PlanarProjectionViewerFactory;
-import Graph.BubbleSetGraphFactory;
-import Graph.Graph;
-import Graph.GraphData;
 import Graph.GraphDataFactory;
-import Graph.GraphViewer;
 import Graph.GraphViewerFactory;
 //import Graph.LineSetGraphFactory;
 //import Graph.ViewFocusGraphViewerFactory;
-import ParallelCoord.ParallelCoordViewer;
 import ParallelCoord.ParallelCoordinateViewerFactory;
-import data.TableData;
 import data.TableDataFactory;
-import data.TableDistances;
 import javax.servlet.http.HttpSession;
 
 import perspectives.Environment;
@@ -45,7 +27,6 @@ import properties.PropertyType;
 import perspectives.Viewer;
 //import perspectives.DefaultProperties.*;
 
-import tree.HierarchicalClusteringViewerFactory;
 //import tree.RadialBrainConnectivityViewerFactory;
 //import util.EyeCatcherFactory;
 //import util.Hotspots;
@@ -54,12 +35,11 @@ import tree.HierarchicalClusteringViewerFactory;
 
 import HeatMap.*;
 import d3.D3Viewer;
-import d3.D3ViewerFactory;
+import d3.GraphD3ViewerFactory;
 import java.util.ArrayList;
 import java.util.Vector;
 import perspectives.DataSource;
 import perspectives.ViewerFactory;
-import properties.PFile;
 
 public class VizOnlineServlet extends HttpServlet {
 
@@ -110,7 +90,7 @@ public class VizOnlineServlet extends HttpServlet {
                     e.registerViewerFactory(new HeatMapViewerFactory());
                     e.registerViewerFactory(new GraphViewerFactory());
                     e.registerViewerFactory(new ParallelCoordinateViewerFactory());
-                    e.registerViewerFactory(new D3ViewerFactory());
+                    e.registerViewerFactory(new GraphD3ViewerFactory());
 
                     outResponse = "Environment has been Initialized";
 
@@ -251,8 +231,28 @@ public class VizOnlineServlet extends HttpServlet {
                 outResponse = allProp.get(currentViewerIndex);
             } else if (request.getParameter("page").equals("d3viewer")) {
                 //Request to get Initial Properties    
+                 String method = request.getParameter("method");
+                 if(method.equals("readViewerData"))
+                 {
+                     loadD3Viewer(currentViewerIndex, request, response);
+                 }
+                 else if(method.equals("readCreatorType"))
+                 {
+                     Viewer viewer = e.getViewers().get(currentViewerIndex);
 
-                loadD3Viewer(currentViewerIndex, request, response);
+                     Vector<ViewerFactory> factories = e.getViewerFactories();
+                     String creatorType ="";
+                     for(ViewerFactory factory: factories)
+                     {
+                         Viewer factoryViewer = factory.create("sample");
+                         if( factoryViewer != null && factoryViewer.getClass() == viewer.getClass())
+                         {
+                             creatorType = factory.creatorType();
+                             break;
+                         }
+                     }
+                     outResponse = creatorType;
+                 }
             }else if (request.getParameter("page").equals("getDatas")) {
                 // System.out.println("GETTING DATAS");
                 String filePath = getServletContext().getRealPath(uploadsPath);

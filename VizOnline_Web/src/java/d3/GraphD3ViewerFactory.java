@@ -1,13 +1,12 @@
 package d3;
 
 import Graph.GraphData;
-import data.TableData;
 import perspectives.Viewer;
 import perspectives.ViewerFactory;
 
 
-public class D3ViewerFactory extends ViewerFactory {
-        public static final String CREATOR_TYPE ="D3 Viewer";
+public class GraphD3ViewerFactory extends ViewerFactory {
+        public static final String CREATOR_TYPE ="GraphD3Viewer";
     
 
 	@Override
@@ -19,7 +18,7 @@ public class D3ViewerFactory extends ViewerFactory {
 	@Override
 	public Viewer create(String name) {
 		if (this.isAllDataPresent()) {
-                return new D3Viewer(name, (GraphData)this.getData().get(0));
+                return new GraphD3Viewer(name, (GraphData)this.getData().get(0));
             }
 		return null;
 	}
