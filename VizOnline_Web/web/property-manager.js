@@ -17,9 +17,9 @@ function addProperties(div, propertiesString) {
         var viewer_name = tempPropArr[1];
 
         //set the name of the viewer if it is the viewer.
-        if (document.getElementById("viewerName")) {
+        /*if (document.getElementById("viewerName")) {
             document.getElementById("viewerName").value = viewer_name;
-        }
+        }*/
 
 
 

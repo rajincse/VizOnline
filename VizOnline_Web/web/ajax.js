@@ -44,12 +44,12 @@ function makeRequest(thepage) {
     var xmlHttpRequest = getXMLHttpRequest();
     //alert("xmlHttpRequest=" + xmlHttpRequest);
     /*if (thepage === 'upload') {
-        var formData = new FormData();
-        formData.append("File", document.getElementById("theFile").files[0]);
-        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("POST", "Uploads?page=uploadData", true);
-        xmlHttpRequest.send(formData);
-    } else*/ if (thepage === 'data' || thepage === 'viewdatas') {
+     var formData = new FormData();
+     formData.append("File", document.getElementById("theFile").files[0]);
+     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+     xmlHttpRequest.open("POST", "Uploads?page=uploadData", true);
+     xmlHttpRequest.send(formData);
+     } else*/ if (thepage === 'data' || thepage === 'viewdatas') {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
         xmlHttpRequest.send(null);
@@ -61,11 +61,11 @@ function makeRequest(thepage) {
         var dindex = get("datalist").selectedIndex;
         var doptions = get("datalist").options;
         var data = doptions[dindex].text;
-        var dataSourceName = document.getElementById("DS"+dindex).value;
-        
+        var dataSourceName = document.getElementById("DS" + dindex).value;
+
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage + "&type="
-                + type + "&data=" + data +"&dataSourceName="+dataSourceName, true);
+                + type + "&data=" + data + "&dataSourceName=" + dataSourceName, true);
         xmlHttpRequest.send(null);
 
     } else if (thepage === 'views') {
@@ -139,6 +139,37 @@ function makeRequest(thepage) {
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage + "&dataFactoryType=" + dataFactoryType, true);
         xmlHttpRequest.send(null);
     }
+    else if (thepage === 'properties') {
+
+        //alert("In properties");
+        //alert(document.getElementById("viewerName").value)
+
+        //make sure the viewer name is set for the viewer
+        var viewerName = "";
+        var test = function() {
+            viewerName = document.getElementById("viewerName").value;
+            if (viewerName !== "") {
+                
+               // alert(viewerName);
+               
+                var url = "VizOnlineServlet?page=" + thepage
+                        + "&viewerName=" + viewerName;
+
+                //alert(url);
+
+                xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+                xmlHttpRequest.open("GET", url, true);
+                xmlHttpRequest.send(null);
+
+
+
+                clearInterval(id);
+            }
+        };
+        var id = setInterval(test, 100);
+
+
+    }
 
     else {
 
@@ -202,9 +233,28 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     //viewerRequest(xmlHttpRequest.responseText);
                 }
                 else if (thepage === 'launchViewer') {
-                    var url = getURL() + xmlHttpRequest.responseText;
+
+                    var response = xmlHttpRequest.responseText.split(";");  //e.g viewer.html;name-of-viewer
+
+                    var url = getURL() + response[0];
+
                     var win = window.open(url, '_blank');
+                    win.onload = function() {
+                        alert("hi the viewer window is loading ");
+                    };
+                    // alert("after windown onload");
                     win.focus();
+
+                    var test = function() {
+                        var viewerName = win.document.getElementById("viewerName");
+                        if (viewerName) {
+                            viewerName.value = response[1];
+                            clearInterval(id);
+                        }
+                    };
+                    var id = setInterval(test, 100);
+
+
                 }
                 else if (thepage === 'upload') {
 
@@ -425,7 +475,7 @@ function getCurrentViewers(datalist) {
             but1.innerHTML = 'Launch';
             but1.setAttribute('class', 'small button blue');
             var theViewer = document.getElementById('v' + currIndex).getAttribute('name');
-            but1.setAttribute('onclick', 'launchRequest("' + theViewer + '")');
+            but1.setAttribute('onclick', 'launchRequest("' + currName + '")');
             var but2 = document.createElement('button');
             but2.setAttribute('id', 'bdel' + currIndex);
             but2.setAttribute('name', currIndex);
@@ -435,6 +485,8 @@ function getCurrentViewers(datalist) {
             but2.setAttribute('onclick', 'delVRequest("' + theViewer + '")');
             document.getElementById('v' + currIndex).appendChild(but2);
             document.getElementById('v' + currIndex).appendChild(but1);
+
+
         }
     }
 }
@@ -494,10 +546,14 @@ function deleteRequest(id) {
 
 }
 
-function launchRequest(index) {
+function launchRequest(viewerName) {
+
     var xmlHttpRequest = getXMLHttpRequest();
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "launchViewer");
-    xmlHttpRequest.open("GET", "VizOnlineServlet?page=viewerLaunch&index=" + index, true);
+
+    var url = "VizOnlineServlet?page=viewerLaunch&viewerName=" + viewerName;
+
+    xmlHttpRequest.open("GET", url, true);
 
     xmlHttpRequest.send(null);
 }
