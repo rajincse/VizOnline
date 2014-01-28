@@ -27,91 +27,81 @@
 
 
         <script type="text/javascript" src="ajax.js"></script>
-        
+
         <script type="text/javascript" src="property-manager.js"></script> 
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="data-transferer.js"></script>
 
 
         <script type="text/javascript">
-            window.onload = function() {
+
+            var xmlhttp;            
+            var cnt = 0;
+            function initialize() {
+                // alert("The name of the viewer is " +document.getElementById("viewerName").value);
                 makeRequest('properties');
 
-                firstTime();
-
-              
-                var cnt = 0;
-               
-                var dataTransfer = new DataTransfer(document.getElementById("canv"),1000, 700);
+                var dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
                 dataTransfer.readCreatorType(function(data)
+                {
+                    var creatorType = data;
+                    $.getScript('d3/JSClients/' + creatorType + '.js', function(data)
                     {
-                        var creatorType = data;
-                        $.getScript('d3/JSClients/'+creatorType+'.js', function(data)
-                            {
-                                var jsD3Client = new JSD3Client();
-                                dataTransfer.readViewerData(jsD3Client.dataUpdated);
-                            }
-                        
-                        );
-                    });
-                
+                        var jsD3Client = new JSD3Client();
+                        dataTransfer.readViewerData(jsD3Client.dataUpdated);
+                    }
+
+                    );
+                });
+
 
                 setInterval(pollprops, 500);
-                
-                var inpollprops = false;
-                function pollprops()
-                {
-                    if (inpollprops)
-                        return;
-                    inpollprops = true;
 
-                    cnt++;
-                    xmlhttp = new XMLHttpRequest();
-                    xmlhttp.onreadystatechange = function()
+                var inpollprops = false;
+
+            }
+
+            function pollprops()
+            {
+                if (inpollprops)
+                    return;
+                inpollprops = true;
+
+                cnt++;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function()
+                {
+
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
                     {
 
-                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                        if (xmlhttp.responseText.length != 0)
                         {
 
-                            if (xmlhttp.responseText.length != 0)
-                            {
+                            addProperty(xmlhttp.responseText);
 
-                                addProperty(xmlhttp.responseText);
-
-                            }
-                            inpollprops = false;
                         }
+                        inpollprops = false;
                     }
-                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' + cnt, true);
-                    xmlhttp.send();
                 }
+                xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' + cnt, true);
+                xmlhttp.send();
+            }
 
 
-                function sendCommand(url) {
-                    xmlhttp = new XMLHttpRequest();
-                    console.log(url);
-                    xmlhttp.open("GET", url, true);
-                    xmlhttp.send();
-                }
-
-
-
-                function firstTime() {
-
-                    //   alert("firstTime");
-
-                    xmlhttp = new XMLHttpRequest();
-                    xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&firstTime=1&r=' + cnt, true);
-                    xmlhttp.send();
-                }
-            };
+            function sendCommand(url) {
+                xmlhttp = new XMLHttpRequest();
+                console.log(url);
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
 
         </script>
 
 
     </head>
 
-    <body>
+    <body onload="initialize();">
         <div id="generalHolder">
 
             <div class ="container"> 
@@ -153,6 +143,7 @@
 
                 <input type="hidden" id="factoryType" value="Viewer" />
                 <input type ="hidden" id="factoryItemName" value="" />
+                <input type="hidden" id="viewerName" value="" />
 
             </div>
 
