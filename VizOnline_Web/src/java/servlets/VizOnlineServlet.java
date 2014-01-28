@@ -164,14 +164,16 @@ public class VizOnlineServlet extends HttpServlet {
 
                 Viewer viewer= null;
                 for(int i=0; i<e.getViewers().size(); i++){
-                  
+                  System.out.println("Viewer Name is "+e.getViewers().get(i).getName());
                     if(viewerName.equalsIgnoreCase(e.getViewers().get(i).getName())){
                         viewer  = e.getViewers().get(i);
+                        System.out.println("Viewer found");
                         break;
                     }
                 }
                 
                 if (viewer instanceof D3Viewer) {
+                    System.out.println("D3-VIEWER");
                     outResponse = "d3viewer.html" + ";" + viewerName;
                 } else {
                     outResponse = "viewer.html" + ";" + viewerName;
