@@ -36,7 +36,9 @@ function ImageTransferer(div, w,h, tch, tcv)
 			var rowImages = [];
 			for (var j=0; j<tch; j++)
 			{
-				var url = "VizOnlineServlet?page=viewer&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
+                                var viewerName = document.getElementById("viewerName").value;
+				var url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
+                                        +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
 				var image = new Image();
 				rowImages.push(image);
 				image.src = url;

@@ -35,11 +35,16 @@
 
         <script type="text/javascript">
 
-            var xmlhttp;            
+            var xmlhttp;
             var cnt = 0;
+            
             function initialize() {
                 // alert("The name of the viewer is " +document.getElementById("viewerName").value);
                 makeRequest('properties');
+
+
+
+                
 
                 var dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
                 dataTransfer.readCreatorType(function(data)
