@@ -1,0 +1,18 @@
+/* 
+    Document   : d3Styles
+    Created on : Jan 28, 2014, 2:53:05 AM
+    Author     : rajin
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+

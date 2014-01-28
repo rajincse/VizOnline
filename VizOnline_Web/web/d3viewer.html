@@ -12,6 +12,7 @@
         <title>The Viewer</title>
 
         <link href="Styles.css" rel="stylesheet" type="text/css" />
+        <link href="d3/d3Styles.css" rel="stylesheet" type="text/css" />
         <script src="jQuery/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/jquery-latest.min.js"></script>
         <script type="text/javascript" src="jscolor/jscolor.js"></script>
@@ -26,8 +27,11 @@
 
 
         <script type="text/javascript" src="ajax.js"></script>
-        <script type="text/javascript" src="image-transferer.js"></script>
+        
         <script type="text/javascript" src="property-manager.js"></script> 
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script type="text/javascript" src="data-transferer.js"></script>
+        <script type="text/javascript" src="d3/d3-helper.js"></script>
 
 
         <script type="text/javascript">
@@ -36,57 +40,15 @@
 
                 firstTime();
 
-                var xMargin = 300;
-                var yMargin = 10;
-
-                var ims = [];
-
-                var dragFlag = 0;
-                var myString = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                var randLength = 6;
-                var randStr = "";
-                var theUrl = "";
+              
                 var cnt = 0;
-                var prop_cnt = 0;
-
-                var mousePos,
-                        posDisplay = document.getElementById("posDisplay");
-                // counterDisplay = document.getElementById("counterDisplay"),
-                // counter = 0;
-
-                var mouseType = "left";
-                document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
-                document.getElementById("canv").onmouseup = handleMouseUp;
-                document.getElementById("canv").onmousemove = handleMouseMove;
-
-                var prevx = 0;
-                var prevy = 0;
-                var prevtime = 0;
-                var starttime = (new Date()).getTime();
-                var rendercnt = 0;
-                var prevtimerender = starttime;
-
-                var cttt = 0;
-                var ttt = 0;
-                var loading = 0;
-
-
-                var inmousemove = false;
-
-                var ts = 0;
-
-                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
-                setInterval(function() {imageTransf.imageUpdate()}, 50);
+               
+                var data = new DataTransfer(document.getElementById("canv"),1000, 700, computeForceLayout);
+//                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
+//                setInterval(function() {imageTransf.imageUpdate()}, 50);
 
                 setInterval(pollprops, 500);
-
-                window.oncontextmenu = handleContextMenu;
-                // window.onunload = myUnloadFunction;
-
-                var counter = 0;
-
-
-
+                
                 var inpollprops = false;
                 function pollprops()
                 {
@@ -124,189 +86,6 @@
                 }
 
 
-                function handleMouseUp(event) {
-
-                    cnt++;
-
-                    event = event || window.event; // IE-ism
-
-                    event.preventDefault();
-
-                    mousePos = {
-                        x: event.clientX + document.body.scrollLeft - xMargin,
-                        y: event.clientY + document.body.scrollTop - yMargin
-                    };
-
-
-                    //check if mousedrag or mouse click
-                    var elem = event.target;
-
-                    if ((mousePos.x - xMargin) > 1000)
-                        return true;
-
-
-                    dragFlag = 0;
-
-
-                    if (event.which === 3) {
-                        mouseType = "right";
-                    }
-                    else {
-                        mouseType = "left ";
-                    }
-
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseUp&mx=' + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
-                    sendCommand(theUrl);
-
-                }
-
-
-                function handleContextMenu(event) {
-                    event = event || window.event; // IE-ism                  
-                    var elem = event.target;
-                    if (elem.parentNode.id === "canv") { //avoid right-click menu on the canv
-                        return false;
-                    }
-                }
-
-                function handleMouseDown(event) {
-
-                    cnt++;
-                    event = event || window.event; // IE-ism                  
-                    var elem = event.target;
-
-
-                    mousePos = {
-                        x: event.clientX + document.body.scrollLeft - xMargin,
-                        y: event.clientY + document.body.scrollTop - yMargin
-                    };
-                    //  alert(mousePos.x  + " " + mousePos.y);  
-
-                    if ((mousePos.x) >= 1000 || mousePos.y >= 800)
-                    {
-                        return true;
-                    }
-
-
-
-                    if (event.target.id == "button1")
-                    {
-                        window.clearInterval(interval);
-                        alert(parseInt(document.getElementById("refresh").value));
-                        interval = setInterval(clientImageUpdate, parseInt(document.getElementById("refresh").value));
-                    }
-                    else if (event.target.id == "button2")
-                    {
-                        theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value + "&r=" + cnt;
-                        //alert(theUrl);  
-                        sendCommand(theUrl);
-                        return true;
-                    }
-
-                    dragFlag = 1;
-
-
-
-
-
-
-
-
-
-                    if (event.which === 3) {
-                        mouseType = "right";
-                    }
-                    else {
-                        mouseType = "left ";
-                    }
-
-
-                    theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDown&mx=' + mousePos.x
-                            + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
-
-                    sendCommand(theUrl);
-
-
-
-                    return false; //this is to prevent image dragging.
-                }
-
-
-
-
-                function handleMouseMove(event) {
-
-                    if (inmousemove)
-                        return;
-                    inmousemove = true;
-
-                    cnt++;
-                    event = event || window.event; // IE-ism
-                    var elem = event.target;
-
-
-                    mousePos = {
-                        x: event.clientX - xMargin,
-                        y: event.clientY - yMargin
-                    };
-
-                    document.getElementById("fps2").innerHTML = mousePos.x + " " + mousePos.y;
-                    document.getElementById("fps").innerHTML = document.body.scrollLeft + " " + document.body.scrollTop;
-
-                    if ((mousePos.x) >= 1000 || mousePos.y >= 800)
-                    {
-                        return true;
-                    }
-
-                    if (((new Date()).getTime() - prevtime < 50))
-                    {
-                        inmousemove = false;
-                        return;
-                    }
-                    prevx = mousePos.x;
-                    prevy = mousePos.y;
-                    prevtime = (new Date()).getTime();
-
-
-                    if (event.which === 3) {
-                        mouseType = "right";
-                    }
-                    else {
-                        mouseType = "left ";
-                    }
-
-                    if (dragFlag === 1) {//mouse is being dragged
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDragged&mx='
-                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
-                        sendCommand(theUrl);
-                    }
-                    else { //normal mouse move
-                        theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseMoved&mx='
-                                + mousePos.x + '&my=' + mousePos.y + "&updateType=server" + "&r=" + cnt;
-                        sendCommand(theUrl);
-                    }
-                    inmousemove = false;
-                }
-
-                function getMousePosition() {
-                    var pos = mousePos;
-                    if (!pos) {
-                        // We haven't seen any movement yet
-                        pos = {x: "?", y: "?"};
-                    }
-                    posDisplay.innerHTML = "(" + pos.x + "," + pos.y + ")";
-
-                    //  counterDisplay.innerHTML = ++counter;
-
-                }
-
-                var cpt = 0;
-                var sliderName, sliderValue;
-
-                function addProperty(name, type, value)
-                {
-
-                }
 
                 function firstTime() {
 

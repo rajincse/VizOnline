@@ -179,8 +179,8 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to Launch Viewer Page               
                 int theIndex = Integer.parseInt(request.getParameter("index"));
                 currentViewerIndex = theIndex;
-                String viewerName = e.getViewers().get(currentViewerIndex).getName();
-                if(viewerName.toLowerCase().endsWith(D3ViewerFactory.CREATOR_TYPE.toLowerCase()))
+                Viewer viewer = e.getViewers().get(currentViewerIndex);
+                if(viewer instanceof D3Viewer)
                 {
                     outResponse = "d3viewer.html";
                 }
@@ -249,7 +249,11 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to get Initial Properties    
 
                 outResponse = allProp.get(currentViewerIndex);
-            } else if (request.getParameter("page").equals("getDatas")) {
+            } else if (request.getParameter("page").equals("d3viewer")) {
+                //Request to get Initial Properties    
+
+                loadD3Viewer(currentViewerIndex, request, response);
+            }else if (request.getParameter("page").equals("getDatas")) {
                 // System.out.println("GETTING DATAS");
                 String filePath = getServletContext().getRealPath(uploadsPath);
                 String files = "";
@@ -357,6 +361,53 @@ public class VizOnlineServlet extends HttpServlet {
         processRequest(request, response);
     }
 
+    public void loadD3Viewer(int index, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Hashtable<VizOnlineServlet, Environment> envs = (Hashtable<VizOnlineServlet, Environment>) this.getServletContext().getAttribute("envs");
+        Environment e;
+
+        //System.out.println("The PropsInitCnt is "+propsInitCnt);
+
+        HttpSession session = request.getSession();
+
+        if (request.getParameter("firstTime") != null) {
+            session = request.getSession(true);
+
+
+            // System.out.println("First Time. Loading Properties ....");
+            propsInit();    //call the propsInit again for new sessions.
+
+        } else {
+
+            if (session.getAttribute("environment") == null) {
+                e = envs.get(this);
+                session.setAttribute("environment", e);
+            } else {
+                e = (Environment) session.getAttribute("environment");
+            }
+
+
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+           
+            D3Viewer viewer = (D3Viewer)e.getViewers().get(index);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData());
+
+            
+
+
+            session.setAttribute("environment", e); //reset the environment session
+        }
+
+
+
+    }
     //Method to Obtain Images from Perspectives
     public void loadViewer(int index, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

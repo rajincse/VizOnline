@@ -53,6 +53,8 @@ import tree.HierarchicalClusteringViewerFactory;
 //import util.ImageTilerFactory;
 
 import HeatMap.*;
+import d3.D3Viewer;
+import d3.D3ViewerFactory;
 import java.util.ArrayList;
 import java.util.Vector;
 import perspectives.DataSource;
@@ -108,7 +110,7 @@ public class VizOnlineServlet extends HttpServlet {
                     e.registerViewerFactory(new HeatMapViewerFactory());
                     e.registerViewerFactory(new GraphViewerFactory());
                     e.registerViewerFactory(new ParallelCoordinateViewerFactory());
-
+                    e.registerViewerFactory(new D3ViewerFactory());
 
                     outResponse = "Environment has been Initialized";
 
@@ -130,9 +132,8 @@ public class VizOnlineServlet extends HttpServlet {
                 type = request.getParameter("type").toLowerCase();
                 dataname = request.getParameter("data");
                 String dataSourceName = request.getParameter("dataSourceName");
-                System.out.println("DATASOURCE-NAME ********** "+dataSourceName);
-               // int vindex = createViewer(type, dataSourceName);
-                int vindex = createViewer(type, dataname);
+                int vindex = createViewer(type, dataSourceName);
+                //int vindex = createViewer(type, dataname);
                 outResponse = vindex + "";
 
             } else if (request.getParameter("page").equals("delViewer")) {
@@ -178,7 +179,15 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to Launch Viewer Page               
                 int theIndex = Integer.parseInt(request.getParameter("index"));
                 currentViewerIndex = theIndex;
-                outResponse = "viewer.html";
+                Viewer viewer = e.getViewers().get(currentViewerIndex);
+                if(viewer instanceof D3Viewer)
+                {
+                    outResponse = "d3viewer.html";
+                }
+                else
+                {
+                    outResponse = "viewer.html";
+                }
 
             } else if (request.getParameter("page").equals("dataFactories")) {
                 //return the dataFactories
@@ -240,7 +249,11 @@ public class VizOnlineServlet extends HttpServlet {
                 //Request to get Initial Properties    
 
                 outResponse = allProp.get(currentViewerIndex);
-            } else if (request.getParameter("page").equals("getDatas")) {
+            } else if (request.getParameter("page").equals("d3viewer")) {
+                //Request to get Initial Properties    
+
+                loadD3Viewer(currentViewerIndex, request, response);
+            }else if (request.getParameter("page").equals("getDatas")) {
                 // System.out.println("GETTING DATAS");
                 String filePath = getServletContext().getRealPath(uploadsPath);
                 String files = "";
@@ -295,12 +308,10 @@ public class VizOnlineServlet extends HttpServlet {
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
+                            outResponse = newvalue;  //outresponse will return the name of the file
                             newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                         }
                         
-                      //  System.out.pritnln()
-
-                        //set the value
                         e.getDataSources().get(factoryItemIndex).getProperty(property)
                                 .setValue((e.getDataSources().get(factoryItemIndex)).deserialize(type, newvalue));
                     }
@@ -350,6 +361,53 @@ public class VizOnlineServlet extends HttpServlet {
         processRequest(request, response);
     }
 
+    public void loadD3Viewer(int index, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Hashtable<VizOnlineServlet, Environment> envs = (Hashtable<VizOnlineServlet, Environment>) this.getServletContext().getAttribute("envs");
+        Environment e;
+
+        //System.out.println("The PropsInitCnt is "+propsInitCnt);
+
+        HttpSession session = request.getSession();
+
+        if (request.getParameter("firstTime") != null) {
+            session = request.getSession(true);
+
+
+            // System.out.println("First Time. Loading Properties ....");
+            propsInit();    //call the propsInit again for new sessions.
+
+        } else {
+
+            if (session.getAttribute("environment") == null) {
+                e = envs.get(this);
+                session.setAttribute("environment", e);
+            } else {
+                e = (Environment) session.getAttribute("environment");
+            }
+
+
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+           
+            D3Viewer viewer = (D3Viewer)e.getViewers().get(index);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData());
+
+            
+
+
+            session.setAttribute("environment", e); //reset the environment session
+        }
+
+
+
+    }
     //Method to Obtain Images from Perspectives
     public void loadViewer(int index, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -601,72 +659,12 @@ public class VizOnlineServlet extends HttpServlet {
 
 
         Environment e = new Environment(true);
-
-
-
-        // String path = (getServletContext().getRealPath("/WEB-INF/table_data_sample.txt"));
-        //  TableData tb = new TableData(path);
-        // TableDistances table = new TableDistances();
-
-
-        // table.fromFile(path, "\t", true, true);  //Function to Get the Data from File
-
-        //tb.setTable(table);
-
-        //System.out.println("Finished loading Table data");
-
-//		        Viewer v = new ParallelCoordViewer("PC", tb);
-//                        
-//		        e.addViewer(v);
-
-        /*Trying HeatMap */
-        //Viewer v = new HeatMapViewer("HM", tb);
-        // e.addViewer(v);
-
-
-
-//        GraphData gd = new GraphData("d1");
-//
-//        Graph g = new Graph(false);
-//        g.fromEdgeList(new File((getServletContext().getRealPath("/WEB-INF/edge_list.txt"))));
-//        gd.setGraph(g);
-//
-//        Viewer v = new GraphViewer("graphvi", gd);
-//        System.out.println(g.numberOfNodes());
-//        OpenFilePropertyType opt = new OpenFilePropertyType();
-//        opt.path = getServletContext().getRealPath("/WEB-INF/pos5.txt");
-//        v.getProperty("Load Positions").setValue(opt);
-//        e.addViewer(v);
-//                        
-//                        System.out.println("Finished Loading Graph data");
-//		        
-        //Property[] ps = v.getProperties();
-
-//        synchronized (pcsync) {
-//            String value;
-//            for (int i = 0; i < ps.length; i++) {
-//                if (i != 0) {
-//                    propertyCommands += ";";
-//                }
-//
-//                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-//
-//            }
-//        }
-        // v.addPropertyChangeListener(listener);
-
+        
         envs.put(this, e);
         this.getServletContext().setAttribute("key", this);  //set the key of the attribute
 
-        // session.setAttribute("environment", e);  //set the environment variable here
-
         propsInitCnt++;
 
-
-
-        //}
-        //Environment e = envs.get(this);
-        //super.init();
     }
 
    public void sendImage(byte[] bs, HttpServletResponse response) {
@@ -740,13 +738,13 @@ public class VizOnlineServlet extends HttpServlet {
 
     }
 
-    public int createViewer(String type, String data) {
+    public int createViewer(String type, String dataSourceName) {
             
 
         Viewer v = null;
 
-      /* propertyCommands = "";
-        
+       propertyCommands = "";
+       
         //create the viewer
       
        
@@ -776,11 +774,11 @@ public class VizOnlineServlet extends HttpServlet {
         else{
             System.out.println("Viewer creation failed");
         }
-        */
+        
         
         
          
-
+/*
         System.out.println(data);
         String filePath = (getServletContext().getRealPath(uploadsPath + data));
         System.out.println("TEST #2: " + filePath);
@@ -791,7 +789,7 @@ public class VizOnlineServlet extends HttpServlet {
         /**
          * ***********For Heatmap Viewer and Table Data*****************
          */
-        if (type.equalsIgnoreCase("heatmap")) {
+       /* if (type.equalsIgnoreCase("heatmap")) {
 
             TableData tb = new TableData(filePath);
             TableDistances table = new TableDistances();
@@ -823,7 +821,7 @@ public class VizOnlineServlet extends HttpServlet {
          *
          *********** For Graphs Viewer and Graph Data*****************
          */
-        else if (type.equalsIgnoreCase("graph viewer")) {
+     /*   else if (type.equalsIgnoreCase("graph viewer")) {
             GraphData gd = new GraphData("d1");
 
             Graph g = new Graph(false);
