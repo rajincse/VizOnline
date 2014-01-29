@@ -1,6 +1,6 @@
 package d3;
 import java.awt.Graphics2D;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import perspectives.Viewer2D;
 
 

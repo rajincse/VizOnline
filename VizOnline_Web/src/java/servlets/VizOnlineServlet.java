@@ -203,7 +203,7 @@ public class VizOnlineServlet extends HttpServlet {
                             e.addDataSource(ds, true);
                             // v.addPropertyChangeListener(listener);
                             //add the propertylistener
-                            //e.getDataSources().get(e.getDataSources().size()-1).addPropertyChangeListener(listener);
+                            e.getDataSources().get(e.getDataSources().size()-1).addPropertyChangeListener(listener);
                         }
                     }
                 }
@@ -649,6 +649,8 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "removeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
+                
+                
                 propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
@@ -663,6 +665,8 @@ public class VizOnlineServlet extends HttpServlet {
                     propertyCommands = propertyCommands + "changeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
                 
+                System.out.println("PROPERTY-VALUE CHANGED "+propertyCommands );
+               
                 propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
@@ -803,9 +807,6 @@ public class VizOnlineServlet extends HttpServlet {
             int size = e.getViewers().size();
             //System.out.println(" ::::::::"+e.getViewers().get(size-1).getName()+ "  " +listener );
             
-            
-             propCommandsSet.put(v.getName(), propertyCommands);
-            
              e.getViewers().get(size-1).addPropertyChangeListener(listener);
              
         } else {
@@ -845,6 +846,7 @@ public class VizOnlineServlet extends HttpServlet {
                     }
 
                     propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+
                 }
 
                v.addPropertyChangeListener(listener);
@@ -854,7 +856,7 @@ public class VizOnlineServlet extends HttpServlet {
         }
         
         //System.out.println("PROPERTYCOMMANDS HASHMAP:::::::"+ propCommandsSet.get(viewerName) );
-        //System.out.println("SIZE OF THE HASHMAP IS ::::" +propCommandsSet.size());
+        System.out.println("SIZE OF THE HASHMAP IS ::::" +propCommandsSet.size());
 
         return propertyCommands;
 
