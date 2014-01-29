@@ -6,9 +6,11 @@ package d3;
 
 import Graph.Graph;
 import Graph.GraphData;
+import java.awt.Color;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import properties.PColor;
 import properties.PDouble;
 import properties.PFile;
 import properties.Property;
@@ -25,11 +27,9 @@ public class GraphD3Viewer extends D3Viewer {
         this.graph = graphData.graph;
         try {
 
-            Property<PFile> p33 = new Property<PFile>("Load Positions", new PFile());
-            this.addProperty(p33);
-
-            Property<PDouble> p = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.));
-            this.addProperty(p);
+           Property<PColor> p1 = new Property<PColor>("Node Color",new PColor(new Color(0, 255, 0)));
+          
+            this.addProperty(p1);
 
            
 
