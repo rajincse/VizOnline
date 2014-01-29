@@ -8,9 +8,11 @@ function JSD3Client()
 { 
 };
 
-JSD3Client.prototype.dataUpdated = function (graph, canvas, canvasWidth, canvasHeight)
+JSD3Client.prototype.dataUpdated = function (data, canvas, canvasWidth, canvasHeight)
 {
+    var graph = data.graph;
     var color = d3.scale.category20();
+    console.log(JSON.stringify(color));
 
     var force = d3.layout.force()
         .charge(-120)
@@ -38,7 +40,8 @@ JSD3Client.prototype.dataUpdated = function (graph, canvas, canvasWidth, canvasH
         .enter().append("circle")
           .attr("class", "node")
           .attr("r", 5)
-          .style("fill", function(d) { return color(0); })
+          //.style("fill", "function(d) { return color(0); }")
+          .style("fill", data.PropertyData.NodeColor)
           .call(force.drag);
     //
       node.append("title")

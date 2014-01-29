@@ -6,9 +6,11 @@ package d3;
 
 import Graph.Graph;
 import Graph.GraphData;
+import java.awt.Color;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import properties.PColor;
 import properties.PDouble;
 import properties.PFile;
 import properties.Property;
@@ -25,11 +27,9 @@ public class GraphD3Viewer extends D3Viewer {
         this.graph = graphData.graph;
         try {
 
-            Property<PFile> p33 = new Property<PFile>("Load Positions", new PFile());
-            this.addProperty(p33);
-
-            Property<PDouble> p = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.));
-            this.addProperty(p);
+           Property<PColor> p1 = new Property<PColor>("Node Color",new PColor(new Color(0, 255, 0)));
+          
+            this.addProperty(p1);
 
            
 
@@ -37,10 +37,29 @@ public class GraphD3Viewer extends D3Viewer {
             e.printStackTrace();
         }
     }
+    private Color getNodeColor()
+    {
+        Property<PColor> p = this.getProperty("Node Color");
+        return p.getValue().colorValue();
+    }
+    private String getHexString(Color color)
+    {
+        String hex = String.format("#%02x%02x%02x",color.getRed(), color.getGreen(), color.getBlue());
+        return hex;
+    }
 
     @Override
     public JSONObject updateData()
     {
+        JSONObject data = new JSONObject();
+        // Property Data
+        JSONObject propertyData= new JSONObject();
+        
+        String color = this.getHexString(this.getNodeColor());
+        propertyData.put("NodeColor", color);
+        
+        data.put("PropertyData", propertyData);
+        //Graph Data
         JSONObject graphJSON = new JSONObject();
         ArrayList<String> nodes = this.graph.getNodes();
         ArrayList<Integer> e1 = new ArrayList<Integer>();
@@ -67,7 +86,9 @@ public class GraphD3Viewer extends D3Viewer {
             linkArray.put(obj); 
         }
         graphJSON.put("links", linkArray);
-        return graphJSON;
+        
+        data.put("graph", graphJSON);
+        return data;
     }
    
 }
