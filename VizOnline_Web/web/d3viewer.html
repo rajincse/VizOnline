@@ -89,7 +89,9 @@
                         inpollprops = false;
                     }
                 }
-                xmlhttp.open("GET", 'VizOnlineServlet?page=viewer&pollprops=1&r=' + cnt, true);
+                 var viewerName = document.getElementById("viewerName").value;
+                
+                xmlhttp.open("GET", "VizOnlineServlet?page=viewer&pollprops=1&viewerName="+viewerName+"&r=" + cnt, true);
                 xmlhttp.send();
             }
 
