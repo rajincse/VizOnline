@@ -75,7 +75,7 @@ function addProperties(div, propertiesString) {
         else if (addremove === "removeProperty") {
             var label = tempPropArr[2];
             // example: removeProperty,graphvi,Appearance.Node Size,10
-            alert("remove " + hash[label]);
+            alert("remove " + label);
             removeElement(hash[label]);
         } else if (addremove === "changeProperty") {
             var label = tempPropArr[2];

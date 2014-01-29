@@ -37,6 +37,7 @@ import HeatMap.*;
 import d3.D3Viewer;
 import d3.GraphD3ViewerFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 import perspectives.DataSource;
 import perspectives.ViewerFactory;
@@ -64,6 +65,7 @@ public class VizOnlineServlet extends HttpServlet {
     int imgCount = 0;
     String uploadsPath;
     int dataSourceIndex = 0;
+    HashMap<String, String> propCommandsSet = new HashMap<String, String>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -200,6 +202,8 @@ public class VizOnlineServlet extends HttpServlet {
                             //add the dataSource
                             e.addDataSource(ds, true);
                             // v.addPropertyChangeListener(listener);
+                            //add the propertylistener
+                            e.getDataSources().get(e.getDataSources().size()-1).addPropertyChangeListener(listener);
                         }
                     }
                 }
@@ -488,7 +492,8 @@ public class VizOnlineServlet extends HttpServlet {
                     synchronized (pcsync) {
                         response.setContentType("text/html");
                         response.getWriter().write(propertyCommands);
-                        //System.out.println("command sent: " + propertyCommands);
+                        
+                        System.out.println("POLLPROPS: " + propertyCommands);
 
                         response.flushBuffer();
                         propertyCommands = "";
@@ -632,8 +637,8 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "addProperty," + pm.getName() + "," + p.getName() + "," + p.getValue().typeName() + "," + p.getValue();
                 }
-                System.out.println(propertyCommands);
-
+                System.out.println("PROPERTY-ADDED "+propertyCommands );
+                propCommandsSet.put(pm.getName(), propertyCommands);
             }
 
             @Override
@@ -644,6 +649,9 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "removeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
+                
+                
+                propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
 
@@ -656,6 +664,10 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "changeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
+                
+                System.out.println("PROPERTY-VALUE CHANGED "+propertyCommands );
+               
+                propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
 
@@ -791,13 +803,18 @@ public class VizOnlineServlet extends HttpServlet {
 
             }
 
-            v.addPropertyChangeListener(listener);
+            //v.addPropertyChangeListener(listener);
+            int size = e.getViewers().size();
+            //System.out.println(" ::::::::"+e.getViewers().get(size-1).getName()+ "  " +listener );
+            
+             e.getViewers().get(size-1).addPropertyChangeListener(listener);
+             
         } else {
             System.out.println("Viewer creation failed");
         }
 
         allProp.add(viewerIndex - 1, propertyCommands);
-
+        
         return viewerIndex - 1;
     }
 
@@ -832,9 +849,14 @@ public class VizOnlineServlet extends HttpServlet {
 
                 }
 
-                v.addPropertyChangeListener(listener);
+               v.addPropertyChangeListener(listener);
+                
+               //env.getViewers().get(vindex).addPropertyChangeListener(listener);
             }
         }
+        
+        //System.out.println("PROPERTYCOMMANDS HASHMAP:::::::"+ propCommandsSet.get(viewerName) );
+        System.out.println("SIZE OF THE HASHMAP IS ::::" +propCommandsSet.size());
 
         return propertyCommands;
 
@@ -856,6 +878,9 @@ public class VizOnlineServlet extends HttpServlet {
                 break;
             }
         }
+         
+         
+         
 
         return index;
     }

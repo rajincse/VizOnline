@@ -690,8 +690,7 @@ public class Environment extends PropertyManagerGroup implements Serializable {
      * @return
      */
     public Viewer createNewViewer(String dataSourceName, String viewerName) {
-        //ViewerCreator vc = new ViewerCreator(this, "viewer" + (autoViewerName++), dataSourceName, viewerName) ;
-        String defaultName = "viewer" + (autoViewerName++);
+       String defaultName = "viewer" + (autoViewerName++);
 
         ViewerFactory currentViewerFactory = null;
         //    System.out.println("The size of the viewerFactories is "+ env.getViewerFactories().size());
