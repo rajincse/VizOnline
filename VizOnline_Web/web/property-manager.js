@@ -128,12 +128,12 @@ function updateColorInfo(color, id) {
 
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+       
+       if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+           url += "&viewerName="+document.getElementById("viewerName").value;
+       }
 
     makeRequest(url);
-
-    //makeRequest("updateProperty&newValue=" + newcolor + "&property=" + propName +"&viewerIndex="+viewerIndex );
-    //alert("after update");
-    //makeRequest('updateProperty&newValue='+color.rgb+'&property='+get('L'+id).text());
 }
 
 function  updateInputValueInfo(id) {
@@ -148,6 +148,11 @@ function  updateInputValueInfo(id) {
 
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+    
+    if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+           url += "&viewerName="+document.getElementById("viewerName").value;
+       }
+
 
     makeRequest(url);
 
@@ -441,6 +446,10 @@ function updateCheckBoxInfo(id) {
 
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
+
+    if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+           url += "&viewerName="+document.getElementById("viewerName").value;
+       }
 
     makeRequest(url);
 }
