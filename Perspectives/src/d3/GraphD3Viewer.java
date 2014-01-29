@@ -37,10 +37,29 @@ public class GraphD3Viewer extends D3Viewer {
             e.printStackTrace();
         }
     }
+    private Color getNodeColor()
+    {
+        Property<PColor> p = this.getProperty("Node Color");
+        return p.getValue().colorValue();
+    }
+    private String getHexString(Color color)
+    {
+        String hex = String.format("#%02x%02x%02x",color.getRed(), color.getGreen(), color.getBlue());
+        return hex;
+    }
 
     @Override
     public JSONObject updateData()
     {
+        JSONObject data = new JSONObject();
+        // Property Data
+        JSONObject propertyData= new JSONObject();
+        
+        String color = this.getHexString(this.getNodeColor());
+        propertyData.put("NodeColor", color);
+        
+        data.put("PropertyData", propertyData);
+        //Graph Data
         JSONObject graphJSON = new JSONObject();
         ArrayList<String> nodes = this.graph.getNodes();
         ArrayList<Integer> e1 = new ArrayList<Integer>();
@@ -67,7 +86,9 @@ public class GraphD3Viewer extends D3Viewer {
             linkArray.put(obj); 
         }
         graphJSON.put("links", linkArray);
-        return graphJSON;
+        
+        data.put("graph", graphJSON);
+        return data;
     }
    
 }
