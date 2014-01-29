@@ -53,14 +53,14 @@ public class TableData extends DataSource {
             addProperty(p0);
 
 
-            Property<PBoolean> p2 = new Property<PBoolean>("Col Headers?", new PBoolean(true));
-            this.addProperty(p2);
+            Property<PBoolean> p2 = new Property<PBoolean>("Col Headers", new PBoolean(true));
+            addProperty(p2);
             
-            Property<PBoolean> p21 = new Property<PBoolean>("Row Headers?",new PBoolean(true));           
-            this.addProperty(p21);
+            Property<PBoolean> p21 = new Property<PBoolean>("Row Headers",new PBoolean(true));           
+            addProperty(p21);
 
             Property<POptions> p3 = new Property<POptions>("Delimiter", new POptions(new String[]{"TAB","SPACE","COMMA"}));
-            this.addProperty(p3);
+            addProperty(p3);
 
             PFile f = new PFile();
             f.dialogTitle = "Open Data File";
@@ -75,12 +75,17 @@ public class TableData extends DataSource {
     }
 
     public <T extends PropertyType> void propertyUpdated(Property p, T newvalue) {
-        boolean js = ((PBoolean) getProperty("JSON File").getValue()).boolValue();
+        boolean js = false;
+                
+        if(p.getName() == "JSON File") {
+            js = ((PBoolean) getProperty("JSON File").getValue()).boolValue();
+        }
+        
         
         if (js) {
             //se;
-            this.removeProperty("Col Headers?");
-            this.removeProperty("Row Headers?");
+            this.removeProperty("Col Headers");
+            this.removeProperty("Row Headers");
             this.removeProperty("Delimiter");
 
         }
@@ -88,8 +93,8 @@ public class TableData extends DataSource {
         if (p.getName() == "Tabular File") {
 
            if(!js){
-                boolean ch = ((PBoolean) getProperty("Col Headers?").getValue()).boolValue();
-                boolean rh = ((PBoolean) getProperty("Row Headers?").getValue()).boolValue();
+                boolean ch = ((PBoolean) getProperty("Col Headers").getValue()).boolValue();
+                boolean rh = ((PBoolean) getProperty("Row Headers").getValue()).boolValue();
 
               //hide the others if it is a json file
 

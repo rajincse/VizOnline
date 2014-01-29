@@ -112,7 +112,9 @@ public class PropertyManager{
 
 	protected void addProperty(Property p, int where) throws Exception {
 		
-		int index = -1;
+		System.out.println("Listener Size::::: "+ listeners.size());
+            
+                int index = -1;
 		for (int i=0; i<acceptedTypes.size(); i++)
 			if (acceptedTypes.get(i).typeName().equals(p.getValue().typeName()))
 			{

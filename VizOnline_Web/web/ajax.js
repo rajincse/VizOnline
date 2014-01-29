@@ -239,7 +239,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
 
                     var win = window.open(url, '_blank');
                     win.onload = function() {
-                        alert("hi the viewer window is loading ");
+                       // alert("hi the viewer window is loading ");
                     };
                     // alert("after windown onload");
                     win.focus();

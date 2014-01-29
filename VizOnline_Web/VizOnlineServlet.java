@@ -1,40 +1,22 @@
 package servlets;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.*;
 import java.util.Date;
 import java.util.Hashtable;
 
-import com.keypoint.*;
-
-import javax.imageio.ImageIO;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import multidimensional.PlanarProjectionViewerFactory;
-import Graph.BubbleSetGraphFactory;
-import Graph.Graph;
-import Graph.GraphData;
 import Graph.GraphDataFactory;
-import Graph.GraphViewer;
 import Graph.GraphViewerFactory;
 //import Graph.LineSetGraphFactory;
 //import Graph.ViewFocusGraphViewerFactory;
-import ParallelCoord.ParallelCoordViewer;
 import ParallelCoord.ParallelCoordinateViewerFactory;
-import data.TableData;
 import data.TableDataFactory;
-import data.TableDistances;
 import javax.servlet.http.HttpSession;
 
 import perspectives.Environment;
@@ -45,7 +27,6 @@ import properties.PropertyType;
 import perspectives.Viewer;
 //import perspectives.DefaultProperties.*;
 
-import tree.HierarchicalClusteringViewerFactory;
 //import tree.RadialBrainConnectivityViewerFactory;
 //import util.EyeCatcherFactory;
 //import util.Hotspots;
@@ -53,11 +34,13 @@ import tree.HierarchicalClusteringViewerFactory;
 //import util.ImageTilerFactory;
 
 import HeatMap.*;
+import d3.D3Viewer;
+import d3.GraphD3ViewerFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Vector;
 import perspectives.DataSource;
 import perspectives.ViewerFactory;
-import properties.PFile;
 
 public class VizOnlineServlet extends HttpServlet {
 
@@ -82,6 +65,7 @@ public class VizOnlineServlet extends HttpServlet {
     int imgCount = 0;
     String uploadsPath;
     int dataSourceIndex = 0;
+    HashMap<String, String> propCommandsSet = new HashMap<String, String>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -108,7 +92,7 @@ public class VizOnlineServlet extends HttpServlet {
                     e.registerViewerFactory(new HeatMapViewerFactory());
                     e.registerViewerFactory(new GraphViewerFactory());
                     e.registerViewerFactory(new ParallelCoordinateViewerFactory());
-
+                    e.registerViewerFactory(new GraphD3ViewerFactory());
 
                     outResponse = "Environment has been Initialized";
 
@@ -130,9 +114,11 @@ public class VizOnlineServlet extends HttpServlet {
                 type = request.getParameter("type").toLowerCase();
                 dataname = request.getParameter("data");
                 String dataSourceName = request.getParameter("dataSourceName");
-                System.out.println("DATASOURCE-NAME ********** "+dataSourceName);
                 int vindex = createViewer(type, dataSourceName);
+                //int vindex = createViewer(type, dataname);
                 outResponse = vindex + "";
+                
+                session.setAttribute("environment",e);
 
             } else if (request.getParameter("page").equals("delViewer")) {
                 //Request to Delete Viewer                
@@ -175,9 +161,20 @@ public class VizOnlineServlet extends HttpServlet {
 
             } else if (request.getParameter("page").equals("viewerLaunch")) {
                 //Request to Launch Viewer Page               
-                int theIndex = Integer.parseInt(request.getParameter("index"));
-                currentViewerIndex = theIndex;
-                outResponse = "viewer.html";
+                String viewerName = request.getParameter("viewerName");
+
+                Viewer viewer = null;
+                e = (Environment) session.getAttribute("environment");
+
+                int index = getViewerIndex(e, viewerName);
+                viewer = e.getViewers().get(index);
+
+                if (viewer instanceof D3Viewer) {
+                    System.out.println("D3-VIEWER");
+                    outResponse = "d3viewer.html" + ";" + viewerName;
+                } else {
+                    outResponse = "viewer.html" + ";" + viewerName;
+                }
 
             } else if (request.getParameter("page").equals("dataFactories")) {
                 //return the dataFactories
@@ -195,7 +192,7 @@ public class VizOnlineServlet extends HttpServlet {
                 String dataFactoryType = request.getParameter("dataFactoryType");
                 String factoryItemName = "";
                 DataSource ds = null;
-              
+
                 if (dataFactoryType != null) { //get the dataFactory and its properties
                     for (int i = 0; i < e.getDataFactories().size(); i++) {
                         if (dataFactoryType.equalsIgnoreCase(e.getDataFactories().get(i).creatorType())) {
@@ -205,12 +202,14 @@ public class VizOnlineServlet extends HttpServlet {
                             //add the dataSource
                             e.addDataSource(ds, true);
                             // v.addPropertyChangeListener(listener);
+                            //add the propertylistener
+                            //e.getDataSources().get(e.getDataSources().size()-1).addPropertyChangeListener(listener);
                         }
                     }
                 }
 
                 propertyCommands = "";
-                
+
                 if (ds != null) {
                     Property[] ps = ds.getProperties();
 
@@ -226,19 +225,55 @@ public class VizOnlineServlet extends HttpServlet {
                     propertyCommands += ";factoryItemName," + factoryItemName;
                 }
 
-
-
                 dataSourceIndex++;
                 outResponse = propertyCommands;
 
             } else if (request.getParameter("page").equals("viewer")) {
                 //Request to Display Viewer Image               
-                // System.out.println("viewer Image....");
-                loadViewer(currentViewerIndex, request, response);
-            } else if (request.getParameter("page").equals("properties")) {
-                //Request to get Initial Properties    
+                // System.out.println("viewer Image....");                
+                String viewerName = request.getParameter("viewerName");
+                //System.out.println("VIEWER-NAME IS +++++++++" +request.getParameter("viewerName"));
 
-                outResponse = allProp.get(currentViewerIndex);
+                loadViewer(viewerName, request, response);
+            } else if (request.getParameter("page").equals("properties")) {
+                String viewerName = request.getParameter("viewerName");
+
+                e = (Environment) session.getAttribute("environment");
+
+                String propertyString = getViewerProperties(e, viewerName);
+
+                outResponse = propertyString;
+            }/* else if (request.getParameter("page").equals("getDatas")) {
+                
+                
+                
+             outResponse = allProp.get(currentViewerIndex);
+             } */ else if (request.getParameter("page").equals("d3viewer")) {
+
+                String viewerName = request.getParameter("viewerName");
+
+                //Request to get Initial Properties    
+                String method = request.getParameter("method");
+                if (method.equals("readViewerData")) {
+                    loadD3Viewer(viewerName, request, response);
+                } else if (method.equals("readCreatorType")) {
+
+                    e = (Environment) session.getAttribute("environment");
+                    int index = getViewerIndex(e, viewerName);
+
+                    Viewer viewer = e.getViewers().get(index);
+
+                    Vector<ViewerFactory> factories = e.getViewerFactories();
+                    String creatorType = "";
+                    for (ViewerFactory factory : factories) {
+                        Viewer factoryViewer = factory.create("sample");
+                        if (factoryViewer != null && factoryViewer.getClass() == viewer.getClass()) {
+                            creatorType = factory.creatorType();
+                            break;
+                        }
+                    }
+                    outResponse = creatorType;
+                }
             } else if (request.getParameter("page").equals("getDatas")) {
                 // System.out.println("GETTING DATAS");
                 String filePath = getServletContext().getRealPath(uploadsPath);
@@ -282,7 +317,6 @@ public class VizOnlineServlet extends HttpServlet {
                         if (factoryItemName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
                             factoryItemIndex = i;
                         }
-
                     }
 
                     System.out.println("The FactoryItem index is " + factoryItemIndex);
@@ -294,20 +328,24 @@ public class VizOnlineServlet extends HttpServlet {
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
+                            outResponse = newvalue;  //outresponse will return the name of the file
                             newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                         }
-                        
-                      //  System.out.pritnln()
 
-                        //set the value
                         e.getDataSources().get(factoryItemIndex).getProperty(property)
                                 .setValue((e.getDataSources().get(factoryItemIndex)).deserialize(type, newvalue));
                     }
 
-                } else {
+                } else if (factoryType.equals("Viewer")) {
                     //TO-DO it may mean it is a property for a viewer at least for now
+
+                    String viewerName = request.getParameter("viewerName");
+
+                    e = (Environment) session.getAttribute("environment");
+                    int index = getViewerIndex(e, viewerName);
+
                     if (property != null && newvalue != null) {
-                        type = e.getViewers().get(currentViewerIndex).getProperty(property).getValue().typeName();
+                        type = e.getViewers().get(index).getProperty(property).getValue().typeName();
 
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
@@ -315,8 +353,8 @@ public class VizOnlineServlet extends HttpServlet {
                             newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                         }
 
-                        e.getViewers().get(currentViewerIndex).getProperty(property)
-                                .setValue(e.getViewers().get(currentViewerIndex).deserialize(type, newvalue));
+                        e.getViewers().get(index).getProperty(property)
+                                .setValue(e.getViewers().get(index).deserialize(type, newvalue));
                     }
                 }
             }
@@ -349,8 +387,57 @@ public class VizOnlineServlet extends HttpServlet {
         processRequest(request, response);
     }
 
+    public void loadD3Viewer(String viewerName, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Hashtable<VizOnlineServlet, Environment> envs = (Hashtable<VizOnlineServlet, Environment>) this.getServletContext().getAttribute("envs");
+        Environment e;
+
+        //System.out.println("The PropsInitCnt is "+propsInitCnt);
+
+        HttpSession session = request.getSession();
+
+        if (request.getParameter("firstTime") != null) {
+            session = request.getSession(true);
+
+
+            // System.out.println("First Time. Loading Properties ....");
+            propsInit();    //call the propsInit again for new sessions.
+
+        } else {
+
+            if (session.getAttribute("environment") == null) {
+                e = envs.get(this);
+                session.setAttribute("environment", e);
+            } else {
+                e = (Environment) session.getAttribute("environment");
+            }
+
+
+
+
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+            int index = getViewerIndex(e, viewerName);
+
+
+            D3Viewer viewer = (D3Viewer) e.getViewers().get(index);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData());
+
+            session.setAttribute("environment", e); //reset the environment session
+        }
+
+
+
+    }
     //Method to Obtain Images from Perspectives
-    public void loadViewer(int index, HttpServletRequest request, HttpServletResponse response)
+
+    public void loadViewer(String viewerName, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         // System.out.println("loadViewer");
@@ -362,6 +449,11 @@ public class VizOnlineServlet extends HttpServlet {
         //System.out.println("The PropsInitCnt is "+propsInitCnt);
 
         HttpSession session = request.getSession();
+
+
+
+
+
 
         if (request.getParameter("firstTime") != null) {
             session = request.getSession(true);
@@ -391,105 +483,104 @@ public class VizOnlineServlet extends HttpServlet {
             String changeProp = request.getParameter("changeProp");
             String pollprops = request.getParameter("pollprops");
 
-            if (pollprops != null) {
 
-                synchronized (pcsync) {
+            int index = getViewerIndex(e, viewerName);
+
+            if (index >= 0) {
+                if (pollprops != null) {
+
+                    synchronized (pcsync) {
+                        response.setContentType("text/html");
+                        response.getWriter().write(propertyCommands);
+                        
+                        System.out.println("POLLPROPS: " + propertyCommands);
+
+                        response.flushBuffer();
+                        propertyCommands = "";
+
+                    }
+                } else if (changeProp != null) {
+                    System.out.println("changerop");
+                    String name = request.getParameter("name");
+                    String value = request.getParameter("value");
+
+
+                    String type = e.getViewers().get(index).getProperty(name).getValue().typeName();
+                    e.getViewers().get(index).getProperty(name).setValue(e.getViewers().get(index).deserialize(type, value));
+
+                } else if (mType != null) {
                     response.setContentType("text/html");
-                    response.getWriter().write(propertyCommands);
-                    //System.out.println("command sent: " + propertyCommands);
+                    response.setHeader("Cache-control", "no-cache, no-store");
+                    response.setHeader("Pragma", "no-cache");
+                    response.setHeader("Expires", "-1");
 
-                    response.flushBuffer();
-                    propertyCommands = "";
+                    String cmd = request.getParameter("cmd");
+                    String xs = request.getParameter("mx");
+                    String ys = request.getParameter("my");
 
-                }
-            } else if (changeProp != null) {
-                System.out.println("changerop");
-                String name = request.getParameter("name");
-                String value = request.getParameter("value");
-
-                // System.out.println("$$$$$$$$$$ Color : "+value);
-
-                String type = e.getViewers().get(index).getProperty(name).getValue().typeName();
-                e.getViewers().get(index).getProperty(name).setValue(e.getViewers().get(index).deserialize(type, value));
-
-            } else if (mType != null) {
-                response.setContentType("text/html");
-                response.setHeader("Cache-control", "no-cache, no-store");
-                response.setHeader("Pragma", "no-cache");
-                response.setHeader("Expires", "-1");
-
-                String cmd = request.getParameter("cmd");
-                String xs = request.getParameter("mx");
-                String ys = request.getParameter("my");
+                    int x = Integer.parseInt(xs);
+                    int y = Integer.parseInt(ys);
 
 
-                int x = Integer.parseInt(xs);
-                int y = Integer.parseInt(ys);
-
-
-                boolean leftMouse = false;
-                if (mType.trim().equalsIgnoreCase("left")) {
-                    leftMouse = true;
-                }
-
-
-
-                if (cmd.equalsIgnoreCase("mouseUp")) {
-
-                    if (leftMouse) {
-                        e.getViewerContainers().get(index).mouseReleased(x, y, MouseEvent.BUTTON1);
-                    } else {
-                        e.getViewerContainers().get(index).mouseReleased(x, y, MouseEvent.BUTTON3);
-                    }
-                } else if (cmd.equalsIgnoreCase("mouseDown")) {
-
-                    //System.out.println("MOUSE-DOWN");
-                    if (leftMouse) {
-                        e.getViewerContainers().get(index).mousePressed(x, y, MouseEvent.BUTTON1);
-                    } else {
-                        e.getViewerContainers().get(index).mousePressed(x, y, MouseEvent.BUTTON3);
+                    boolean leftMouse = false;
+                    if (mType.trim().equalsIgnoreCase("left")) {
+                        leftMouse = true;
                     }
 
-                } else if (cmd.equalsIgnoreCase("mouseMoved")) {
-                    System.out.println("MouseMoved");
+                    if (cmd.equalsIgnoreCase("mouseUp")) {
 
-                    e.getViewerContainers().get(index).mouseMoved(x, y);
+                        if (leftMouse) {
+                            e.getViewerContainers().get(index).mouseReleased(x, y, MouseEvent.BUTTON1);
+                        } else {
+                            e.getViewerContainers().get(index).mouseReleased(x, y, MouseEvent.BUTTON3);
+                        }
+                    } else if (cmd.equalsIgnoreCase("mouseDown")) {
 
-                    //System.out.println("The class of the viewer is: "+ (e.getViewerContainers().get(index).getClass().getName()));
+                        //System.out.println("MOUSE-DOWN");
+                        if (leftMouse) {
+                            e.getViewerContainers().get(index).mousePressed(x, y, MouseEvent.BUTTON1);
+                        } else {
+                            e.getViewerContainers().get(index).mousePressed(x, y, MouseEvent.BUTTON3);
+                        }
 
-                } else if (cmd.equalsIgnoreCase("mouseDragged")) {
-                    // System.out.println("MOUSE-DRAGGED");
-                    e.getViewerContainers().get(index).mouseDragged(x, y);
+                    } else if (cmd.equalsIgnoreCase("mouseMoved")) {
+                        System.out.println("MouseMoved");
+
+                        e.getViewerContainers().get(index).mouseMoved(x, y);
+
+                        //System.out.println("The class of the viewer is: "+ (e.getViewerContainers().get(index).getClass().getName()));
+
+                    } else if (cmd.equalsIgnoreCase("mouseDragged")) {
+                        // System.out.println("MOUSE-DRAGGED");
+                        e.getViewerContainers().get(index).mouseDragged(x, y);
+                    }
+                } else {
+                    response.setContentType("image/png");
+                    response.setHeader("Cache-control", "no-cache, no-store");
+                    response.setHeader("Pragma", "no-cache");
+                    response.setHeader("Expires", "-1");
+
+                    String tilesX = request.getParameter("tileX");
+                    String tilesY = request.getParameter("tileY");
+                    String difs = request.getParameter("diff");
+                    int tx = Integer.parseInt(tilesX);
+                    int ty = Integer.parseInt(tilesY);
+                    int dif = Integer.parseInt(difs);
+
+                    byte[] bim = e.getViewerContainers().get(index).getTile(tx, ty);
+
+                    this.sendImage(bim, response);
+
+                    long t2 = (new Date()).getTime();
+
+
                 }
-            } else {
-                response.setContentType("image/png");
-                response.setHeader("Cache-control", "no-cache, no-store");
-                response.setHeader("Pragma", "no-cache");
-                response.setHeader("Expires", "-1");
-
-
-                String tilesX = request.getParameter("tileX");
-                String tilesY = request.getParameter("tileY");
-                String difs = request.getParameter("diff");
-                int tx = Integer.parseInt(tilesX);
-                int ty = Integer.parseInt(tilesY);
-                int dif = Integer.parseInt(difs);
-
-                byte[] bim = e.getViewerContainers().get(index).getTile(tx, ty);
-
-                this.sendImage(bim, response);
-
-                long t2 = (new Date()).getTime();
-
-
             }
+
 
 
             session.setAttribute("environment", e); //reset the environment session
         }
-
-
-
 
     }
 
@@ -505,6 +596,7 @@ public class VizOnlineServlet extends HttpServlet {
         //System.out.println("servlet init");
 
         uploadsPath = "/WEB-INF/Uploads/";
+        //uploadsPath = getServletContext().getRealPath("/WEB-INF/Uploads/");
 
         propsInit();
 
@@ -545,8 +637,8 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "addProperty," + pm.getName() + "," + p.getName() + "," + p.getValue().typeName() + "," + p.getValue();
                 }
-                System.out.println(propertyCommands);
-
+                System.out.println("PROPERTY-ADDED "+propertyCommands);
+                propCommandsSet.put(pm.getName(), propertyCommands);
             }
 
             @Override
@@ -557,6 +649,7 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "removeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
+                propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
 
@@ -569,6 +662,8 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     propertyCommands = propertyCommands + "changeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
+                
+                propCommandsSet.put(pm.getName(), propertyCommands);
 
             }
 
@@ -600,81 +695,21 @@ public class VizOnlineServlet extends HttpServlet {
 
         Environment e = new Environment(true);
 
-
-
-        // String path = (getServletContext().getRealPath("/WEB-INF/table_data_sample.txt"));
-        //  TableData tb = new TableData(path);
-        // TableDistances table = new TableDistances();
-
-
-        // table.fromFile(path, "\t", true, true);  //Function to Get the Data from File
-
-        //tb.setTable(table);
-
-        //System.out.println("Finished loading Table data");
-
-//		        Viewer v = new ParallelCoordViewer("PC", tb);
-//                        
-//		        e.addViewer(v);
-
-        /*Trying HeatMap */
-        //Viewer v = new HeatMapViewer("HM", tb);
-        // e.addViewer(v);
-
-
-
-//        GraphData gd = new GraphData("d1");
-//
-//        Graph g = new Graph(false);
-//        g.fromEdgeList(new File((getServletContext().getRealPath("/WEB-INF/edge_list.txt"))));
-//        gd.setGraph(g);
-//
-//        Viewer v = new GraphViewer("graphvi", gd);
-//        System.out.println(g.numberOfNodes());
-//        OpenFilePropertyType opt = new OpenFilePropertyType();
-//        opt.path = getServletContext().getRealPath("/WEB-INF/pos5.txt");
-//        v.getProperty("Load Positions").setValue(opt);
-//        e.addViewer(v);
-//                        
-//                        System.out.println("Finished Loading Graph data");
-//		        
-        //Property[] ps = v.getProperties();
-
-//        synchronized (pcsync) {
-//            String value;
-//            for (int i = 0; i < ps.length; i++) {
-//                if (i != 0) {
-//                    propertyCommands += ";";
-//                }
-//
-//                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-//
-//            }
-//        }
-        // v.addPropertyChangeListener(listener);
-
         envs.put(this, e);
         this.getServletContext().setAttribute("key", this);  //set the key of the attribute
 
-        // session.setAttribute("environment", e);  //set the environment variable here
-
         propsInitCnt++;
 
-
-
-        //}
-        //Environment e = envs.get(this);
-        //super.init();
     }
 
-   public void sendImage(byte[] bs, HttpServletResponse response) {
+    public void sendImage(byte[] bs, HttpServletResponse response) {
         int frameCount = 50;
 
         long t2 = new Date().getTime();
         try {
 
             //ImageIO.write(capture, "png", new File((getServletContext().getRealPath("/WEB-INF/fim"+t2+"capture.png"))));           
-          
+
             //System.out.println("-2-");
             response.getOutputStream().write(bs);
             //System.out.println("-3-");
@@ -683,7 +718,7 @@ public class VizOnlineServlet extends HttpServlet {
 
             long t3 = new Date().getTime();
 
-          //  System.out.println("T: " + (t3 - t2) + "      Econding:" + encoding + "      size:" + (bs.length / 1024));
+            //  System.out.println("T: " + (t3 - t2) + "      Econding:" + encoding + "      size:" + (bs.length / 1024));
 
         } catch (Exception e) {
             System.out.println("-e-");
@@ -739,25 +774,20 @@ public class VizOnlineServlet extends HttpServlet {
     }
 
     public int createViewer(String type, String dataSourceName) {
-            
+
 
         Viewer v = null;
 
-       propertyCommands = "";
-        
-        //create the viewer
-      
-       
-      // type = type.split("-")[1];   //it is of the format (viewer1-heatmap)
-       
-       System.out.println("TYPE:  "+ type);
-       
-        v = e.createNewViewer(dataSourceName,type);   
-         
-        if(v!=null){
-             viewerIndex++;
+        propertyCommands = "";
 
-             System.out.println("Viewer not null");
+        System.out.println("TYPE:  " + type);
+
+        v = e.createNewViewer(dataSourceName, type);
+
+        if (v != null) {
+            viewerIndex++;
+
+         /*   System.out.println("Viewer not null");
             Property[] ps = v.getProperties();
 
             for (int i = 0; i < ps.length; i++) {
@@ -769,115 +799,82 @@ public class VizOnlineServlet extends HttpServlet {
 
             }
 
-            v.addPropertyChangeListener(listener);
-        }
-        else{
+            v.addPropertyChangeListener(listener);*/
+            int size = e.getViewers().size();
+             e.getViewers().get(size-1).addPropertyChangeListener(listener);
+        } else {
             System.out.println("Viewer creation failed");
         }
-        
-        
-        
-        
-        
-        
-        
-        /**
-         * ***********For Heatmap Viewer and Table Data*****************
-         */
-       /* if (type.equalsIgnoreCase("heatmap")) {
 
-            TableData tb = new TableData(filePath);
-            TableDistances table = new TableDistances();
-
-            table.fromFile(filePath, "\t", true, true);  //Function to Get the Data from File
-
-            tb.setTable(table);
-            v = new HeatMapViewer("HeatMap Viewer", tb);
-            e.addViewer(v);
-            viewerIndex++;
-
-            Property[] ps = v.getProperties();
-
-            for (int i = 0; i < ps.length; i++) {
-                if (i != 0) {
-                    propertyCommands += ";";
-                }
-
-                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-
-            }
-
-            v.addPropertyChangeListener(listener);
-
-        } // System.out.println("Property Commands -------After Creating viewer " + propertyCommands); */
-        /**
-         * ***End of Heatmap Viewer.
-         *
-         *
-         *********** For Graphs Viewer and Graph Data*****************
-         */
-        /*else if (type.equalsIgnoreCase("graph viewer")) {
-            GraphData gd = new GraphData("d1");
-
-            Graph g = new Graph(false);
-            g.fromEdgeList(new File(filePath));
-            gd.setGraph(g);
-            v = new GraphViewer("Graph Viewer", gd);
-            System.out.println(g.numberOfNodes());
-            PFile opt = new PFile();
-            // opt.path = getServletContext().getRealPath("/WEB-INF/pos5.txt");
-            //v.getProperty("Load Positions").setValue(opt);
-            e.addViewer(v);
-            viewerIndex++;
-
-            Property[] ps = v.getProperties();
-
-            for (int i = 0; i < ps.length; i++) {
-                if (i != 0) {
-                    propertyCommands += ";";
-                }
-
-                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-
-            }
-
-            v.addPropertyChangeListener(listener);
-        } else if (type.equalsIgnoreCase("parallel coordinates")) {
-
-
-            TableData tb = new TableData(filePath);
-            TableDistances table = new TableDistances();
-
-            table.fromFile(filePath, "\t", true, true);  //Function to Get the Data from File
-
-            tb.setTable(table);
-
-            v = new ParallelCoordViewer("Parallel Coordinates", tb);
-            e.addViewer(v);
-
-
-            //        v = new HeatMapViewer("HeatMap Viewer", tb);
-            //      e.addViewer(v);
-            viewerIndex++;
-
-            Property[] ps = v.getProperties();
-
-            for (int i = 0; i < ps.length; i++) {
-                if (i != 0) {
-                    propertyCommands += ";";
-                }
-
-                propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-
-            }
-
-            v.addPropertyChangeListener(listener);
-        }  */
-        /**
-         * ******* End of graph Viewer ************************************
-         */
         allProp.add(viewerIndex - 1, propertyCommands);
 
         return viewerIndex - 1;
+    }
+
+    /**
+     * method to return the properties of a given viewerName
+     *
+     * @param env
+     * @param viewerName
+     * @return
+     */
+    public String getViewerProperties(Environment env, String viewerName) {
+        propertyCommands = "";
+
+        int vindex = -1;
+        for (int i = 0; i < env.getViewers().size(); i++) {
+            if (viewerName.equalsIgnoreCase(env.getViewers().get(i).getName())) {
+                vindex = i;
+            }
+        }
+        if (vindex >= 0) {
+            Viewer v = env.getViewers().get(vindex);
+
+            if (v != null) {
+                Property[] ps = v.getProperties();
+
+                for (int i = 0; i < ps.length; i++) {
+                    if (i != 0) {
+                        propertyCommands += ";";
+                    }
+
+                    propertyCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+
+                }
+
+               v.addPropertyChangeListener(listener);
+                
+               //env.getViewers().get(vindex).addPropertyChangeListener(listener);
+            }
+        }
+        
+        System.out.println("PROPERTYCOMMANDS HASHMAP:::::::"+ propCommandsSet.get(viewerName) );
+        System.out.println("SIZE OF THE HASHMAP IS ::::" +propCommandsSet.size());
+
+        return propertyCommands;
+
+    }
+
+    /**
+     * method to return the index of a given viewerName
+     *
+     * @param env
+     * @param viewerName
+     * @return
+     */
+    public int getViewerIndex(Environment env, String viewerName) {
+        int index = -1;
+        
+         for (int i = 0; i < env.getViewers().size(); i++) {
+            if (viewerName.equalsIgnoreCase(env.getViewers().get(i).getName())) {
+                index = i;
+                break;
+            }
+        }
+         
+         
+         
+
+        return index;
     }
 }
