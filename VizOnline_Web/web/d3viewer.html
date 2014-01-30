@@ -78,22 +78,29 @@
                 xmlhttp.onreadystatechange = function()
                 {
 
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
-
-                        if (xmlhttp.responseText.length != 0)
+                    
+                        if (xmlhttp.responseText.length !== 0)
                         {
 
-                            addProperty(xmlhttp.responseText);
+                           var viewerProperties = document.getElementById("properties");
+
+                          document.getElementById("pollprops").value="true";
+                         addProperties(viewerProperties, xmlhttp.responseText);
+
 
                         }
+                         document.getElementById("pollprops").value="false";
                         inpollprops = false;
                     }
-                }
-                 var viewerName = document.getElementById("viewerName").value;
+                };
+
+                var viewerName = document.getElementById("viewerName").value;
                 
-                xmlhttp.open("GET", "VizOnlineServlet?page=viewer&pollprops=1&viewerName="+viewerName+"&r=" + cnt, true);
+                xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName="+viewerName+"&r=" + cnt, true);
                 xmlhttp.send();
+                
             }
 
 
@@ -152,6 +159,7 @@
                 <input type="hidden" id="factoryType" value="Viewer" />
                 <input type ="hidden" id="factoryItemName" value="" />
                 <input type="hidden" id="viewerName" value="" />
+                 <input type ="hidden" id="pollprops" value="false" />
 
             </div>
 
