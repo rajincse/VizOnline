@@ -115,7 +115,10 @@ public class Uploads extends HttpServlet {
 
                 System.out.println("DELETE DATA REQUEST-----------------");
 
-                String fileName = request.getParameter("del");
+                String dataSourceName = request.getParameter("dataSourceName");
+                String fileName = theDataSources.get(dataSourceName);
+                
+                
                 File file = new File(filePath + "\\" + fileName);
 
                 if (file.delete()) {
@@ -128,7 +131,7 @@ public class Uploads extends HttpServlet {
                 }
 
             } else if (thepage.equalsIgnoreCase("uploadData")) {
-
+                
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
                 List uploadedItems = null;
@@ -175,7 +178,7 @@ public class Uploads extends HttpServlet {
                 String url = "VizOnlineServlet?page=updateProperty&newValue=" + myFileName
                         + "&property=" + propertyName + "&factoryType=" + factoryType
                         + "&factoryItemName=" + dataSourceName;
-
+                
                 response.sendRedirect(url);
 
             }
@@ -211,8 +214,6 @@ public class Uploads extends HttpServlet {
     }
 
     public void removeValueFromHashMap(HashMap<String, String> hashmap, String value) {
-
-
         for (String key : hashmap.keySet()) {
             if (hashmap.get(key).equalsIgnoreCase(value)) {
                 hashmap.remove(key);
