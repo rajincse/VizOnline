@@ -25,6 +25,7 @@
             window.onload = function() {
                 //make request for the dataFactories
                 makeRequest('dataFactories');
+                makeRequest('dataSourceIndex')
 
                 var xmlhttp;
                 var inpollprops = false;
@@ -70,6 +71,33 @@
 
 
             };
+            
+            
+            function dataTypeChanged(){
+              makeRequest('dataSourceIndex');
+              
+              //remove the children of the dataFactoryProperty div incase it had previous elements
+              var div = document.getElementById("dataFactoryProperties");
+                removeDivChildren(div);
+              
+              //make the viewerName and create Data visible
+              document.getElementById("dataSourceStep2").style.display="block";
+              //set the default-name for the viewerIndex
+              var dataType = document.getElementById("dataFactories").value;
+              var dataSourceIndex = document.getElementById("dataSourceIndex").value;
+                        
+              document.getElementById("dataSourceName").value = "Data"+dataSourceIndex +"-"+dataType;
+            }
+            
+            function getDataFactoryProperties(){
+                //hide the dataName and create data button 
+                document.getElementById("dataSourceStep2").style.display="none"
+                //make request for the dataFactory properteis
+                makeRequest('dataFactoryProperties');
+            }
+            
+           
+            
         </script>
     </head>
 
@@ -93,13 +121,24 @@
             <div class="leftdiv">
                 <h1>Create Dataset</h1>             
 
-                <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post">
+                <!-- <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post"> -->
 
-                    <select id="dataFactories" onchange="javascript:makeRequest('dataFactoryProperties')">
+                    <select id="dataFactories" onchange="dataTypeChanged();">
                         <option value="selectOne">Select One</option>                
 
                     </select>
+                    
+                <div id="dataSourceStep2" style="display:none">
+                            <p> Dataset Name
+                                   <input type="text" id="dataSourceName" />
+                           </p>
 
+                           <button type="button" class="small button blue"  onclick="getDataFactoryProperties();">
+                               Create Dataset
+                           </button>
+                    
+                   </div>            
+                
                     <div id="dataFactoryProperties">
 
                     </div>
@@ -107,12 +146,8 @@
                     <input type="hidden" id="factoryType" value="DataSource" />
                     <input type ="hidden" id="factoryItemName" value="" />
                     <input type ="hidden" id="pollprops" value="false" />
-                    
-                    
-                    <!--<input id ="theFile" type="file" name="fileTxtUpload">
-                    <input type="submit" value="Upload" class="small button blue"> -->
-                </form> 
-
+                    <input type ="hidden" id="dataSourceIndex" value="" />
+         
             </div>       
 
 

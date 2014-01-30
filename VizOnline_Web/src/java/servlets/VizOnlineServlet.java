@@ -151,14 +151,6 @@ public class VizOnlineServlet extends HttpServlet {
                 System.out.println("THE SIZE OF THE DATASOURCES IS " + e.getDataSources().size());
 
 
-
-
-                //int dsIndex = Integer.parseInt(request.getParameter("dataSourceIndex"));
-
-
-
-
-
             } else if (request.getParameter("page").equals("viewerLaunch")) {
                 //Request to Launch Viewer Page               
                 String viewerName = request.getParameter("viewerName");
@@ -187,18 +179,27 @@ public class VizOnlineServlet extends HttpServlet {
                     dataFactNames += e.getDataFactories().get(i).creatorType();
                 }
                 outResponse = dataFactNames;
-            } else if (request.getParameter("page").equals("dataFactoryProperties")) {
+            }else if(request.getParameter("page").equals("dataSourceIndex")) {
+                //return the curren dataSourceIndex  which is like a  count
+                
+                outResponse = ""+dataSourceIndex;
+            }
+            
+            
+            else if (request.getParameter("page").equals("dataFactoryProperties")) {
 
+                String propCommands;
+                
                 String dataFactoryType = request.getParameter("dataFactoryType");
+                String dataSourceName = request.getParameter("dataSourceName");
                 String factoryItemName = "";
                 DataSource ds = null;
 
                 if (dataFactoryType != null) { //get the dataFactory and its properties
                     for (int i = 0; i < e.getDataFactories().size(); i++) {
                         if (dataFactoryType.equalsIgnoreCase(e.getDataFactories().get(i).creatorType())) {
-
-                            factoryItemName = "DataSource" + (dataSourceIndex);
-                            ds = e.getDataFactories().get(i).create(factoryItemName);
+                            factoryItemName = dataSourceName;
+                            ds = e.getDataFactories().get(i).create(dataSourceName);
                             //add the dataSource
                             e.addDataSource(ds, true);
                             // v.addPropertyChangeListener(listener);
@@ -208,25 +209,25 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                 }
 
-                propertyCommands = "";
+                propCommands = "";
 
                 if (ds != null) {
                     Property[] ps = ds.getProperties();
 
                     for (int i = 0; i < ps.length; i++) {
                         if (i != 0) {
-                            propertyCommands += ";";
+                            propCommands += ";";
                         }
 
-                        propertyCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
 
                     }
 
-                    propertyCommands += ";factoryItemName," + factoryItemName;
+                    propCommands += ";factoryItemName," + factoryItemName;
                 }
 
                 dataSourceIndex++;
-                outResponse = propertyCommands;
+                outResponse = propCommands;
 
             } else if (request.getParameter("page").equals("viewer")) {
                 //Request to Display Viewer Image               
@@ -247,12 +248,7 @@ public class VizOnlineServlet extends HttpServlet {
                 String propertyString = getViewerProperties(e, viewerName);
 
                 outResponse = propertyString;
-            }/* else if (request.getParameter("page").equals("getDatas")) {
-                
-                
-                
-             outResponse = allProp.get(currentViewerIndex);
-             } */ else if (request.getParameter("page").equals("d3viewer")) {
+            } else if (request.getParameter("page").equals("d3viewer")) {
 
                 String viewerName = request.getParameter("viewerName");
 
@@ -309,25 +305,21 @@ public class VizOnlineServlet extends HttpServlet {
 
                 //int factoryTypeIndex = -1;
 
-                int factoryItemIndex = -1;
-
                 System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
 
                 String type = "";
                 //Do according to the factoryType
                 if (factoryType.equals("DataSource")) {
-                    System.out.println("the Size of the DataSource is " + e.getDataSources().size());
-                    for (int i = 0; i < e.getDataSources().size(); i++) {
-                        if (factoryItemName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
-                            factoryItemIndex = i;
-                        }
-                    }
+                    //System.out.println("the Size of the DataSource is " + e.getDataSources().size());
+                    
+                    int index =  getDataSourceIndex(e, factoryItemName);
+                    
 
-                    System.out.println("The FactoryItem index is " + factoryItemIndex);
+                    //System.out.println("The FactoryItem index is " + factoryItemIndex);
 
-                    if (factoryItemIndex >= 0) {
+                    if (index >= 0) {
                         //get the type
-                        type = e.getDataSources().get(factoryItemIndex).getProperty(property).getValue().typeName();
+                        type = e.getDataSources().get(index).getProperty(property).getValue().typeName();
 
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
@@ -336,8 +328,8 @@ public class VizOnlineServlet extends HttpServlet {
                             newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                         }
 
-                        e.getDataSources().get(factoryItemIndex).getProperty(property)
-                                .setValue((e.getDataSources().get(factoryItemIndex)).deserialize(type, newvalue));
+                        e.getDataSources().get(index).getProperty(property)
+                                .setValue((e.getDataSources().get(index)).deserialize(type, newvalue));
                     }
 
                 } else if (factoryType.equals("Viewer")) {
@@ -450,11 +442,6 @@ public class VizOnlineServlet extends HttpServlet {
         //System.out.println("The PropsInitCnt is "+propsInitCnt);
 
         HttpSession session = request.getSession();
-
-
-
-
-
 
         if (request.getParameter("firstTime") != null) {
             session = request.getSession(true);
@@ -894,10 +881,19 @@ public class VizOnlineServlet extends HttpServlet {
                 break;
             }
         }
-
-
-
-
+        return index;
+    }
+    
+    public int getDataSourceIndex(Environment env, String dataSourceName){
+        int index = -1;
+        
+        for (int i = 0; i < env.getDataSources().size(); i++) {
+                        if (dataSourceName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
+                            index = i;
+                            break;
+                        }
+               }
+        
         return index;
     }
 }
