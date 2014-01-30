@@ -343,12 +343,6 @@ function getName(fullname) {
         return tempNameArr[0];
 }
 
-function removeElement(id) {
-    var element = get(id);
-    element.parentNode.removeChild(element);
-    var label = get('L' + id);
-    label.parentNode.removeChild(label);
-}
 
 function getDatasets(datalist) {
     if (datalist === "No Content") {

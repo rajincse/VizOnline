@@ -118,7 +118,8 @@ public class TableData extends DataSource {
 
                 this.removeProperty("Tabular File");
                 this.removeProperty("Delimiter");
-                this.removeProperty("Col Headers?");
+                this.removeProperty("Col Headers");
+                this.removeProperty("Row Headers");
                 this.removeProperty("JSON File");
 
                 try {

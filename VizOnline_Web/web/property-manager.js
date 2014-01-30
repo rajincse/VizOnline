@@ -4,10 +4,14 @@ var viewerIndex;
 
 function addProperties(div, propertiesString) {
 
+   // alert(propertiesString);
     var propArr = propertiesString.split(";");
 
-    //if the div already has the properties  remove properties
-    removeDivChildren(div);
+    //remove the div current properties if this is not an update from pollprops which means it is a fresh one
+    if(document.getElementById("pollprops").value ==="false"){
+        removeDivChildren(div);
+    }
+    
 
     var prop;
     for (var i = 0; i < propArr.length; i++) {
@@ -21,8 +25,7 @@ function addProperties(div, propertiesString) {
             document.getElementById("viewerName").value = viewer_name;
         }*/
 
-
-
+       
         if (addremove === "addProperty") {
             var label = tempPropArr[2];
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
@@ -74,10 +77,10 @@ function addProperties(div, propertiesString) {
 
         else if (addremove === "removeProperty") {
             var label = tempPropArr[2];
-            // example: removeProperty,graphvi,Appearance.Node Size,10
-            alert("remove " + label);
-            removeElement(hash[label]);
+            //remove the propertyElement
+            removePropertyElement(div, hash[label]);
         } else if (addremove === "changeProperty") {
+            alert("changeProperty::");
             var label = tempPropArr[2];
             // example: changeProperty,graphvi,Appearance.Node Size,12
             var newValue = tempPropArr[3];
@@ -95,6 +98,18 @@ function addProperties(div, propertiesString) {
     }
 
 
+}
+
+function removePropertyElement(div, id){
+    
+    var hiddenInput = document.getElementById("HL"+id);
+    var propElement = document.getElementById("I"+id);
+    var propElementLabel = document.getElementById("L"+id);
+    
+    hiddenInput.parentNode.removeChild(hiddenInput);
+    propElement.parentNode.removeChild(propElement);
+    propElementLabel.parentNode.removeChild(propElementLabel);
+    
 }
 
 function removeDivChildren(div) {
@@ -250,6 +265,7 @@ function showIntegerBox(div, id, name, value) {
         value = 100;
     }
 
+//alert("Integer Value is "+ value);
 
     //add hidden input to hold the name of the property
     var hiddenInput = createHiddenInput(id, name);

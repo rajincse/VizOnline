@@ -13,25 +13,70 @@
         <title>Perspectives Online</title>
         <link href="Styles.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="jscolor/jscolor.js"></script>
-        
+
         <script src="datalist.js"></script>
         <script src="jQuery/jquery-1.10.2.js"></script>
         
+
         <script type="text/javascript" src="ajax.js"></script>
         <script type="text/javascript" src="property-manager.js"></script>
-        
+
         <script>
             window.onload = function() {
                 //make request for the dataFactories
-                  makeRequest('dataFactories');
-                };
-                    </script>
+                makeRequest('dataFactories');
+
+                var xmlhttp;
+                var inpollprops = false;
+
+                var cnt = 0;
+                setInterval(pollprops, 500);
+
+
+
+                function pollprops()
+                {
+                    //TO-DO:REMEMBER TO MAKE THE inpollprops false after handling the properties
+                    if (inpollprops)
+                        return;
+                    inpollprops = true;
+
+                    // cnt++;
+                    xmlhttp = new XMLHttpRequest();
+                    xmlhttp.onreadystatechange = function()
+                    {
+                       if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                        {
+                            
+
+                            if (xmlhttp.responseText.length !== 0)
+                            {
+                                var dataProperties = document.getElementById("dataFactoryProperties");
+
+                                document.getElementById("pollprops").value="true";
+                                addProperties(dataProperties, xmlhttp.responseText);
+
+                            }
+                            document.getElementById("pollprops").value="false";
+                            inpollprops = false;
+                        }
+                    };
+
+                    var factoryItemName = document.getElementById("factoryItemName").value;
+                    
+                    xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName=" + factoryItemName + "&r=" + cnt, true);
+                    xmlhttp.send();
+                }
+
+
+            };
+        </script>
     </head>
 
     <body>
         <div class="container">
-            
-               <a href="#"><img src="Images/VizOnline.png" alt="Logo" name="Logo" width="350" height="109" id="Insert_logo" float=left;" /></a>  
+
+            <a href="#"><img src="Images/VizOnline.png" alt="Logo" name="Logo" width="350" height="109" id="Insert_logo" float=left;" /></a>  
 
             <!-- end .header -->
 
@@ -43,39 +88,41 @@
                 <a rel="tab" href="links.html" class="large button blue">LINKS</a>
             </div>
             <!--end of button -->
-            
+
 
             <div class="leftdiv">
                 <h1>Create Dataset</h1>             
-                
-                    <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post">
-                        
-                        <select id="dataFactories" onchange="javascript:makeRequest('dataFactoryProperties')">
-                                <option value="selectOne">Select One</option>                
-                                
-                        </select>
-                        
-                        <div id="dataFactoryProperties">
-                            
-                        </div>
-                        
-                        <input type="hidden" id="factoryType" value="DataSource" />
-                        <input type ="hidden" id="factoryItemName" value="" />
-                        
-                        <!--<input id ="theFile" type="file" name="fileTxtUpload">
-                        <input type="submit" value="Upload" class="small button blue"> -->
-                    </form> 
-                
+
+                <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post">
+
+                    <select id="dataFactories" onchange="javascript:makeRequest('dataFactoryProperties')">
+                        <option value="selectOne">Select One</option>                
+
+                    </select>
+
+                    <div id="dataFactoryProperties">
+
+                    </div>
+
+                    <input type="hidden" id="factoryType" value="DataSource" />
+                    <input type ="hidden" id="factoryItemName" value="" />
+                    <input type ="hidden" id="pollprops" value="false" />
+                    
+                    
+                    <!--<input id ="theFile" type="file" name="fileTxtUpload">
+                    <input type="submit" value="Upload" class="small button blue"> -->
+                </form> 
+
             </div>       
-          
-         
+
+
 
             <div class="rightdiv">
                 <h1>Current Datasets</h1>
                 <!--<input type ="button" class="small button blue" onclick="makeRequest('data')" name ="bt1" value="Display Data">-->
                 <div id="cdatas"><script>makeRequest('data');</script></div>
-                </div>          
-            
+            </div>          
+
         </div>
 
     </body>
