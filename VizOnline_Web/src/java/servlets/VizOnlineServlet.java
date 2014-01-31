@@ -171,8 +171,7 @@ public class VizOnlineServlet extends HttpServlet {
                 //return the curren dataSourceIndex  which is like a  count
                 
                 outResponse = ""+dataSourceIndex;
-            }
-            
+            }       
             
             else if (request.getParameter("page").equals("dataFactoryProperties")) {
 
@@ -190,7 +189,6 @@ public class VizOnlineServlet extends HttpServlet {
                             ds = e.getDataFactories().get(i).create(dataSourceName);
                             //add the dataSource
                             e.addDataSource(ds, true);
-                            // v.addPropertyChangeListener(listener);
                             //add the propertylistener
                             e.getDataSources().get(e.getDataSources().size() - 1).addPropertyChangeListener(listener);
                         }
@@ -199,19 +197,6 @@ public class VizOnlineServlet extends HttpServlet {
 
                 propCommands = "";
 
-                /*if (ds != null) {
-                    Property[] ps = ds.getProperties();
-
-                    for (int i = 0; i < ps.length; i++) {
-                        if (i != 0) {
-                            propCommands += ";";
-                        }
-
-                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-
-                    }                   
-                }*/
-                
                 propCommands = getDataSourceProperties(e, dataSourceName);
 
                 dataSourceIndex++;
@@ -626,7 +611,9 @@ public class VizOnlineServlet extends HttpServlet {
                     if (currPropCommands != null && currPropCommands.length() != 0) {
                         currPropCommands += ";";
                     }
-                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + "," + p.getName() + "," + p.getValue().typeName() + "," + p.getValue().serialize();
+                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + "," 
+                            + p.getName() + "," + p.getValue().typeName() + "," + p.getValue().serialize()
+                            +","+ p.getReadOnly();
                 }
                 //System.out.println("PROPERTY-ADDED " + propertyCommands);
                 propCommandsSet.put(pm.getName(), currPropCommands);
@@ -670,6 +657,19 @@ public class VizOnlineServlet extends HttpServlet {
             public void propertyReadonlyChanged(PropertyManager pm,
                     Property p, boolean newReadOnly) {
                 // TODO Auto-generated method stub
+                
+                 String currPropCommands = propCommandsSet.get(pm.getName());
+                 
+                synchronized (pcsync) {
+                    if (currPropCommands != null && currPropCommands.length() != 0) {
+                        currPropCommands += ";";
+                    }    
+                    currPropCommands = currPropCommands + "readOnlyChanged," + pm.getName() + "," + p.getName() + "," + newReadOnly;
+                }
+
+               propCommandsSet.put(pm.getName(), currPropCommands);
+                //System.out.println("READ-ONLY CHANGED " + currPropCommands);
+                
             }
 
             @Override
@@ -841,7 +841,9 @@ public class VizOnlineServlet extends HttpServlet {
                         propCommands += ";";
                     }
 
-                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName() 
+                            + "," + ps[i].getValue().typeName() + "," 
+                            + ps[i].getValue().serialize() +","+ps[i].getReadOnly();
 
                 }
             }
@@ -900,7 +902,9 @@ public class VizOnlineServlet extends HttpServlet {
                             propCommands += ";";
                         }
 
-                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() 
+                                + "," + ps[i].getValue().typeName() 
+                                + "," + ps[i].getValue().serialize()+","+ps[i].getReadOnly();
 
                     }                   
             
