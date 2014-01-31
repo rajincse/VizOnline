@@ -25,7 +25,7 @@
             window.onload = function() {
                 //make request for the dataFactories
                 makeRequest('dataFactories');
-                makeRequest('dataSourceIndex')
+                makeRequest('dataSourceIndex');
 
                 var xmlhttp;
                 var inpollprops = false;
@@ -85,11 +85,12 @@
               //set the default-name for the viewerIndex
               var dataType = document.getElementById("dataFactories").value;
               var dataSourceIndex = document.getElementById("dataSourceIndex").value;
-                        
+                        //NB: factory item-name and datasource name are the same
               document.getElementById("dataSourceName").value = "Data"+dataSourceIndex +"-"+dataType;
+              document.getElementById("factoryItemName").value = "Data"+dataSourceIndex +"-"+dataType;
             }
             
-            function getDataFactoryProperties(){
+            function dataFactoryProperties(){
                 //hide the dataName and create data button 
                 document.getElementById("dataSourceStep2").style.display="none"
                 //make request for the dataFactory properteis
@@ -133,7 +134,7 @@
                                    <input type="text" id="dataSourceName" />
                            </p>
 
-                           <button type="button" class="small button blue"  onclick="getDataFactoryProperties();">
+                           <button type="button" class="small button blue"  onclick="dataFactoryProperties();">
                                Create Dataset
                            </button>
                     
@@ -146,6 +147,7 @@
                     <input type="hidden" id="factoryType" value="DataSource" />
                     <input type ="hidden" id="factoryItemName" value="" />
                     <input type ="hidden" id="pollprops" value="false" />
+                    <input type ="hidden" id="datasetprops" value="false" />
                     <input type ="hidden" id="dataSourceIndex" value="" />
          
             </div>       

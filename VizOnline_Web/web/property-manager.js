@@ -4,14 +4,16 @@ var viewerIndex;
 
 function addProperties(div, propertiesString) {
 
-   // alert(propertiesString);
-    var propArr = propertiesString.split(";");
-
+    var propArr = propertiesString.split(";");    
     //remove the div current properties if this is not an update from pollprops which means it is a fresh one
-    if(document.getElementById("pollprops").value ==="false"){
-        removeDivChildren(div);
+    var pollprops =  document.getElementById("pollprops").value;
+    var datasetprops = "";
+    if(document.getElementById("datasetprops")){//to ensure that the page has that element
+        datasetprops = document.getElementById("datasetprops").value;  //get the value
     }
-    
+    if( pollprops==="false" || datasetprops ==="true"){
+        removeDivChildren(div);
+    }    
 
     var prop;
     for (var i = 0; i < propArr.length; i++) {
@@ -28,10 +30,12 @@ function addProperties(div, propertiesString) {
        
         if (addremove === "addProperty") {
             var label = tempPropArr[2];
-            // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10;
+            //"addProperty,property-manager-name,property-name, property-type, property-vaue, read-only-value 
+            // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10, false;  
             hash[label] = propID;
             var type = tempPropArr[3];
             var value = tempPropArr[4];
+            var readOnly = tempPropArr[5];
 
             switch (type) {
                 case "PInteger":     //value format: 10
@@ -70,17 +74,20 @@ function addProperties(div, propertiesString) {
                 default:
                     //tbd
             }
-        } else if (addremove === "factoryItemName") { //set the factoryItemName
-            value = tempPropArr[1];
-            document.getElementById("factoryItemName").value = value;
-        }
-
-        else if (addremove === "removeProperty") {
+        
+            setPropertyReadOnly(propID, readOnly);
+            
+        } else if (addremove === "removeProperty") {
             var label = tempPropArr[2];
             //remove the propertyElement
             removePropertyElement(div, hash[label]);
-        } else if (addremove === "changeProperty") {
-            alert("changeProperty::");
+        }else if(addremove === "readOnlyChanged") {
+            //Format:"readOnlyChanged,pm.getName(),p.getName(),newReadOnly;               
+            var label = tempPropArr[2];
+            var readOnly = tempPropArr[3];
+            setPropertyReadOnly(hash[label], readOnly);
+        }
+        else if (addremove === "changeProperty") {
             var label = tempPropArr[2];
             // example: changeProperty,graphvi,Appearance.Node Size,12
             var newValue = tempPropArr[3];
@@ -98,6 +105,29 @@ function addProperties(div, propertiesString) {
     }
 
 
+}
+
+/*function to set the readOnly of properties */
+function setPropertyReadOnly(id, readOnly){
+    
+ 
+    
+    
+ if(document.getElementById("I"+id)){ //ensure that the element exists
+     
+     var element = document.getElementById("I"+id);
+     if(readOnly === "true"){
+         if(! (element.readOnly))
+             element.setAttribute("readonly", true);
+     }
+     else if (readOnly === "false"){
+            if((element.readOnly))
+                element.removeAttribute("readonly");
+     }
+     
+     
+ }
+     
 }
 
 function removePropertyElement(div, id){

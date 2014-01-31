@@ -123,12 +123,12 @@ function makeRequest(thepage) {
         var dataFactoryType = document.getElementById("dataFactories").value;
         var dataSourceName = document.getElementById("dataSourceName").value
         var url = "VizOnlineServlet?page=" + thepage + "&dataFactoryType=" + dataFactoryType
-            url+= "&dataSourceName="+dataSourceName;
+        url += "&dataSourceName=" + dataSourceName;
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        
+
         xmlHttpRequest.open("GET", url, true);
         xmlHttpRequest.send(null);
-    }    
+    }
     else if (thepage === 'properties') {
 
         //alert("In properties");
@@ -139,9 +139,9 @@ function makeRequest(thepage) {
         var test = function() {
             viewerName = document.getElementById("viewerName").value;
             if (viewerName !== "") {
-                
-               // alert(viewerName);
-               
+
+                // alert(viewerName);
+
                 var url = "VizOnlineServlet?page=" + thepage
                         + "&viewerName=" + viewerName;
 
@@ -157,9 +157,12 @@ function makeRequest(thepage) {
             }
         };
         var id = setInterval(test, 100);
-
-
+    }else if (thepage === 'dataSourceIndex') {
+         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, false);
+        xmlHttpRequest.send(null);
     }
+
 
     else {
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
@@ -229,7 +232,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
 
                     var win = window.open(url, '_blank');
                     win.onload = function() {
-                       // alert("hi the viewer window is loading ");
+                        // alert("hi the viewer window is loading ");
                     };
                     // alert("after windown onload");
                     win.focus();
@@ -286,18 +289,24 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                         opt.innerHTML = dataSplit[i];
 
                         dataFactories.appendChild(opt);
-
                     }
 
                 } else if (thepage === 'dataFactoryProperties') {
                     var div = get('dataFactoryProperties');
                     addProperties(div, xmlHttpRequest.responseText);
                 }
-                else if (thepage === 'dataSourceIndex'){
-                    //set the dataSourceIndex
+                else if (thepage === 'dataSourceIndex') {
                     document.getElementById("dataSourceIndex").value = xmlHttpRequest.responseText;
+                }else if(thepage ==='datasetProperties'){
+                    var div = get('dataFactoryProperties');
+                    
+                    document.getElementById("datasetprops").value = "true"; //to ensure this addproperties is coing from datasetprops
+                    
+                    addProperties(div, xmlHttpRequest.responseText);
+                    
+                    document.getElementById("datasetprops").value = "false"; //reset it back to false
+                    
                 }
-
 
                 else {
                     //alert("Http error " + xmlHttpRequest.status + ":" + xmlHttpRequest.statusText);
@@ -362,7 +371,9 @@ function getDatasets(datalist) {
             hiddenInput.setAttribute("id", "DS" + i);
             hiddenInput.setAttribute("value", dataSourceName);
             document.getElementById("cdatas").appendChild(hiddenInput);
-            //button 
+
+
+            //Delete button 
             var but = document.createElement('button');
             but.setAttribute('id', i);
             but.setAttribute('name', dataSourceName);
@@ -372,10 +383,32 @@ function getDatasets(datalist) {
             var theSet = document.getElementById('par' + i).getAttribute('name').toString();
             but.setAttribute('onclick', 'deleteRequest(' + i + ')');
             document.getElementById('par' + i).appendChild(but);
+
+            //viewDataProperties Button
+            var dataPropBut = document.createElement('button');
+            dataPropBut.setAttribute('class', 'small button blue');
+            dataPropBut.innerHTML = "View Properties";
+            dataPropBut.setAttribute('style', 'float: right');
+            dataPropBut.setAttribute("onclick", "getDatasetProperties(" + i + ")");
+            document.getElementById('par' + i).appendChild(dataPropBut);
+
             //}
         }
     }
 }
+
+function getDatasetProperties(id){
+    
+    var dataSourceName = document.getElementById('DS' + id).value;
+            var url = "VizOnlineServlet?page=datasetProperties&dataSourceName=" + dataSourceName;
+        
+        var xmlHttpRequest = getXMLHttpRequest();
+        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "datasetProperties");
+        xmlHttpRequest.open("GET", url, true);
+        xmlHttpRequest.send(null);
+   
+}
+
 
 function getDataForViewer(datalist) {
     if (datalist === "No Content") {
@@ -509,7 +542,7 @@ function getCurrentViewersLink2(datalist) {
 function deleteRequest(id) {
     //  alert(id);
 
-   /// var fileName = document.getElementById('par' + id).getAttribute('name').toString();
+    /// var fileName = document.getElementById('par' + id).getAttribute('name').toString();
     //alert(fileName);
     var dataSourceName = document.getElementById('DS' + id).value;
     //alert(dataSourceName);

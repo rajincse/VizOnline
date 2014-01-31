@@ -131,25 +131,13 @@ public class VizOnlineServlet extends HttpServlet {
             } else if (request.getParameter("page").equals("deleteDataSource")) {
 
                 String dataSourceName = request.getParameter("dataSourceName");
-                int dataSourceIndex = -1;
+                                
+                int dataSourceIndex = getDataSourceIndex(e, dataSourceName);
 
                 //delete the data
-
-
-                for (int i = 0; i < e.getDataSources().size(); i++) {
-                    if (dataSourceName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
-                        dataSourceIndex = i;
-                    }
-
-                }
-
                 if (dataSourceIndex >= 0) {//delete the dataSource
                     e.getDataSources().remove(dataSourceIndex);
                 }
-
-
-                System.out.println("THE SIZE OF THE DATASOURCES IS " + e.getDataSources().size());
-
 
             } else if (request.getParameter("page").equals("viewerLaunch")) {
                 //Request to Launch Viewer Page               
@@ -183,8 +171,7 @@ public class VizOnlineServlet extends HttpServlet {
                 //return the curren dataSourceIndex  which is like a  count
                 
                 outResponse = ""+dataSourceIndex;
-            }
-            
+            }       
             
             else if (request.getParameter("page").equals("dataFactoryProperties")) {
 
@@ -198,11 +185,10 @@ public class VizOnlineServlet extends HttpServlet {
                 if (dataFactoryType != null) { //get the dataFactory and its properties
                     for (int i = 0; i < e.getDataFactories().size(); i++) {
                         if (dataFactoryType.equalsIgnoreCase(e.getDataFactories().get(i).creatorType())) {
-                            factoryItemName = dataSourceName;
+                           // factoryItemName = dataSourceName;
                             ds = e.getDataFactories().get(i).create(dataSourceName);
                             //add the dataSource
                             e.addDataSource(ds, true);
-                            // v.addPropertyChangeListener(listener);
                             //add the propertylistener
                             e.getDataSources().get(e.getDataSources().size() - 1).addPropertyChangeListener(listener);
                         }
@@ -211,25 +197,19 @@ public class VizOnlineServlet extends HttpServlet {
 
                 propCommands = "";
 
-                if (ds != null) {
-                    Property[] ps = ds.getProperties();
-
-                    for (int i = 0; i < ps.length; i++) {
-                        if (i != 0) {
-                            propCommands += ";";
-                        }
-
-                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
-
-                    }
-
-                    propCommands += ";factoryItemName," + factoryItemName;
-                }
+                propCommands = getDataSourceProperties(e, dataSourceName);
 
                 dataSourceIndex++;
                 outResponse = propCommands;
 
-            } else if (request.getParameter("page").equals("viewer")) {
+            }else if(request.getParameter("page").equalsIgnoreCase("datasetProperties")){
+                
+               String dataSourceName = request.getParameter("dataSourceName");
+               
+               outResponse =  getDataSourceProperties(e, dataSourceName);
+                
+                
+            }  else if (request.getParameter("page").equals("viewer")) {
                 //Request to Display Viewer Image               
                 // System.out.println("viewer Image....");                
                 String viewerName = request.getParameter("viewerName");
@@ -239,7 +219,7 @@ public class VizOnlineServlet extends HttpServlet {
             } else if (request.getParameter("page").equals("pollprops")) {
                 String factoryItemName = request.getParameter("factoryItemName");
                 //call the pollProps method
-                pollProps(factoryItemName, request, response);
+                outResponse = pollProps(factoryItemName, request, response);
             } else if (request.getParameter("page").equals("properties")) {
                 String viewerName = request.getParameter("viewerName");
 
@@ -557,7 +537,7 @@ public class VizOnlineServlet extends HttpServlet {
 
     }
 
-    public void pollProps(String factoryItemName, HttpServletRequest request, HttpServletResponse response)
+    public String pollProps(String factoryItemName, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         //String factoryItemName = request.getParameter("factoryItemName");
@@ -572,20 +552,15 @@ public class VizOnlineServlet extends HttpServlet {
                 //reset the propCommandsSet
                 propCommandsSet.put(factoryItemName, "");
                 
-                response.getWriter().write(currPropCommands);
+               // response.getWriter().write(currPropCommands);
 
                 System.out.println("POLLPROPS: " + propertyCommands  + " FACTORY-ITEM-NAME:::::"+factoryItemName);
                 System.out.println("-------------- HASHMAP-VALUE::::::::"+ currPropCommands);
-
-                response.flushBuffer();
-                //propertyCommands = "";
-
+               
             }
         }
 
-
-
-
+        return currPropCommands;
     }
 
     @Override
@@ -636,7 +611,9 @@ public class VizOnlineServlet extends HttpServlet {
                     if (currPropCommands != null && currPropCommands.length() != 0) {
                         currPropCommands += ";";
                     }
-                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + "," + p.getName() + "," + p.getValue().typeName() + "," + p.getValue().serialize();
+                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + "," 
+                            + p.getName() + "," + p.getValue().typeName() + "," + p.getValue().serialize()
+                            +","+ p.getReadOnly();
                 }
                 //System.out.println("PROPERTY-ADDED " + propertyCommands);
                 propCommandsSet.put(pm.getName(), currPropCommands);
@@ -680,6 +657,19 @@ public class VizOnlineServlet extends HttpServlet {
             public void propertyReadonlyChanged(PropertyManager pm,
                     Property p, boolean newReadOnly) {
                 // TODO Auto-generated method stub
+                
+                 String currPropCommands = propCommandsSet.get(pm.getName());
+                 
+                synchronized (pcsync) {
+                    if (currPropCommands != null && currPropCommands.length() != 0) {
+                        currPropCommands += ";";
+                    }    
+                    currPropCommands = currPropCommands + "readOnlyChanged," + pm.getName() + "," + p.getName() + "," + newReadOnly;
+                }
+
+               propCommandsSet.put(pm.getName(), currPropCommands);
+                //System.out.println("READ-ONLY CHANGED " + currPropCommands);
+                
             }
 
             @Override
@@ -831,6 +821,7 @@ public class VizOnlineServlet extends HttpServlet {
      * @return
      */
     public String getViewerProperties(Environment env, String viewerName) {
+
         String propCommands = "";
 
         int vindex = -1;
@@ -850,17 +841,13 @@ public class VizOnlineServlet extends HttpServlet {
                         propCommands += ";";
                     }
 
-                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName() + "," + ps[i].getValue().typeName() + "," + ps[i].getValue().serialize();
+                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName() 
+                            + "," + ps[i].getValue().typeName() + "," 
+                            + ps[i].getValue().serialize() +","+ps[i].getReadOnly();
 
                 }
-
-                //v.addPropertyChangeListener(listener);
-
-                //env.getViewers().get(vindex).addPropertyChangeListener(listener);
             }
         }
-
-        //System.out.println("PROPERTYCOMMANDS HASHMAP:::::::"+ propCommandsSet.get(viewerName) );       
         return propCommands;
 
     }
@@ -896,4 +883,37 @@ public class VizOnlineServlet extends HttpServlet {
         
         return index;
     }
+    
+    public String getDataSourceProperties(Environment env, String dataSourceName){
+        String propCommands = "";
+        DataSource ds = null;
+        int index = getDataSourceIndex(env, dataSourceName);
+
+        
+        if(index>=0){
+            ds = e.getDataSources().get(index);
+            
+            
+            
+                Property[] ps = ds.getProperties();
+
+                    for (int i = 0; i < ps.length; i++) {
+                        if (i != 0) {
+                            propCommands += ";";
+                        }
+
+                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() 
+                                + "," + ps[i].getValue().typeName() 
+                                + "," + ps[i].getValue().serialize()+","+ps[i].getReadOnly();
+
+                    }                   
+            
+            
+            
+        }       
+                
+        return propCommands;
+    }
+    
+    
 }
