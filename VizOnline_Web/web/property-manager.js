@@ -8,7 +8,12 @@ function addProperties(div, propertiesString) {
     var propArr = propertiesString.split(";");
 
     //remove the div current properties if this is not an update from pollprops which means it is a fresh one
-    if(document.getElementById("pollprops").value ==="false"){
+    var pollprops =  document.getElementById("pollprops").value;
+    var datasetprops = "";
+    if(document.getElementById("datasetprops")){//to ensure that the page has that element
+        datasetprops = document.getElementById("datasetprops").value;  //get the value
+    }
+    if( pollprops==="false" || datasetprops ==="true"){
         removeDivChildren(div);
     }
     
@@ -70,12 +75,7 @@ function addProperties(div, propertiesString) {
                 default:
                     //tbd
             }
-        } else if (addremove === "factoryItemName") { //set the factoryItemName
-            value = tempPropArr[1];
-            document.getElementById("factoryItemName").value = value;
-        }
-
-        else if (addremove === "removeProperty") {
+        } else if (addremove === "removeProperty") {
             var label = tempPropArr[2];
             //remove the propertyElement
             removePropertyElement(div, hash[label]);
