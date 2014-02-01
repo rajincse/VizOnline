@@ -239,8 +239,10 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
 
                     var test = function() {
                         var viewerName = win.document.getElementById("viewerName");
+                        var factoryItemName = win.document.getElementById("factoryItemName");
                         if (viewerName) {
                             viewerName.value = response[1];
+                            factoryItemName.value = response[1];
                             clearInterval(id);
                         }
                     };
