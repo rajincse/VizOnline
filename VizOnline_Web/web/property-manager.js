@@ -209,9 +209,9 @@ function updateFileInfo(id) {
     var file = get("I" + id);
     var propValue = file.value;
 
-    var dataSourceName = document.getElementById("dataSourceName").value;
+    var factoryItemName = document.getElementById("factoryItemName").value;
     var factoryType = document.getElementById("factoryType").value;
-    var url = "Uploads?page=uploadData&dataSourceName=" + dataSourceName
+    var url = "Uploads?page=uploadData&factoryItemName=" + factoryItemName
             + "&property=" + propName + "&factoryType=" + factoryType;
 
     var formData = new FormData();

@@ -131,7 +131,7 @@ public class VizOnlineServlet extends HttpServlet {
             } else if (request.getParameter("page").equals("deleteDataSource")) {
 
                 String dataSourceName = request.getParameter("dataSourceName");
-                                
+
                 int dataSourceIndex = getDataSourceIndex(e, dataSourceName);
 
                 //delete the data
@@ -167,16 +167,14 @@ public class VizOnlineServlet extends HttpServlet {
                     dataFactNames += e.getDataFactories().get(i).creatorType();
                 }
                 outResponse = dataFactNames;
-            }else if(request.getParameter("page").equals("dataSourceIndex")) {
+            } else if (request.getParameter("page").equals("dataSourceIndex")) {
                 //return the curren dataSourceIndex  which is like a  count
-                
-                outResponse = ""+dataSourceIndex;
-            }       
-            
-            else if (request.getParameter("page").equals("dataFactoryProperties")) {
+
+                outResponse = "" + dataSourceIndex;
+            } else if (request.getParameter("page").equals("dataFactoryProperties")) {
 
                 String propCommands;
-                
+
                 String dataFactoryType = request.getParameter("dataFactoryType");
                 String dataSourceName = request.getParameter("dataSourceName");
                 String factoryItemName = "";
@@ -185,7 +183,7 @@ public class VizOnlineServlet extends HttpServlet {
                 if (dataFactoryType != null) { //get the dataFactory and its properties
                     for (int i = 0; i < e.getDataFactories().size(); i++) {
                         if (dataFactoryType.equalsIgnoreCase(e.getDataFactories().get(i).creatorType())) {
-                           // factoryItemName = dataSourceName;
+                            // factoryItemName = dataSourceName;
                             ds = e.getDataFactories().get(i).create(dataSourceName);
                             //add the dataSource
                             e.addDataSource(ds, true);
@@ -202,14 +200,14 @@ public class VizOnlineServlet extends HttpServlet {
                 dataSourceIndex++;
                 outResponse = propCommands;
 
-            }else if(request.getParameter("page").equalsIgnoreCase("datasetProperties")){
-                
-               String dataSourceName = request.getParameter("dataSourceName");
-               
-               outResponse =  getDataSourceProperties(e, dataSourceName);
-                
-                
-            }  else if (request.getParameter("page").equals("viewer")) {
+            } else if (request.getParameter("page").equalsIgnoreCase("datasetProperties")) {
+
+                String dataSourceName = request.getParameter("dataSourceName");
+
+                outResponse = getDataSourceProperties(e, dataSourceName);
+
+
+            } else if (request.getParameter("page").equals("viewer")) {
                 //Request to Display Viewer Image               
                 // System.out.println("viewer Image....");                
                 String viewerName = request.getParameter("viewerName");
@@ -291,9 +289,9 @@ public class VizOnlineServlet extends HttpServlet {
                 //Do according to the factoryType
                 if (factoryType.equals("DataSource")) {
                     //System.out.println("the Size of the DataSource is " + e.getDataSources().size());
-                    
-                    int index =  getDataSourceIndex(e, factoryItemName);
-                    
+
+                    int index = getDataSourceIndex(e, factoryItemName);
+
 
                     //System.out.println("The FactoryItem index is " + factoryItemIndex);
 
@@ -315,7 +313,7 @@ public class VizOnlineServlet extends HttpServlet {
                 } else if (factoryType.equals("Viewer")) {
                     //TO-DO it may mean it is a property for a viewer at least for now
 
-                    String viewerName = request.getParameter("viewerName");
+                    String viewerName = request.getParameter("factoryItemName");
 
                     e = (Environment) session.getAttribute("environment");
                     int index = getViewerIndex(e, viewerName);
@@ -326,6 +324,7 @@ public class VizOnlineServlet extends HttpServlet {
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
+                            outResponse = newvalue;  //outresponse will return the name of the file
                             newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
                         }
 
@@ -546,17 +545,17 @@ public class VizOnlineServlet extends HttpServlet {
 
             synchronized (pcsync) {
                 response.setContentType("text/html");
-               
+
                 currPropCommands = propCommandsSet.get(factoryItemName);
-                
+
                 //reset the propCommandsSet
                 propCommandsSet.put(factoryItemName, "");
-                
-               // response.getWriter().write(currPropCommands);
 
-                System.out.println("POLLPROPS: " + propertyCommands  + " FACTORY-ITEM-NAME:::::"+factoryItemName);
-                System.out.println("-------------- HASHMAP-VALUE::::::::"+ currPropCommands);
-               
+                // response.getWriter().write(currPropCommands);
+
+                System.out.println("POLLPROPS: " + propertyCommands + " FACTORY-ITEM-NAME:::::" + factoryItemName);
+                System.out.println("-------------- HASHMAP-VALUE::::::::" + currPropCommands);
+
             }
         }
 
@@ -604,16 +603,16 @@ public class VizOnlineServlet extends HttpServlet {
         listener = new PropertyChangeListener() {
             @Override
             public void propertyAdded(PropertyManager pm, Property p) {
-                 
+
                 String currPropCommands = propCommandsSet.get(pm.getName());
-                 
+
                 synchronized (pcsync) {
                     if (currPropCommands != null && currPropCommands.length() != 0) {
                         currPropCommands += ";";
                     }
-                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + "," 
+                    currPropCommands = currPropCommands + "addProperty," + pm.getName() + ","
                             + p.getName() + "," + p.getValue().typeName() + "," + p.getValue().serialize()
-                            +","+ p.getReadOnly();
+                            + "," + p.getReadOnly();
                 }
                 //System.out.println("PROPERTY-ADDED " + propertyCommands);
                 propCommandsSet.put(pm.getName(), currPropCommands);
@@ -622,11 +621,11 @@ public class VizOnlineServlet extends HttpServlet {
             @Override
             public void propertyRemoved(PropertyManager pm, Property p) {
                 String currPropCommands = propCommandsSet.get(pm.getName());
-                 
+
                 synchronized (pcsync) {
                     if (currPropCommands != null && currPropCommands.length() != 0) {
                         currPropCommands += ";";
-                    }    
+                    }
                     currPropCommands = currPropCommands + "removeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
                 }
 
@@ -637,39 +636,36 @@ public class VizOnlineServlet extends HttpServlet {
             @Override
             public void propertyValueChanged(PropertyManager pm,
                     Property p, PropertyType newValue) {
-                
                 //TO-DO: No need for this right now
-                
                 /*synchronized (pcsync) {
-                    if (propertyCommands.length() != 0) {
-                        propertyCommands += ";";
-                    }
-                    propertyCommands = propertyCommands + "changeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
-                }
+                 if (propertyCommands.length() != 0) {
+                 propertyCommands += ";";
+                 }
+                 propertyCommands = propertyCommands + "changeProperty," + pm.getName() + "," + p.getName() + "," + p.getValue();
+                 }
 
-                System.out.println("PROPERTY-VALUE CHANGED " + propertyCommands);
+                 System.out.println("PROPERTY-VALUE CHANGED " + propertyCommands);
 
-                propCommandsSet.put(pm.getName(), propertyCommands); */
-
+                 propCommandsSet.put(pm.getName(), propertyCommands); */
             }
 
             @Override
             public void propertyReadonlyChanged(PropertyManager pm,
                     Property p, boolean newReadOnly) {
                 // TODO Auto-generated method stub
-                
-                 String currPropCommands = propCommandsSet.get(pm.getName());
-                 
+
+                String currPropCommands = propCommandsSet.get(pm.getName());
+
                 synchronized (pcsync) {
                     if (currPropCommands != null && currPropCommands.length() != 0) {
                         currPropCommands += ";";
-                    }    
+                    }
                     currPropCommands = currPropCommands + "readOnlyChanged," + pm.getName() + "," + p.getName() + "," + newReadOnly;
                 }
 
-               propCommandsSet.put(pm.getName(), currPropCommands);
+                propCommandsSet.put(pm.getName(), currPropCommands);
                 //System.out.println("READ-ONLY CHANGED " + currPropCommands);
-                
+
             }
 
             @Override
@@ -841,9 +837,9 @@ public class VizOnlineServlet extends HttpServlet {
                         propCommands += ";";
                     }
 
-                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName() 
-                            + "," + ps[i].getValue().typeName() + "," 
-                            + ps[i].getValue().serialize() +","+ps[i].getReadOnly();
+                    propCommands += "addProperty," + v.getName() + "," + ps[i].getName()
+                            + "," + ps[i].getValue().typeName() + ","
+                            + ps[i].getValue().serialize() + "," + ps[i].getReadOnly();
 
                 }
             }
@@ -870,50 +866,48 @@ public class VizOnlineServlet extends HttpServlet {
         }
         return index;
     }
-    
-    public int getDataSourceIndex(Environment env, String dataSourceName){
+
+    public int getDataSourceIndex(Environment env, String dataSourceName) {
         int index = -1;
-        
+
         for (int i = 0; i < env.getDataSources().size(); i++) {
-                        if (dataSourceName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
-                            index = i;
-                            break;
-                        }
-               }
-        
+            if (dataSourceName.equalsIgnoreCase(e.getDataSources().get(i).getName())) {
+                index = i;
+                break;
+            }
+        }
+
         return index;
     }
-    
-    public String getDataSourceProperties(Environment env, String dataSourceName){
+
+    public String getDataSourceProperties(Environment env, String dataSourceName) {
         String propCommands = "";
         DataSource ds = null;
         int index = getDataSourceIndex(env, dataSourceName);
 
-        
-        if(index>=0){
+
+        if (index >= 0) {
             ds = e.getDataSources().get(index);
-            
-            
-            
-                Property[] ps = ds.getProperties();
 
-                    for (int i = 0; i < ps.length; i++) {
-                        if (i != 0) {
-                            propCommands += ";";
-                        }
 
-                        propCommands += "addProperty," + ds.getName() + "," + ps[i].getName() 
-                                + "," + ps[i].getValue().typeName() 
-                                + "," + ps[i].getValue().serialize()+","+ps[i].getReadOnly();
 
-                    }                   
-            
-            
-            
-        }       
-                
+            Property[] ps = ds.getProperties();
+
+            for (int i = 0; i < ps.length; i++) {
+                if (i != 0) {
+                    propCommands += ";";
+                }
+
+                propCommands += "addProperty," + ds.getName() + "," + ps[i].getName()
+                        + "," + ps[i].getValue().typeName()
+                        + "," + ps[i].getValue().serialize() + "," + ps[i].getReadOnly();
+
+            }
+
+
+
+        }
+
         return propCommands;
     }
-    
-    
 }

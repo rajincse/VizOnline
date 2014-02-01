@@ -141,7 +141,7 @@ public class Uploads extends HttpServlet {
                 // out = response.getWriter();
                 //get the dataSourceName
 
-                String dataSourceName = request.getParameter("dataSourceName");
+                String factoryItemName = request.getParameter("factoryItemName");
                 uploadedItems = upload.parseRequest(request);
 
 
@@ -170,15 +170,15 @@ public class Uploads extends HttpServlet {
                 }
 
                 //Put the name of the data in the hashmap
-                theDataSources.put(dataSourceName, myFileName);
+                theDataSources.put(factoryItemName, myFileName);
                 //send redirect to the vizonline servlet to update the property value
                 String factoryType = request.getParameter("factoryType");
                 String propertyName = request.getParameter("property");
 
                 String url = "VizOnlineServlet?page=updateProperty&newValue=" + myFileName
                         + "&property=" + propertyName + "&factoryType=" + factoryType
-                        + "&factoryItemName=" + dataSourceName;
-                
+                        + "&factoryItemName=" + factoryItemName;
+               
                 response.sendRedirect(url);
 
             }
