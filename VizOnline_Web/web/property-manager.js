@@ -402,7 +402,6 @@ function showUploadButton(div, id, name) {
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
 
-
     var label = createLabel(id, name);
 
     var fileBox = document.createElement('input');
