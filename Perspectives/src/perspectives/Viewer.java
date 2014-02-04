@@ -207,7 +207,12 @@ public abstract class Viewer extends PropertyManager
 	
 	public void setToolTipText(String t)
 	{
+		boolean needRender = false;
+		if (!tooltipText.equals(t))
+			needRender = true;
 		tooltipText = t;
+		if (needRender)
+		this.requestRender();
 	}
 	
 	public String getToolTipText()
@@ -219,6 +224,9 @@ public abstract class Viewer extends PropertyManager
 	{
 		tooltipX = x;
 		tooltipY = y;
+		
+		if (tooltipText.length() != 0)
+			requestRender();
 	}
 	
 	public long getTooltipDelay()

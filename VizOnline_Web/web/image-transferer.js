@@ -1,4 +1,4 @@
-function ImageTransferer(div, w,h, tch, tcv)
+﻿function ImageTransferer(div, w,h, tch, tcv)
 {
 	this.div = div;
 	this.tch = tch;
@@ -34,11 +34,16 @@ function ImageTransferer(div, w,h, tch, tcv)
 		for (var i=0; i<this.tcv; i++)
 		{
 			var rowImages = [];
+                        var viewerName = document.getElementById("viewerName").value;
 			for (var j=0; j<tch; j++)
 			{
-                                var viewerName = document.getElementById("viewerName").value;
 				var url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
                                         +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
+
+				if (this.cnt == 1)
+					url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
+                                        +"&tileX=-1&tileY=-1&diff=1&r=" + this.cnt;
+
 				var image = new Image();
 				rowImages.push(image);
 				image.src = url;

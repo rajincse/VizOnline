@@ -43,14 +43,13 @@ public class POptions extends PropertyType
 
 	@Override
 	public POptions deserialize(String s) {
-	    //it should return a POptions object with the selected index property
-            POptions pOptions = new POptions(options);
-            for(int i=0; i<options.length; i++){
-                if(options[i].equalsIgnoreCase(s)){
-                    pOptions.selectedIndex = i;
-                }
-            }
-                return pOptions;
+	    //it will return a POptioin object which contains only one object and the 
+            //selected index is 0
+            POptions pOptions = new POptions(new String[]{s});
+            
+            pOptions.selectedIndex =0;
+            
+            return pOptions;
 		
 	}
 }

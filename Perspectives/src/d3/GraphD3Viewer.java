@@ -8,8 +8,8 @@ import Graph.Graph;
 import Graph.GraphData;
 import java.awt.Color;
 import java.util.ArrayList;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import properties.PColor;
 import properties.PDouble;
 import properties.PFile;
@@ -71,7 +71,7 @@ public class GraphD3Viewer extends D3Viewer {
         {
             JSONObject obj = new JSONObject();
             obj.put("name", node);
-            nodeArray.put(obj);
+            nodeArray.add(obj);
         }
         graphJSON.put("nodes", nodeArray);
         
@@ -83,7 +83,7 @@ public class GraphD3Viewer extends D3Viewer {
             JSONObject obj = new JSONObject();
             obj.put("source", source);
             obj.put("target", destination);
-            linkArray.put(obj); 
+            linkArray.add(obj); 
         }
         graphJSON.put("links", linkArray);
         
