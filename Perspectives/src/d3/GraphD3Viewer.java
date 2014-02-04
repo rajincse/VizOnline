@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import properties.PColor;
-import properties.PDouble;
-import properties.PFile;
 import properties.Property;
 
 /**
@@ -20,6 +18,8 @@ import properties.Property;
  * @author rajin
  */
 public class GraphD3Viewer extends D3Viewer {
+    private final String PROPERTY_NODE_COLOR ="Node Color";
+    private final String PROPERTY_LINK_COLOR ="Link Color";
     private Graph graph;
     public GraphD3Viewer(String name, GraphData graphData)            
     {
@@ -27,9 +27,13 @@ public class GraphD3Viewer extends D3Viewer {
         this.graph = graphData.graph;
         try {
 
-           Property<PColor> p1 = new Property<PColor>("Node Color",new PColor(new Color(0, 255, 0)));
+           Property<PColor> p1 = new Property<PColor>(PROPERTY_NODE_COLOR,new PColor(new Color(0, 255, 0)));
           
             this.addProperty(p1);
+            
+             Property<PColor> p2 = new Property<PColor>(PROPERTY_LINK_COLOR,new PColor(new Color(0, 0, 0)));
+          
+            this.addProperty(p2);
 
            
 
@@ -37,9 +41,9 @@ public class GraphD3Viewer extends D3Viewer {
             e.printStackTrace();
         }
     }
-    private Color getNodeColor()
+    private Color getColor(String propertyName)
     {
-        Property<PColor> p = this.getProperty("Node Color");
+        Property<PColor> p = this.getProperty(propertyName);
         return p.getValue().colorValue();
     }
     private String getHexString(Color color)
@@ -49,14 +53,19 @@ public class GraphD3Viewer extends D3Viewer {
     }
 
     @Override
-    public JSONObject updateData()
+    public JSONObject updateData(boolean isInitialCall)
     {
         JSONObject data = new JSONObject();
+        //InitialCall
+        data.put("IsInitialCall", isInitialCall);
         // Property Data
         JSONObject propertyData= new JSONObject();
         
-        String color = this.getHexString(this.getNodeColor());
-        propertyData.put("NodeColor", color);
+        String nodeColor = this.getHexString(this.getColor(PROPERTY_NODE_COLOR));
+        propertyData.put("NodeColor", nodeColor);
+        
+        String edgeColor = this.getHexString(this.getColor(PROPERTY_LINK_COLOR));
+        propertyData.put("LinkColor", edgeColor);
         
         data.put("PropertyData", propertyData);
         //Graph Data

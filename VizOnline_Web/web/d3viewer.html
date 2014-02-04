@@ -38,6 +38,8 @@
             var xmlhttp;
             var cnt = 0;
             var inpollprops = false;
+            var dataTransfer=null;
+            var jsD3Client=null;
             
             function initialize() {
                 // alert("The name of the viewer is " +document.getElementById("viewerName").value);
@@ -47,14 +49,14 @@
 
                 
 
-                var dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
+                dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
                 dataTransfer.readCreatorType(function(data)
                 {
                     var creatorType = data;
                     $.getScript('d3/JSClients/' + creatorType + '.js', function(data)
                     {
-                        var jsD3Client = new JSD3Client();
-                        dataTransfer.readViewerData(jsD3Client.dataUpdated);
+                        jsD3Client = new JSD3Client();
+                        dataTransfer.readViewerData(jsD3Client.dataUpdated, true);
                     }
 
                     );
@@ -62,11 +64,19 @@
 
 
                 setInterval(pollprops, 500);
-
+                setInterval(pollUpdateData, 500);
                 
 
             }
 
+            function pollUpdateData()
+            {
+                if(jsD3Client && dataTransfer)
+                {
+                    dataTransfer.readViewerData(jsD3Client.dataUpdated, false);
+                }
+            }
+            
             function pollprops()
             {
                 if (inpollprops)

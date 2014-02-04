@@ -25,7 +25,7 @@ DataTransfer.prototype.readCreatorType = function(callback)
     var id = setInterval(test, 100);
 };
 
-DataTransfer.prototype.readViewerData = function(callbackMethod)
+DataTransfer.prototype.readViewerData = function(callbackMethod, isInitialCall)
 {
 
     //make sure the viewer name is set
@@ -34,7 +34,7 @@ DataTransfer.prototype.readViewerData = function(callbackMethod)
         viewerName = document.getElementById("viewerName").value;
         if (viewerName !== "") {
 
-            var url = 'VizOnlineServlet?page=d3viewer&method=readViewerData';
+            var url = 'VizOnlineServlet?page=d3viewer&method=readViewerData&isinitcall='+isInitialCall;
             url += "&viewerName=" + document.getElementById("viewerName").value;
 
             $.get(url, function(data) {

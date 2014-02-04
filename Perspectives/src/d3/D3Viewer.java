@@ -10,7 +10,7 @@ import perspectives.Viewer2D;
      {
          super(name);
      }
-     abstract  public JSONObject updateData();
+     abstract  public JSONObject updateData(boolean isInitialCall);
      @Override
     public void render(Graphics2D g) {
         
