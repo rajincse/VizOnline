@@ -153,6 +153,9 @@ public class ViewerContainer{
 	    	 tooltipOn = false;
 	    	 prevTooltip = "";
 	     }
+	    
+	    if (window != null)
+	    	this.window.redraw();
 	}
 	
 
@@ -294,12 +297,8 @@ public class ViewerContainer{
 			working = true;
 		}
 		
-		//System.out.println("alltask");
-		
-	
-		
 		BufferedImage difImage = diffImage(image, lastImage);
-		if (diffcount == 0 && history == 0)
+		if (diffcount == 0 && history == 0 && !changeSequenceTest)
 		{
 			if (changeSequenceTest)
 			{
@@ -309,6 +308,7 @@ public class ViewerContainer{
 			synchronized(o6)
 			{
 				working = false;
+				lastImage = image;
 				return;
 			}
 		}
@@ -351,21 +351,27 @@ public class ViewerContainer{
 			}
 			lastImage = image;
 			history++;
-			if (history > 4) history = 4;
-			System.out.println("gettiles 4");
+			if (history > 4) history = 4;	
+			difsSent = 0;
 		}
 		else
 		{
-			System.out.println("gettiles 5");
-			if (history == 1)
+			if (history == 1 || difsSent > 20)
+			{
 				tiles = this.tileImage(image, tilesX, tilesY, true);
+				difsSent=0;
+			}
 			else if (history > 1)
 			{
 				BufferedImage halfIm = resizeImage(image, 1./(history+1));
-				tiles = this.tileImage(halfIm, tilesX, tilesY, false);	
+				tiles = this.tileImage(halfIm, tilesX, tilesY, false);
+				difsSent = 0;
 			}
-			else				
+			else
+			{
 				tiles = this.tileImage(difImage, tilesX, tilesY, false);
+				difsSent++;
+			}
 			
 				
 			lastImage = image;
@@ -382,7 +388,6 @@ public class ViewerContainer{
 				tilePngs[i][j] = null;
 		}
 		
-		System.out.println("alltask3");
 		
 		for (int i=0; i<tilesX; i++)
 			for (int j=0; j<tilesY; j++)	{
@@ -456,6 +461,7 @@ public class ViewerContainer{
 	Object o8 = new Object();
 	
 	byte[][][] sendTiles = null;
+	int difsSent = 0;
 	
 	public void createTiles()
 	{
@@ -479,6 +485,13 @@ public class ViewerContainer{
 	{		
 		synchronized(o5)
 		{
+			if (x < 0 || y < 0)
+			{
+				lastImage = null;
+				round = 0;
+				return noImage();
+			}
+			
 			if (round == 0)						
 				getSendTiles();			
 		
@@ -518,6 +531,12 @@ public class ViewerContainer{
 		return noImage;
 	}
 
+	Object o11 = new Object();
+	Object o12 = new Object();
+	
+	int allDifTimes = 0;
+	int allDifCounts = 0;
+	
 	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
 	{
 		long ttt = new Date().getTime();
@@ -535,19 +554,73 @@ public class ViewerContainer{
 	        }
 	      
 	        
-	        int[] cpixels = ((DataBufferInt) dif.getRaster().getDataBuffer()).getData();
-	        int[] spixels;
-	        
-	        if (lastImage.getWidth() == image.getWidth())
-	        	spixels = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();
-	        else
-	        {
-	        	BufferedImage im2 = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-	        	im2.createGraphics().drawImage(lastImage, 0, 0, image.getWidth()-1, image.getHeight()-1, 0, 0, lastImage.getWidth()-1, lastImage.getHeight()-1, null);
-	        	spixels = ((DataBufferInt) im2.getRaster().getDataBuffer()).getData();
-	        }
+	         int[] cpixels = ((DataBufferInt) dif.getRaster().getDataBuffer()).getData();
+	         int[] spixels;	        
+	      
+	       	spixels = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();	       
 
-	        int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
+	         int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
+	         
+	         long ttt2 = new Date().getTime() - ttt;
+	        
+	       /* final int[] doneDifs = new int[1];
+	        doneDifs[0] = 0;
+	        
+	       
+	        
+	        final int n = 10;
+	        for (int j=0; j<n; j++)
+	        {	        	
+				final int start = j*(cpixels.length/n);
+				final int end = (j==n) ? cpixels.length : (j+1)*(cpixels.length/n);	
+				//System.out.println(j + " " +start + " " + end);
+	        	Task t = new Task("bla")
+	        	{
+					public void task() {
+
+						   for (int i = start; i < end; i += 1)
+					        {
+					                int r1 = (cpixels[i]) & 0xFF;
+					                int g1 = (cpixels[i] >> 8) & 0xFF;
+					                int b1 = (cpixels[i] >> 16) & 0xFF;
+					                int r2 = (spixels[i]) & 0xFF;
+					                int g2 = (spixels[i] >> 8) & 0xFF;
+					                int b2 = (spixels[i] >> 16) & 0xFF;					                
+					               
+					                if (r1 == r2 && g1 == g2 && b1 == b2)
+					                {
+					                    cpixels[i] = 0;
+					                    calpha[i] = 0;
+					                }
+					                else
+					                	//synchronized(o11)
+					                	//{
+					                		diffcount++;
+					                	//}     
+					        }
+						   synchronized(o11)
+						   {
+							   doneDifs[0]++;
+							   System.out.println("done difs " + doneDifs[0]);
+							   if (doneDifs[0] == n)
+								   synchronized(o12){
+								   o12.notifyAll();}
+							   
+						   }
+					}
+	        	};
+	        	
+	        	t.start();
+	
+	        }
+	        
+	        synchronized(o12){
+        		try {
+					o12.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}}*/
 	          	        
 	        for (int i = 0; i < cpixels.length; i += 1)
 	        {
@@ -566,10 +639,12 @@ public class ViewerContainer{
 	                }
 	                else
 	                	diffcount++;
-	                
+      
 	        }
 	        
-	        System.out.println("diffcount ---- " + diffcount + " ;   time = " +  (new Date().getTime()-ttt));
+	        allDifTimes +=  (new Date().getTime()-ttt);
+	        allDifCounts++;
+	        System.out.println("diffcount ---- " + diffcount + " ;   time = " +  (new Date().getTime()-ttt)  + " (" + ttt2 + ")" + " " + (allDifTimes/allDifCounts) );
 	        
 	        return dif;
 	}

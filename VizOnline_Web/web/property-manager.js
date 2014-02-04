@@ -3,6 +3,7 @@ var propID = 1;
 var viewerIndex;
 
 function addProperties(div, propertiesString) {
+    //alert(propertiesString);
 
     var propArr = propertiesString.split(";");    
     //remove the div current properties if this is not an update from pollprops which means it is a fresh one
@@ -49,7 +50,12 @@ function addProperties(div, propertiesString) {
                     showRange(div, propID, label, value);
                     break;
                 case "PFile":    //value format: null
-                    showUploadButton(div, propID, label);
+                    if(value === "false"){ //upload button
+                       showUploadButton(div, propID, label);
+                    }
+                    else if (value ==="true"){//save button
+                        showSaveButton(div, propID, label);
+                    }
                     break;
                 case "PDouble":      //value format: 100.0
                     showDoubleBox(div, propID, label, value);
@@ -402,7 +408,6 @@ function showUploadButton(div, id, name) {
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
 
-
     var label = createLabel(id, name);
 
     var fileBox = document.createElement('input');
@@ -418,6 +423,61 @@ function showUploadButton(div, id, name) {
     div.appendChild(paragraph);
 
 }
+
+function showSaveButton(div, id, name){
+    var hiddenInput = createHiddenInput(id, name);
+    div.appendChild(hiddenInput);
+
+    var label = createLabel(id, name);
+
+    var button = document.createElement('button');
+
+    button.setAttribute("id", "I" + id);
+    button.innerHTML = "Save";
+    button.setAttribute("onclick","updateSaveInfo(" + id + ");");
+    
+    var paragraph = createParagraph();
+    paragraph.appendChild(label);
+    paragraph.appendChild(button);
+    div.appendChild(paragraph);
+}
+
+function updateSaveInfo(id){
+    var propLabel = get('HL' + id);
+    var propName = propLabel.value;
+    
+    var factoryItemName = document.getElementById("factoryItemName").value;
+    var factoryType = document.getElementById("factoryType").value;
+    var url = "Downloads?page=updateDownloadPath&factoryItemName=" + factoryItemName
+            + "&property=" + propName + "&factoryType=" + factoryType;
+
+    //var formData = new FormData();
+    //formData.append("File", file.files[0]);
+
+    var xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, 'download');
+    xmlHttpRequest.open("GET", url, true);
+    xmlHttpRequest.send(null); 
+      
+}
+
+function downloadData(fileName){
+      
+    //set the url of the link that will be  used to download the file
+    var url = "Downloads?page=downloadData&fileName="+fileName;
+    
+    var downloadLink = document.getElementById("downloadFile");
+    downloadLink.href = url;
+    
+    //actually download the file by clicking on the link automatically
+    downloadLink.click();
+       
+}
+
+
+
+
+
 
 function showRange(div, id, name, value) {
     if (typeof(value) === 'undefined') {

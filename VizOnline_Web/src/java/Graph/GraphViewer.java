@@ -80,13 +80,15 @@ public class GraphViewer extends Viewer2D {
 
             Property<PBoolean> p2 = new Property<PBoolean>("Simulation.Simulate", new PBoolean(false));
             gv.addProperty(p2);
-
-            Property<PFile> p3 = new Property<PFile>("Save", new PFile());
+            
+            PFile f1 = new PFile();
+            f1.save = true;
+            Property<PFile> p3 = new Property<PFile>("Save", f1);
             gv.addProperty(p3);
 
-            PFile f = new PFile();
-            f.save = true;
-            Property<PFile> p4 = new Property<PFile>("Save Positions", f);
+            PFile f2 = new PFile();
+            f2.save = true;
+            Property<PFile> p4 = new Property<PFile>("Save Positions", f2);
             gv.addProperty(p4);
 
             Property<PInteger> p77 = new Property<PInteger>("ToImage", new PInteger(0));

@@ -41,12 +41,13 @@ public class PFile extends PropertyType
 	@Override
 	public String serialize() {
 		// TODO Auto-generated method stub
-		return null;
+		return ""+save;
+            //return null;
 	}
 	@Override
 	public PFile deserialize(String s) {
 	    //we will be returning a PFile with the selected filepath
-            PFile pf = new PFile();
+            PFile pf = copy();
             pf.path = s;
             
             return pf;

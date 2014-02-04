@@ -130,11 +130,11 @@ public class ViewerContainer2D extends ViewerContainer{
 			public void process() {
 				((Viewer2D)viewer).render(gcf);
                                 
-                                 gcf.setTransform(AffineTransform.getTranslateInstance(0, 0));
-                            //render tooltip
-                            if (((Viewer2D) viewer).getToolTipText().length() > 0) {
-                                ((Viewer2D) viewer).renderTooltip(gcf);
-                            }
+                 gcf.setTransform(AffineTransform.getTranslateInstance(0, 0));
+                 //render tooltip
+                 if (((Viewer2D) viewer).getToolTipText().length() > 0) {
+                       ((Viewer2D) viewer).renderTooltip(gcf);
+                }
 				renderDoneCallback(fimage);
 			}
 		});	
@@ -145,6 +145,7 @@ public class ViewerContainer2D extends ViewerContainer{
 		renderCount--;		
 		this.setViewerImage(im);
 	}
+	
 
 	
 	public void setWidth(int w)
@@ -294,7 +295,7 @@ public class ViewerContainer2D extends ViewerContainer{
 			//this.render();
 		}
                 
-                this.render();
+       this.render();
                 
 		dragPrevX = ex;
 		dragPrevY = ey;
@@ -320,8 +321,9 @@ public class ViewerContainer2D extends ViewerContainer{
 			int y = (int)tp.y;	
 
 		((Viewer2D)viewer).mousemoved(x,y);
-                
-                this.render();
+		
+		//if (viewer.getToolTipText() != "")                
+        // this.render();
                 
 		}
 		catch(Exception ee)

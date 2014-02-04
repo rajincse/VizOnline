@@ -14,6 +14,10 @@
         <servlet-name>Uploads</servlet-name>
         <servlet-class>servlets.Uploads</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Downloads</servlet-name>
+        <servlet-class>servlets.Downloads</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>VizOnlineServlet</servlet-name>
         <url-pattern>/VizOnlineServlet</url-pattern>
@@ -28,6 +32,10 @@
     <servlet-mapping>
         <servlet-name>Uploads</servlet-name>
         <url-pattern>/Uploads</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Downloads</servlet-name>
+        <url-pattern>/Downloads</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>2</session-timeout>

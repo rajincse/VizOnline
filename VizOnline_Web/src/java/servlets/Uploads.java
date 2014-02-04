@@ -39,20 +39,22 @@ public class Uploads extends HttpServlet {
     protected PrintWriter out = null;
 //    private final String UPLOAD_DIRECTORY = "U:/Desktop/Uploads";
 //    private boolean isMultipart;
-    private String filePath;
+    //private String filePath;
 //    private int maxFileSize = 50 * 1024;
 //    private int maxMemSize = 4 * 1024;
 //    private File file;
-//    
+    private String uploadsPath;
     private HashMap<String, String> theDataSources = new HashMap<String, String>();
 
     public void init() {
         // Get the file location where it would be stored.
         //filePath = getServletContext().getRealPath(getInitParameter("file-upload"));
-        filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
+        //filePath = getServletContext().getRealPath("/WEB-INF/Uploads/");
+        
+        uploadsPath = "/WEB-INF/Uploads/";
 
 
-        System.out.println("UPLOADS -- Initialized");
+        //System.out.println("UPLOADS -- Initialized");
 
 
         //Delete existing local files when the upload servlet is started.
@@ -118,9 +120,11 @@ public class Uploads extends HttpServlet {
                 String dataSourceName = request.getParameter("dataSourceName");
                 String fileName = theDataSources.get(dataSourceName);
                 
+                String filePath = getServletContext().getRealPath(uploadsPath+fileName);
                 
-                File file = new File(filePath + "\\" + fileName);
-
+                //File file = new File(filePath + "\\" + fileName);
+                File file = new File(filePath);
+                
                 if (file.delete()) {
                     //remove it from the hashmap
                     removeValueFromHashMap(theDataSources, fileName);
@@ -156,7 +160,9 @@ public class Uploads extends HttpServlet {
                             String myFullFileName = fileItem.getName(), slashType = (myFullFileName.lastIndexOf("\\") > 0) ? "\\" : "/";
                             int startIndex = myFullFileName.lastIndexOf(slashType);
                             myFileName = myFullFileName.substring(startIndex + 1, myFullFileName.length());
-                            uploadedFile = new File(filePath, myFileName);
+                            
+                            String uploadsDirPath = getServletContext().getRealPath(uploadsPath);
+                            uploadedFile = new File(uploadsDirPath, myFileName);
                             fileItem.write(uploadedFile);
                             //out.write(dataSourceName + ";" +myFileName);
                             //out.write(myFileName);
@@ -171,13 +177,20 @@ public class Uploads extends HttpServlet {
 
                 //Put the name of the data in the hashmap
                 theDataSources.put(factoryItemName, myFileName);
+                
+                String filePath = getServletContext().getRealPath(uploadsPath+myFileName);
+                
+                
+                
                 //send redirect to the vizonline servlet to update the property value
                 String factoryType = request.getParameter("factoryType");
                 String propertyName = request.getParameter("property");
 
-                String url = "VizOnlineServlet?page=updateProperty&newValue=" + myFileName
+                String url = "VizOnlineServlet?page=updateProperty&newValue=" + filePath
                         + "&property=" + propertyName + "&factoryType=" + factoryType
-                        + "&factoryItemName=" + factoryItemName;
+                        + "&factoryItemName=" + factoryItemName
+                        +"&fileName="+myFileName;
+                
                
                 response.sendRedirect(url);
 
@@ -194,6 +207,8 @@ public class Uploads extends HttpServlet {
     public void deleteExistingLocalFiles() {
         String files = "";
 
+        String filePath = getServletContext().getRealPath(uploadsPath);
+        
         File folder = new File(filePath);
         File[] listOfFiles = folder.listFiles();
         String filename;
