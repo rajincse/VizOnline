@@ -264,7 +264,9 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     }
                     fileID++;
 
-                } else if (thepage === 'update') {
+                }else if(thepage === 'download'){
+                    downloadData(xmlHttpRequest.responseText);
+                }else if (thepage === 'update') {
                     document.getElementById("cdatas").innerHTML = "";
                     getDatasets(xmlHttpRequest.responseText);
                 } else if (thepage === 'deleteData') {

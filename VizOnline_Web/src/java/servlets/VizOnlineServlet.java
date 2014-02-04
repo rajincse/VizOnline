@@ -275,6 +275,8 @@ public class VizOnlineServlet extends HttpServlet {
                     outResponse = files;
                 }
             } else if (request.getParameter("page").equals("updateProperty")) {
+                
+                System.out.println("**********************************************************");
                 //Request to update Properties    
                 String newvalue = request.getParameter("newValue");
                 String property = request.getParameter("property");
@@ -302,8 +304,9 @@ public class VizOnlineServlet extends HttpServlet {
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
-                            outResponse = newvalue;  //outresponse will return the name of the file
-                            newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
+                            String fileName = request.getParameter("fileName");
+                            outResponse = fileName;
+                          
                         }
 
                         e.getDataSources().get(index).getProperty(property)
@@ -324,8 +327,8 @@ public class VizOnlineServlet extends HttpServlet {
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
-                            outResponse = newvalue;  //outresponse will return the name of the file
-                            newvalue = (getServletContext().getRealPath(uploadsPath + newvalue));
+                            String fileName = request.getParameter("fileName");
+                            outResponse = fileName;
                         }
 
                         e.getViewers().get(index).getProperty(property)
@@ -574,8 +577,7 @@ public class VizOnlineServlet extends HttpServlet {
         //System.out.println("servlet init");
 
         uploadsPath = "/WEB-INF/Uploads/";
-        //uploadsPath = getServletContext().getRealPath("/WEB-INF/Uploads/");
-
+        
         propsInit();
 
         super.init();
