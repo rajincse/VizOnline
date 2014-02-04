@@ -1,20 +1,21 @@
 // for Properties
 var propID = 1;
 var viewerIndex;
+var hash;
 
 function addProperties(div, propertiesString) {
     //alert(propertiesString);
 
-    var propArr = propertiesString.split(";");    
+    var propArr = propertiesString.split(";");
     //remove the div current properties if this is not an update from pollprops which means it is a fresh one
-    var pollprops =  document.getElementById("pollprops").value;
+    var pollprops = document.getElementById("pollprops").value;
     var datasetprops = "";
-    if(document.getElementById("datasetprops")){//to ensure that the page has that element
+    if (document.getElementById("datasetprops")) {//to ensure that the page has that element
         datasetprops = document.getElementById("datasetprops").value;  //get the value
     }
-    if( pollprops==="false" || datasetprops ==="true"){
+    if (pollprops === "false" || datasetprops === "true") {
         removeDivChildren(div);
-    }    
+    }
 
     var prop;
     for (var i = 0; i < propArr.length; i++) {
@@ -25,69 +26,76 @@ function addProperties(div, propertiesString) {
 
         //set the name of the viewer if it is the viewer.
         /*if (document.getElementById("viewerName")) {
-            document.getElementById("viewerName").value = viewer_name;
-        }*/
+         document.getElementById("viewerName").value = viewer_name;
+         }*/
 
-       
+
         if (addremove === "addProperty") {
             var label = tempPropArr[2];
             //"addProperty,property-manager-name,property-name, property-type, property-vaue, read-only-value 
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10, false;  
-            hash[label] = propID;
-            var type = tempPropArr[3];
-            var value = tempPropArr[4];
-            var readOnly = tempPropArr[5];
 
-            switch (type) {
-                case "PInteger":     //value format: 10
-                    showIntegerBox(div, propID, label, value);
-                    break;
-                case "PColor":       //value format: 200-150-150-255
-                    showColorPicker(div, propID, label, value);
-                    jscolor.init();
-                    break;
-                case "PPercent":     //value format: 0.5
-                    showRange(div, propID, label, value);
-                    break;
-                case "PFile":    //value format: null
-                    if(value === "false"){ //upload button
-                       showUploadButton(div, propID, label);
-                    }
-                    else if (value ==="true"){//save button
-                        showSaveButton(div, propID, label);
-                    }
-                    break;
-                case "PDouble":      //value format: 100.0
-                    showDoubleBox(div, propID, label, value);
-                    break;
-                case "PBoolean":     //value format: 0
-                    showCheckBox(div, propID, label, value);
-                    break;
-                case "SaveFilePropertyType":    //value format: null
-                    showUploadButton(div, propID, label);
-                    break;
-                case "PString":      //value format:
-                    showLetterBox(div, propID, label, value);
-                    break;
-                case "POptions":
-                    showOptionBox(div, propID, label, value);
-                    break;
-                case "PProgress":
-                    //TO-DO
-                    //do nothing for now;                     
-                    break;
 
-                default:
-                    //tbd
+            //NB: add the property only if it has not been added yet
+
+            if (!(label in hash)) {
+                hash[label] = propID;
+                var type = tempPropArr[3];
+                var value = tempPropArr[4];
+                var readOnly = tempPropArr[5];
+
+                switch (type) {
+                    case "PInteger":     //value format: 10
+                        showIntegerBox(div, propID, label, value);
+                        break;
+                    case "PColor":       //value format: 200-150-150-255
+                        showColorPicker(div, propID, label, value);
+                        jscolor.init();
+                        break;
+                    case "PPercent":     //value format: 0.5
+                        showRange(div, propID, label, value);
+                        break;
+                    case "PFile":    //value format: null
+                        if (value === "false") { //upload button
+                            showUploadButton(div, propID, label);
+                        }
+                        else if (value === "true") {//save button
+                            showSaveButton(div, propID, label);
+                        }
+                        break;
+                    case "PDouble":      //value format: 100.0
+                        showDoubleBox(div, propID, label, value);
+                        break;
+                    case "PBoolean":     //value format: 0
+                        showCheckBox(div, propID, label, value);
+                        break;
+                    case "SaveFilePropertyType":    //value format: null
+                        showUploadButton(div, propID, label);
+                        break;
+                    case "PString":      //value format:
+                        showLetterBox(div, propID, label, value);
+                        break;
+                    case "POptions":
+                        showOptionBox(div, propID, label, value);
+                        break;
+                    case "PProgress":
+                        //TO-DO
+                        //do nothing for now;                     
+                        break;
+
+                    default:
+                        //tbd
+                }
+
+                setPropertyReadOnly(propID, readOnly);
+
             }
-        
-            setPropertyReadOnly(propID, readOnly);
-            
+
         } else if (addremove === "removeProperty") {
             var label = tempPropArr[2];
             //remove the propertyElement
             removePropertyElement(div, hash[label]);
-        }else if(addremove === "readOnlyChanged") {
+        } else if (addremove === "readOnlyChanged") {
             //Format:"readOnlyChanged,pm.getName(),p.getName(),newReadOnly;               
             var label = tempPropArr[2];
             var readOnly = tempPropArr[3];
@@ -114,38 +122,38 @@ function addProperties(div, propertiesString) {
 }
 
 /*function to set the readOnly of properties */
-function setPropertyReadOnly(id, readOnly){
-    
- 
-    
-    
- if(document.getElementById("I"+id)){ //ensure that the element exists
-     
-     var element = document.getElementById("I"+id);
-     if(readOnly === "true"){
-         if(! (element.readOnly))
-             element.setAttribute("readonly", true);
-     }
-     else if (readOnly === "false"){
-            if((element.readOnly))
+function setPropertyReadOnly(id, readOnly) {
+
+
+
+
+    if (document.getElementById("I" + id)) { //ensure that the element exists
+
+        var element = document.getElementById("I" + id);
+        if (readOnly === "true") {
+            if (!(element.readOnly))
+                element.setAttribute("readonly", true);
+        }
+        else if (readOnly === "false") {
+            if ((element.readOnly))
                 element.removeAttribute("readonly");
-     }
-     
-     
- }
-     
+        }
+
+
+    }
+
 }
 
-function removePropertyElement(div, id){
-    
-    var hiddenInput = document.getElementById("HL"+id);
-    var propElement = document.getElementById("I"+id);
-    var propElementLabel = document.getElementById("L"+id);
-    
+function removePropertyElement(div, id) {
+
+    var hiddenInput = document.getElementById("HL" + id);
+    var propElement = document.getElementById("I" + id);
+    var propElementLabel = document.getElementById("L" + id);
+
     hiddenInput.parentNode.removeChild(hiddenInput);
     propElement.parentNode.removeChild(propElement);
     propElementLabel.parentNode.removeChild(propElementLabel);
-    
+
 }
 
 function removeDivChildren(div) {
@@ -179,10 +187,10 @@ function updateColorInfo(color, id) {
 
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
-       
-       if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
-           url += "&viewerName="+document.getElementById("viewerName").value;
-       }
+
+    if (document.getElementById("viewerName")) { //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+        url += "&viewerName=" + document.getElementById("viewerName").value;
+    }
 
     makeRequest(url);
 }
@@ -199,10 +207,10 @@ function  updateInputValueInfo(id) {
 
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
-    
-    if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
-           url += "&viewerName="+document.getElementById("viewerName").value;
-       }
+
+    if (document.getElementById("viewerName")) { //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+        url += "&viewerName=" + document.getElementById("viewerName").value;
+    }
 
     makeRequest(url);
 
@@ -424,7 +432,7 @@ function showUploadButton(div, id, name) {
 
 }
 
-function showSaveButton(div, id, name){
+function showSaveButton(div, id, name) {
     var hiddenInput = createHiddenInput(id, name);
     div.appendChild(hiddenInput);
 
@@ -434,18 +442,18 @@ function showSaveButton(div, id, name){
 
     button.setAttribute("id", "I" + id);
     button.innerHTML = "Save";
-    button.setAttribute("onclick","updateSaveInfo(" + id + ");");
-    
+    button.setAttribute("onclick", "updateSaveInfo(" + id + ");");
+
     var paragraph = createParagraph();
     paragraph.appendChild(label);
     paragraph.appendChild(button);
     div.appendChild(paragraph);
 }
 
-function updateSaveInfo(id){
+function updateSaveInfo(id) {
     var propLabel = get('HL' + id);
     var propName = propLabel.value;
-    
+
     var factoryItemName = document.getElementById("factoryItemName").value;
     var factoryType = document.getElementById("factoryType").value;
     var url = "Downloads?page=updateDownloadPath&factoryItemName=" + factoryItemName
@@ -457,21 +465,21 @@ function updateSaveInfo(id){
     var xmlHttpRequest = getXMLHttpRequest();
     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, 'download');
     xmlHttpRequest.open("GET", url, true);
-    xmlHttpRequest.send(null); 
-      
+    xmlHttpRequest.send(null);
+
 }
 
-function downloadData(fileName){
-      
+function downloadData(fileName) {
+
     //set the url of the link that will be  used to download the file
-    var url = "Downloads?page=downloadData&fileName="+fileName;
-    
+    var url = "Downloads?page=downloadData&fileName=" + fileName;
+
     var downloadLink = document.getElementById("downloadFile");
     downloadLink.href = url;
-    
+
     //actually download the file by clicking on the link automatically
     downloadLink.click();
-       
+
 }
 
 
@@ -552,9 +560,9 @@ function updateCheckBoxInfo(id) {
     var url = "updateProperty&newValue=" + propValue + "&property=" + propName;
     url += "&factoryType=" + factoryType + "&factoryItemName=" + factoryItemName;
 
-    if(document.getElementById("viewerName")){ //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
-           url += "&viewerName="+document.getElementById("viewerName").value;
-       }
+    if (document.getElementById("viewerName")) { //add the viewerName if it is a viewer. NB: all viewers will have a viewer name
+        url += "&viewerName=" + document.getElementById("viewerName").value;
+    }
 
     makeRequest(url);
 }
