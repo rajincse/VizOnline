@@ -382,7 +382,8 @@ public class VizOnlineServlet extends HttpServlet {
             // System.out.println("First Time. Loading Properties ....");
             propsInit();    //call the propsInit again for new sessions.
 
-        } else {
+        } else if (request.getParameter("isinitcall") != null &&
+                request.getParameter("isinitcall").equalsIgnoreCase("True")){
 
             if (session.getAttribute("environment") == null) {
                 e = envs.get(this);
@@ -402,7 +403,31 @@ public class VizOnlineServlet extends HttpServlet {
 
             D3Viewer viewer = (D3Viewer) e.getViewers().get(index);
             PrintWriter out = response.getWriter();
-            out.println(viewer.updateData());
+            out.println(viewer.updateData(true));
+
+            session.setAttribute("environment", e); //reset the environment session
+        }
+        else
+        {
+            if (session.getAttribute("environment") == null) {
+                e = envs.get(this);
+                session.setAttribute("environment", e);
+            } else {
+                e = (Environment) session.getAttribute("environment");
+            }
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+            int index = getViewerIndex(e, viewerName);
+
+
+            D3Viewer viewer = (D3Viewer) e.getViewers().get(index);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData(false));
 
             session.setAttribute("environment", e); //reset the environment session
         }
