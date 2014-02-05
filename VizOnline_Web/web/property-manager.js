@@ -36,9 +36,10 @@ function addProperties(div, propertiesString) {
             // example: addProperty,graphvi,Appearance.Node Size,IntegerPropertyType,10, false;  
 
 
-            //NB: add the property only if it has not been added yet
+            //NB: add the property only if it has not been added to the hash array yet or it does not exist 
 
-            if (!(label in hash)) {
+            if (!(label in hash) || (!(document.getElementById("I"+ hash[label])))) {
+                              
                 hash[label] = propID;
                 var type = tempPropArr[3];
                 var value = tempPropArr[4];
