@@ -1,7 +1,7 @@
 
-var sourceFiles = new Array();
-var fileID = 0;
-var count = 0;
+//var sourceFiles = new Array();
+//var fileID = 0;
+//var count = 0;
 var current;
 
 // for Properties
@@ -42,16 +42,11 @@ function getXMLHttpRequest() {
 function makeRequest(thepage) {
     // alert(thepage);
     var xmlHttpRequest = getXMLHttpRequest();
-    //alert("xmlHttpRequest=" + xmlHttpRequest);
-    /*if (thepage === 'upload') {
-     var formData = new FormData();
-     formData.append("File", document.getElementById("theFile").files[0]);
-     xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-     xmlHttpRequest.open("POST", "Uploads?page=uploadData", true);
-     xmlHttpRequest.send(formData);
-     } else*/ if (thepage === 'data' || thepage === 'viewdatas') {
+
+    if (thepage === 'getDataSourceNames' || thepage === 'viewDataSourceNames') {
+        
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
+        xmlHttpRequest.open("GET", "VizOnlineServlet?page=getDataSourceNames", true);
         xmlHttpRequest.send(null);
 
     } else if (thepage === 'createViewer') {
@@ -93,12 +88,7 @@ function makeRequest(thepage) {
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=getcurrviewers", true);
         xmlHttpRequest.send(null);
 
-    } else if (thepage === 'update') {
-        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
-        xmlHttpRequest.open("GET", "Uploads?page=getDatas", true);
-        xmlHttpRequest.send(null);
-
-    } else if (thepage === 'linkViewers') {
+    }  else if (thepage === 'linkViewers') {
         var v1index = get("vlist1").selectedIndex;
         var voptions = get("vlist1").options;
         var first = voptions[v1index].text;
@@ -115,14 +105,13 @@ function makeRequest(thepage) {
 
 
     } else if (thepage === 'dataFactories') {
-        //alert("request for DataFactories");
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, true);
         xmlHttpRequest.send(null);
     } else if (thepage === 'dataFactoryProperties') {
-        var dataFactoryType = document.getElementById("dataFactories").value;
+        var dataFactoryType = document.getElementById("dataFactoryType").value;
         var dataSourceName = document.getElementById("dataSourceName").value
-        var url = "VizOnlineServlet?page=" + thepage + "&dataFactoryType=" + dataFactoryType
+        var url = "VizOnlineServlet?page=" + thepage + "&dataFactoryType=" + dataFactoryType;
         url += "&dataSourceName=" + dataSourceName;
         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
 
@@ -157,8 +146,8 @@ function makeRequest(thepage) {
             }
         };
         var id = setInterval(test, 100);
-    }else if (thepage === 'dataSourceIndex') {
-         xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
+    } else if (thepage === 'dataSourceIndex') {
+        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, thepage);
         xmlHttpRequest.open("GET", "VizOnlineServlet?page=" + thepage, false);
         xmlHttpRequest.send(null);
     }
@@ -198,7 +187,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                 else if (thepage === 'currentViewersLink2') {
                     getCurrentViewersLink2(xmlHttpRequest.responseText);
                 }
-                else if (thepage === 'viewdatas') {
+                else if (thepage === 'viewDataSourceNames') {
 
                     getDataForViewer(xmlHttpRequest.responseText);
                     //alert(xmlHttpRequest.responseText);
@@ -231,10 +220,7 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                     var url = getURL() + response[0];
 
                     var win = window.open(url, '_blank');
-                    win.onload = function() {
-                        // alert("hi the viewer window is loading ");
-                    };
-                    // alert("after windown onload");
+
                     win.focus();
 
                     var test = function() {
@@ -251,28 +237,24 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
 
                 }
                 else if (thepage === 'upload') {
-
-                    sourceFiles[fileID] = xmlHttpRequest.responseText;
-                    var tempSourceArr = sourceFiles.toString().split(",");
-                    //document.getElementById("cdatas").innerHTML = sourceFiles.toString();
-                    if (sourceFiles[fileID] !== "") {
-                        alert("File:  " + sourceFiles[fileID] + " was uploaded successfully");
-                        count = 1;
-                        makeRequest('update');
+                    //NB the response will be the file name if the upload was successful otherwise it will be empty
+                    xmlHttpRequest.responseText;
+                    
+                    if (xmlHttpRequest.responseText !== "") {
+                        alert("File:  " + xmlHttpRequest.responseText + " was uploaded successfully");
                     } else {
                         alert("Please choose a valid file");
                     }
-                    fileID++;
 
-                }else if(thepage === 'download'){
+                } else if (thepage === 'download') {
                     downloadData(xmlHttpRequest.responseText);
-                }else if (thepage === 'update') {
+                } else if (thepage === 'getDataSourceNames') {
                     document.getElementById("cdatas").innerHTML = "";
                     getDatasets(xmlHttpRequest.responseText);
-                } else if (thepage === 'deleteData') {
-                    alert(xmlHttpRequest.responseText);
+                } else if (thepage === 'deleteDataSource') {
                     document.getElementById("cdatas").innerHTML = "";
-                    makeRequest('update');
+                    document.getElementById("dataFactoryProperties").innerHTML = "";
+                    makeRequest('getDataSourceNames');
 
                 } else if (thepage === 'linkViewers') {
                     document.getElementById("currlinks").innerHTML = "";
@@ -280,7 +262,6 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
 
 
                 } else if (thepage === 'dataFactories') {
-
                     //we will be creating a combo box options for the datafactories
                     var dataSplit = (xmlHttpRequest.responseText).split(",");
 
@@ -298,18 +279,19 @@ function getReadyStateHandler(xmlHttpRequest, thepage) {
                 } else if (thepage === 'dataFactoryProperties') {
                     var div = get('dataFactoryProperties');
                     addProperties(div, xmlHttpRequest.responseText);
+                    makeRequest('getDataSourceNames');
                 }
                 else if (thepage === 'dataSourceIndex') {
                     document.getElementById("dataSourceIndex").value = xmlHttpRequest.responseText;
-                }else if(thepage ==='datasetProperties'){
+                } else if (thepage === 'datasetProperties') {
                     var div = get('dataFactoryProperties');
-                    
+
                     document.getElementById("datasetprops").value = "true"; //to ensure this addproperties is coing from datasetprops
-                    
+
                     addProperties(div, xmlHttpRequest.responseText);
-                    
+
                     document.getElementById("datasetprops").value = "false"; //reset it back to false
-                    
+
                 }
 
                 else {
@@ -349,17 +331,17 @@ function getName(fullname) {
 
 
 function getDatasets(datalist) {
-    if (datalist === "No Content") {
+    if (datalist === "") {
         get("cdatas").innerHTML = "No Datasets available";
     } else {
         //Format: datasource0,file1.txt; datasource1,file2.txt
-        var datalist2 = datalist.split(";");
+        var dataArray = datalist.split(";");
         var fileName, dataSourceName;
-        for (var i = 0; i < datalist2.length; i++) {
-            var dataArray = datalist2[i].split(",");
+        for (var i = 0; i < dataArray.length; i++) {
+            //var dataArray = datalist2[i].split(",");
             // for (var i = 0; i < dataArray.length; i++) {
-            dataSourceName = dataArray[0];
-            fileName = dataArray[1];
+            dataSourceName = dataArray[i];
+            //fileName = dataArray[1];
 
             //NB: changing everything to be based on the dataSourceName, there wouldn't be the need for the fileName again
             var par = document.createElement('p');
@@ -385,7 +367,7 @@ function getDatasets(datalist) {
             but.innerHTML = 'Delete';
             but.setAttribute('class', 'small button blue');
             var theSet = document.getElementById('par' + i).getAttribute('name').toString();
-            but.setAttribute('onclick', 'deleteRequest(' + i + ')');
+            but.setAttribute('onclick', 'deleteDataSource(' + i + ')');
             document.getElementById('par' + i).appendChild(but);
 
             //viewDataProperties Button
@@ -401,32 +383,32 @@ function getDatasets(datalist) {
     }
 }
 
-function getDatasetProperties(id){
-    
+function getDatasetProperties(id) {
+
     var dataSourceName = document.getElementById('DS' + id).value;
-            var url = "VizOnlineServlet?page=datasetProperties&dataSourceName=" + dataSourceName;
-        
-        var xmlHttpRequest = getXMLHttpRequest();
-        xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "datasetProperties");
-        xmlHttpRequest.open("GET", url, true);
-        xmlHttpRequest.send(null);
-   
+    var url = "VizOnlineServlet?page=datasetProperties&dataSourceName=" + dataSourceName;
+
+    var xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "datasetProperties");
+    xmlHttpRequest.open("GET", url, true);
+    xmlHttpRequest.send(null);
+
 }
 
 
 function getDataForViewer(datalist) {
-    if (datalist === "No Content") {
+    if (datalist === "") {
         get("viewers").innerHTML = "No Datasets available";
     } else {
 
-        //Format: datasource0,file1.txt; datasource1,file2.txt
-        var datalist2 = datalist.split(";");
-        var fileName, dataSourceName;
-        for (var i = 0; i < datalist2.length; i++) {
-            var dataArray = datalist2[i].split(",");
+        //Format: datasource0; datasource1
+        var dataArray = datalist.split(";");
+        var dataSourceName;
+        for (var i = 0; i < dataArray.length; i++) {
+            //var dataArray = datalist2[i].split(",");
 
-            dataSourceName = dataArray[0];
-            fileName = dataArray[1];
+            dataSourceName = dataArray[i];
+            //fileName = dataArray[1];
 
             var list = get("datalist");
             var option = document.createElement('option');
@@ -543,24 +525,26 @@ function getCurrentViewersLink2(datalist) {
     }
 }
 
-function deleteRequest(id) {
+function deleteDataSource(id) {
     //  alert(id);
 
     /// var fileName = document.getElementById('par' + id).getAttribute('name').toString();
     //alert(fileName);
     var dataSourceName = document.getElementById('DS' + id).value;
-    //alert(dataSourceName);
-
-    var xmlHttpRequest = getXMLHttpRequest();
-    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "deleteData");
-    xmlHttpRequest.open("GET", "Uploads?page=deleteData&dataSourceName=" + dataSourceName, true);
-    xmlHttpRequest.send(null);
-
-
-    //delete the dataSource also
+       
+    //delete the dataSource
     xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.onreadystatechange = getReadyStateHandler(xmlHttpRequest, "deleteDataSource");
     xmlHttpRequest.open("GET", "VizOnlineServlet?page=deleteDataSource&dataSourceName=" + dataSourceName, true);
     xmlHttpRequest.send(null);
+    
+    //delete uploaded file also
+    var xmlHttpRequest = getXMLHttpRequest();
+    xmlHttpRequest.open("GET", "Uploads?page=deleteFile&dataSourceName=" + dataSourceName, true);
+    xmlHttpRequest.send(null);
+
+
+    
 
 }
 

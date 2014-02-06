@@ -5,7 +5,6 @@ var hash;
 
 function addProperties(div, propertiesString) {
     //alert(propertiesString);
-
     var propArr = propertiesString.split(";");
     //remove the div current properties if this is not an update from pollprops which means it is a fresh one
     var pollprops = document.getElementById("pollprops").value;

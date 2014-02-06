@@ -88,6 +88,9 @@ public class Uploads extends HttpServlet {
         HttpSession session = request.getSession();
 
         Environment e = null;
+        
+        int userID = Integer.parseInt(session.getAttribute("userID").toString());
+        //NB: the dataSourceNames will have the userID attached to them to make them unique
 
 
         if (session.getAttribute("environment") != null) { //do this only if you can get the user's session variable
@@ -96,55 +99,25 @@ public class Uploads extends HttpServlet {
 
                 e = (Environment) session.getAttribute("environment");
 
-                ArrayList<String> dsNames = getDataSourceNames(e);
-
-
-
-                if (thepage.equalsIgnoreCase("getDatas")) {//request to get the datas
-
-                    int cnt = 0;
-                    String dataSourceDataNamePairs = "", value;
-                    for (String name : dsNames) {
-                        if (theDataSources.get(name) != null) {
-                            value = theDataSources.get(name);
-                            if (cnt == 0) {
-                                dataSourceDataNamePairs = name + "," + value;
-                            } else {
-                                dataSourceDataNamePairs += ";" + name + "," + value;
-                            }
-
-                            cnt++;
-                        }
-
-                    }
-
-                    if (dataSourceDataNamePairs.equals("")) {
-                        out.write("No Content");
-                    } else {
-                        //out.write(files);
-                        out.write(dataSourceDataNamePairs);
-                    }
-                    out.flush();
-                    out.close();
-                } else if (thepage.equalsIgnoreCase("deleteData")) { //request to delete a given data
+                if (thepage.equalsIgnoreCase("deleteFile")) { //request to delete a given data
 
                     String dataSourceName = request.getParameter("dataSourceName");
+                    dataSourceName +=userID;
                     String fileName = theDataSources.get(dataSourceName);
 
-                    String filePath = getServletContext().getRealPath(uploadsPath + fileName);
+                    if(fileName!=null){
+                            String filePath = getServletContext().getRealPath(uploadsPath + fileName);
 
                     //File file = new File(filePath + "\\" + fileName);
                     File file = new File(filePath);
 
                     if (file.delete()) {
                         //remove it from the hashmap
-                        removeValueFromHashMap(fileName);
+                        removeValueFromHashMap(fileName);                      
+                    } 
 
-                        out.write(file.getName() + "  was deleted successfully!");
-                    } else {
-                        out.write("Delete operation failed.");
                     }
-
+                    
                 } else if (thepage.equalsIgnoreCase("uploadData")) {
 
                     FileItemFactory factory = new DiskFileItemFactory();
@@ -185,7 +158,8 @@ public class Uploads extends HttpServlet {
                     }
 
                     //Put the name of the data in the hashmap
-                    theDataSources.put(factoryItemName, myFileName);
+                    String dsName = factoryItemName+userID;
+                    theDataSources.put(dsName, myFileName);
 
                     String filePath = getServletContext().getRealPath(uploadsPath + myFileName);
 
@@ -198,9 +172,7 @@ public class Uploads extends HttpServlet {
                             + "&factoryItemName=" + factoryItemName
                             + "&fileName=" + myFileName;
 
-                    System.out.println("UPLOADING ....... url: " + url);
-
-
+                    //System.out.println("UPLOADING ....... url: " + url);
                     response.sendRedirect(url);
 
                 }
