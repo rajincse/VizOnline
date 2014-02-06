@@ -16,7 +16,7 @@
 
         <script src="datalist.js"></script>
         <script src="jQuery/jquery-1.10.2.js"></script>
-        
+
 
         <script type="text/javascript" src="ajax.js"></script>
         <script type="text/javascript" src="property-manager.js"></script>
@@ -46,59 +46,68 @@
                     xmlhttp = new XMLHttpRequest();
                     xmlhttp.onreadystatechange = function()
                     {
-                       if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                        if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                         {
-                            
+
 
                             if (xmlhttp.responseText.length !== 0)
                             {
                                 var dataProperties = document.getElementById("dataFactoryProperties");
 
-                                document.getElementById("pollprops").value="true";
+                                document.getElementById("pollprops").value = "true";
                                 addProperties(dataProperties, xmlhttp.responseText);
 
                             }
-                            document.getElementById("pollprops").value="false";
+                            document.getElementById("pollprops").value = "false";
                             inpollprops = false;
                         }
                     };
 
                     var factoryItemName = document.getElementById("factoryItemName").value;
-                    
+
                     xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName=" + factoryItemName + "&r=" + cnt, true);
                     xmlhttp.send();
                 }
 
 
             };
-            
-            
-            function dataTypeChanged(){
-              makeRequest('dataSourceIndex');
-              
-              //remove the children of the dataFactoryProperty div incase it had previous elements
-              var div = document.getElementById("dataFactoryProperties");
-                removeDivChildren(div);
-              
-              //make the viewerName and create Data visible
-              document.getElementById("dataSourceStep2").style.display="block";
-              //set the default-name for the viewerIndex
-              var dataType = document.getElementById("dataFactories").value;
-              var dataSourceIndex = document.getElementById("dataSourceIndex").value;
-                        //NB: factory item-name and datasource name are the same
-              document.getElementById("dataSourceName").value = "Data"+dataSourceIndex +"-"+dataType;
-              document.getElementById("factoryItemName").value = "Data"+dataSourceIndex +"-"+dataType;
+
+
+            function dataTypeChanged() {
+                var selectBox = document.getElementById("dataFactories");
+                
+                   if (selectBox.selectedIndex > 0) { //NB: index 0 has the "select one" option
+                    makeRequest('dataSourceIndex');
+
+                    //remove the children of the dataFactoryProperty div incase it had previous elements
+                    var div = document.getElementById("dataFactoryProperties");
+                    removeDivChildren(div);
+
+                    //make the viewerName and create Data visible
+                    document.getElementById("dataSourceStep2").style.display = "block";
+                    //set the default-name for the viewerIndex
+                    var dataType = document.getElementById("dataFactories").value;
+                    var dataSourceIndex = document.getElementById("dataSourceIndex").value;
+                    //NB: factory item-name and datasource name are the same
+                    document.getElementById("dataSourceName").value = "Data" + dataSourceIndex + "-" + dataType;
+                    document.getElementById("factoryItemName").value = "Data" + dataSourceIndex + "-" + dataType;
+                    document.getElementById("dataFactoryType").value = dataType;
+                    
+                    selectBox.selectedIndex = 0; //reset the selected index to 0
+                }
+
             }
-            
-            function dataFactoryProperties(){
+
+            function dataFactoryProperties() {
                 //hide the dataName and create data button 
-                document.getElementById("dataSourceStep2").style.display="none"
+                document.getElementById("dataSourceStep2").style.display = "none"
+                document.getElementById("factoryItemName").value = document.getElementById("dataSourceName").value;
                 //make request for the dataFactory properteis
                 makeRequest('dataFactoryProperties');
             }
-            
-           
-            
+
+
+
         </script>
     </head>
 
@@ -124,32 +133,33 @@
 
                 <!-- <form action="javascript:makeRequest('upload')" enctype="multipart/form-data" method="post"> -->
 
-                    <select id="dataFactories" onchange="dataTypeChanged();">
-                        <option value="selectOne">Select One</option>                
+                <select id="dataFactories" onchange="dataTypeChanged();">
+                    <option value="selectOne">Select One</option>                
 
-                    </select>
-                    
+                </select>
+
                 <div id="dataSourceStep2" style="display:none">
-                            <p> Dataset Name
-                                   <input type="text" id="dataSourceName" />
-                           </p>
+                    <p> Dataset Name
+                        <input type="text" id="dataSourceName" />
+                    </p>
 
-                           <button type="button" class="small button blue"  onclick="dataFactoryProperties();">
-                               Create Dataset
-                           </button>
-                    
-                   </div>            
-                
-                    <div id="dataFactoryProperties">
+                    <button type="button" class="small button blue"  onclick="dataFactoryProperties();">
+                        Create Dataset
+                    </button>
 
-                    </div>
+                </div>            
 
-                    <input type="hidden" id="factoryType" value="DataSource" />
-                    <input type ="hidden" id="factoryItemName" value="" />
-                    <input type ="hidden" id="pollprops" value="false" />
-                    <input type ="hidden" id="datasetprops" value="false" />
-                    <input type ="hidden" id="dataSourceIndex" value="" />
-         
+                <div id="dataFactoryProperties">
+
+                </div>
+
+                <input type="hidden" id="factoryType" value="DataSource" />
+                <input type ="hidden" id="factoryItemName" value="" />
+                <input type ="hidden" id="dataFactoryType" value="" />
+                <input type ="hidden" id="pollprops" value="false" />
+                <input type ="hidden" id="datasetprops" value="false" />
+                <input type ="hidden" id="dataSourceIndex" value="" />
+
             </div>       
 
 
@@ -157,7 +167,7 @@
             <div class="rightdiv">
                 <h1>Current Datasets</h1>
                 <!--<input type ="button" class="small button blue" onclick="makeRequest('data')" name ="bt1" value="Display Data">-->
-                <div id="cdatas"><script>makeRequest('data');</script></div>
+                <div id="cdatas"><script>makeRequest('getDataSourceNames');</script></div>
             </div>          
 
         </div>

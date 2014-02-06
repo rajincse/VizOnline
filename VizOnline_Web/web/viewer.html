@@ -45,8 +45,7 @@
             var cnt = 0;
             var prop_cnt = 0;
 
-            var mousePos,
-                    posDisplay = document.getElementById("posDisplay");
+            var mousePos;//, posDisplay = document.getElementById("posDisplay");
             // counterDisplay = document.getElementById("counterDisplay"),
             // counter = 0;
 
@@ -72,16 +71,18 @@
 
             function initialize() {
                 // alert("The name of the viewer is " +document.getElementById("viewerName").value);
+               // alert("mo");
                 makeRequest('properties');
-
+                //alert("me");
                 document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
                 document.getElementById("canv").onmouseup = handleMouseUp;
                 document.getElementById("canv").onmousemove = handleMouseMove;
-
+                
+                //alert("hiYa");
 
                 var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
                 setInterval(function() {
-                    imageTransf.imageUpdate()
+                    imageTransf.imageUpdate();
                 }, 50);
 
                 setInterval(pollprops, 500);

@@ -28,7 +28,6 @@ public class Downloads extends HttpServlet {
         // Give a default name to the file to be downloaded
         downloadPath = "/WEB-INF/Downloads/";
 
-        System.out.println("IN-DOWNLOADS-----");
         //delete the existing files in the Downloads folder when the servlet initializes
         deleteExistingLocalFiles();
     }
@@ -93,8 +92,6 @@ public class Downloads extends HttpServlet {
                 os.close();
                 
             }
-
-
 
         } catch (Exception ex) {
             ex.printStackTrace();

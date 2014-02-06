@@ -26,7 +26,11 @@ function ImageTransferer(div, w,h, tch, tcv)
 		if (this.images != null)
 			return;
 
-		
+		var viewerName = document.getElementById("viewerName").value;
+                
+                if(viewerName === ""){
+                    return;
+                }
 
 		this.images = [];
 		this.cnt++;
@@ -34,28 +38,29 @@ function ImageTransferer(div, w,h, tch, tcv)
 		for (var i=0; i<this.tcv; i++)
 		{
 			var rowImages = [];
-                        var viewerName = document.getElementById("viewerName").value;
+                        
 			for (var j=0; j<tch; j++)
 			{
 				var url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
                                         +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
 
-				if (this.cnt == 1)
+				if (this.cnt == 1){
 					url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
                                         +"&tileX=-1&tileY=-1&diff=1&r=" + this.cnt;
+                                }
 
 				var image = new Image();
 				rowImages.push(image);
-				image.src = url;
-				console.log(url);				
-
-				var imtr = this;
-
-
-                  		  image.onload = function() {					
-                     		  	imtr.loaded++;
+								
+                               	var imtr = this;
+                               
+                  		  image.onload = function() {		
+                                    	imtr.loaded++;
                       		 	imtr.fimloaded();
+                                       
                    		  };
+                                  image.src = url;
+				console.log(url);
 			}
 			this.images.push(rowImages);	
 		} 

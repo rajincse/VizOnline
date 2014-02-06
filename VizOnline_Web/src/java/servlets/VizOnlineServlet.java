@@ -65,6 +65,7 @@ public class VizOnlineServlet extends HttpServlet {
     int imgCount = 0;
     String uploadsPath;
     int dataSourceIndex = 0;
+    int userID = 0;
     HashMap<String, String> propCommandsSet = new HashMap<String, String>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -93,6 +94,9 @@ public class VizOnlineServlet extends HttpServlet {
             propsInit();    //call the propsInit again for new sessions.
 
             message = "Environment has been Initialized";
+            
+            userID++;
+            session.setAttribute("userID", userID);
 
         } else {
             e = (Environment) session.getAttribute("environment");
@@ -185,9 +189,7 @@ public class VizOnlineServlet extends HttpServlet {
                 else{
                     outResponse = "" + 0;
                 }
-                
-                
-                
+                                
             } else if (request.getParameter("page").equals("dataFactoryProperties")) {
 
                 String propCommands;
@@ -228,7 +230,11 @@ public class VizOnlineServlet extends HttpServlet {
                 outResponse = propCommands;
                 session.setAttribute("environment", e); //reset the environment session
 
-            } else if (request.getParameter("page").equalsIgnoreCase("datasetProperties")) {
+            }else if(request.getParameter("page").equalsIgnoreCase("getDataSourceNames")) {
+                outResponse = getDataSourceNames(e);
+            }
+            
+            else if (request.getParameter("page").equalsIgnoreCase("datasetProperties")) {
 
                 String dataSourceName = request.getParameter("dataSourceName");
 
@@ -902,5 +908,21 @@ public class VizOnlineServlet extends HttpServlet {
         }
 
         return propCommands;
+    }
+    
+    public String getDataSourceNames(Environment e){
+        String dsNames = "";
+        
+        for (int i=0; i<e.getDataSources().size(); i++){
+            
+            if(i!=0){
+                dsNames +=";";
+            }
+            
+            dsNames += e.getDataSources().get(i).getName();            
+        }
+        
+        return dsNames;
+        
     }
 }
