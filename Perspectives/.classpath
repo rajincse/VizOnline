@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="lib/commons-fileupload-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.1/jar/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.1/jar/lwjgl_util.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

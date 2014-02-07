@@ -6,6 +6,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import brain.BrainDataFactory;
+import brain.BrainStatsViewerFactory;
+import brain.BrainViewerFactory;
+
 import multidimensional.PlanarProjectionViewerFactory;
 
 import Graph.BubbleSetGraphFactory;
@@ -38,11 +42,7 @@ public class main {
 	       
 	     e.registerDataSourceFactory(new GraphDataFactory());
 	      
-	     e.registerDataSourceFactory(new TableDataFactory());
-	      
-//	     e.registerViewerFactory(new PlanarProjectionViewerFactory());
-//	      
-//	      e.registerViewerFactory(new HierarchicalClusteringViewerFactory());
+	     e.registerDataSourceFactory(new TableDataFactory()); 
 	      
 	      e.registerViewerFactory(new GraphViewerFactory());
 	      
@@ -50,6 +50,10 @@ public class main {
 	      
 	      e.registerViewerFactory(new ParallelCoordinateViewerFactory());
 	      
-	      e.addViewer(new TestViewer3D("H"));
+	      e.registerDataSourceFactory(new BrainDataFactory());
+	      e.registerViewerFactory(new BrainViewerFactory());
+	      e.registerViewerFactory(new BrainStatsViewerFactory());
+	      
+	      
 	  }
 }
