@@ -11,7 +11,7 @@ public abstract class Controller3D {
 	protected double[] mvmatrixrot = new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 	
 	public static double UNIT_STEP =0.5;
-	public static double UNIT_ANGLE_STEP =5.0;
+	public static double UNIT_ANGLE_STEP =0.005;
 	
 	protected boolean isEnabled;
 	

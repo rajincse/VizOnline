@@ -1,18 +1,19 @@
 package perspectives.navigation;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
 
-import com.jogamp.newt.event.InputEvent;
-import com.jogamp.newt.event.MouseEvent;
-
-import perspectives.Viewer3D;
 import perspectives.ViewerContainer3D;
 
 public class UserNavigation3D extends Controller3D{
 	private static final int INVALID = -109;
+	
+	private static final int CENTER_X =520;
+	private static final int CENTER_Y = 374;
+	private static final int THRESHOLD_RADIUS = 50;
 	private ViewerContainer3D container;
 	private GLU glu;
 	   
@@ -131,16 +132,12 @@ public class UserNavigation3D extends Controller3D{
 			}
 			else
 			{
-				int delX = x - this.lastX;
-				int delY =y - this.lastY;
-				
-				if(delX < 0)
+				int delX = x - CENTER_X;
+				int delY =y - CENTER_Y;
+				double distance = Point.distance(x, y, CENTER_X, CENTER_Y);
+				if(distance > THRESHOLD_RADIUS)
 				{
-					this.angleY -= UNIT_ANGLE_STEP;
-				}
-				else
-				{
-					this.angleY += UNIT_ANGLE_STEP;
+					this.angleY += UNIT_ANGLE_STEP * delX;
 				}
 				
 				if(this.angleY > 360)
@@ -152,13 +149,9 @@ public class UserNavigation3D extends Controller3D{
 					this.angleY= this.angleY+360;
 				}
 				
-				if(delY < 0)
+				if(distance > THRESHOLD_RADIUS)
 				{
-					this.angleZ += UNIT_ANGLE_STEP/3;
-				}
-				else
-				{
-					this.angleZ -= UNIT_ANGLE_STEP/3;
+					this.angleZ -= UNIT_ANGLE_STEP* delY / 2;
 				}
 				
 				if(this.angleZ > 360)
