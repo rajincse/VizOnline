@@ -133,7 +133,7 @@ a:hover, a:active, a:focus { /* this group of selectors will give a keyboard nav
     float:left ;
     width: 600px;   
     height: 600px;
-    margin-left: 300px;
+    margin-left: 320px;
 
     padding: 5px 10px 6px; 
     line-height: 100%;
@@ -379,6 +379,30 @@ li{
     padding:0px;
     position:absolute;
 }
+
+#showProperties{
+    left: 0px;
+    color: blue;
+    background-color: blue;
+    height: 600px;
+    /*position: absolute; */
+    width: 10px;
+    float: left;
+}
+
+#hideProperties{
+    color: blue;
+    background-color: blue;
+    height: 100px;
+    width: 10px;
+    float: right;
+}
+
+#propslot{
+    float: left;
+    position: absolute; 
+    }
+
 
 
 .button:hover							{ background-color: #111; color: #fff; }
