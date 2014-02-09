@@ -56,4 +56,9 @@ public class Vector3D {
 	{
 		return x*other.x + y*other.y  + z*other.z;
 	}
+	
+	public float magnitude()
+	{
+		return (float) Math.sqrt( x*x+y*y+z*z);
+	}
 }
