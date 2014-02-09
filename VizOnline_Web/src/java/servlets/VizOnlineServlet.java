@@ -103,10 +103,6 @@ public class VizOnlineServlet extends HttpServlet {
             message = "Environment already exists";
         }
 
-
-
-
-
         try {
             if (request.getParameter("page").equals("home")) {
                 System.out.println("Home....");
@@ -130,10 +126,7 @@ public class VizOnlineServlet extends HttpServlet {
                 //int vindex = createViewer(type, dataname);
                 outResponse = vindex + "";
 
-                /*HashMap<String, Integer> viewerCallCounts = new HashMap<String, Integer>();
-                
-                session.setAttribute("viewerCallCounts", viewerCallCounts);*/
-                session.setAttribute("environment", e);
+               session.setAttribute("environment", e);
 
             } else if (request.getParameter("page").equals("delViewer")) {
                 //Request to Delete Viewer                
@@ -243,10 +236,7 @@ public class VizOnlineServlet extends HttpServlet {
 
             } else if (request.getParameter("page").equals("viewer")) {
                 //Request to Display Viewer Image               
-                // System.out.println("viewer Image....");                
                 String viewerName = request.getParameter("viewerName");
-                //System.out.println("VIEWER-NAME IS +++++++++" +request.getParameter("viewerName"));
-
                 loadViewer(e, viewerName, request, response);
             } else if (request.getParameter("page").equals("pollprops")) {
                 String factoryItemName = request.getParameter("factoryItemName");
@@ -305,39 +295,28 @@ public class VizOnlineServlet extends HttpServlet {
                     outResponse = files;
                 }
             } else if (request.getParameter("page").equals("updateProperty")) {
-
-                System.out.println("**********************************************************");
                 //Request to update Properties    
                 String newvalue = request.getParameter("newValue");
                 String property = request.getParameter("property");
                 String factoryType = request.getParameter("factoryType");
                 String factoryItemName = request.getParameter("factoryItemName");
 
-                //int factoryTypeIndex = -1;
-
-                System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
+               System.out.println("----------UpdateProperty: " + newvalue + " property: " + property);
 
                 String type = "";
                 //Do according to the factoryType
                 if (factoryType.equals("DataSource")) {
-                    //System.out.println("the Size of the DataSource is " + e.getDataSources().size());
-                    
                     int index = getDataSourceIndex(e, factoryItemName);
-                    
-                    //System.out.println("The FactoryItem index is " + factoryItemIndex);
-
+                  
                     if (index >= 0) {
                         //get the type
                         type = e.getDataSources().get(index).getProperty(property).getValue().typeName();
-
-                        System.out.println("::::::::::::::::Type : " + type);
 
                         if (type.equals("PBoolean")) {
                             newvalue = (newvalue.equals("true") ? "1" : "0");
                         } else if (type.equals("PFile")) {
                             String fileName = request.getParameter("fileName");
                             outResponse = fileName;
-
                         }
 
                         e.getDataSources().get(index).getProperty(property)
@@ -387,9 +366,7 @@ public class VizOnlineServlet extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
-        //System.out.println("The PropsInitCnt is "+propsInitCnt);
-        // }
-        processRequest(request, response);
+          processRequest(request, response);
     }
 
     @Override
@@ -557,7 +534,6 @@ public class VizOnlineServlet extends HttpServlet {
     public String pollProps(String factoryItemName, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        //String factoryItemName = request.getParameter("factoryItemName");
         String currPropCommands = "";
         if (factoryItemName != null) {
 
@@ -719,18 +695,12 @@ public class VizOnlineServlet extends HttpServlet {
 
         long t2 = new Date().getTime();
         try {
-
-            //ImageIO.write(capture, "png", new File((getServletContext().getRealPath("/WEB-INF/fim"+t2+"capture.png"))));           
-
-            //System.out.println("-2-");
             response.getOutputStream().write(bs);
             //System.out.println("-3-");
             response.flushBuffer();
             //System.out.println("-4-");
 
             long t3 = new Date().getTime();
-
-            //  System.out.println("T: " + (t3 - t2) + "      Econding:" + encoding + "      size:" + (bs.length / 1024));
 
         } catch (Exception e) {
             System.out.println("-e-");

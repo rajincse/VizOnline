@@ -133,7 +133,7 @@ a:hover, a:active, a:focus { /* this group of selectors will give a keyboard nav
     float:left ;
     width: 600px;   
     height: 600px;
-    margin-left: 320px;
+    margin-left: 300px;
 
     padding: 5px 10px 6px; 
     line-height: 100%;
@@ -384,24 +384,25 @@ li{
     left: 0px;
     color: blue;
     background-color: blue;
-    height: 600px;
+    height: 100px;
     /*position: absolute; */
     width: 10px;
     float: left;
 }
 
 #hideProperties{
+    left: 0px;
     color: blue;
     background-color: blue;
     height: 100px;
+    /*position: absolute; */
     width: 10px;
     float: right;
 }
 
 #propslot{
     float: left;
-    position: absolute; 
-    }
+}
 
 
 
