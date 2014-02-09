@@ -264,4 +264,10 @@ public class TestViewer3D extends Viewer3D{
         gl.glPopMatrix();
 	}
 
+	@Override
+	public void render() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
