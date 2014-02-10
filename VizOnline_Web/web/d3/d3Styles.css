@@ -5,7 +5,7 @@
     Description:
         Purpose of the stylesheet follows.
 */
-
+/*GraphD3Viewer*/
 .node {
   stroke: #fff;
   stroke-width: 1.5px;
@@ -16,3 +16,26 @@
   stroke-opacity: .6;
 }
 
+/*BrainStatsD3Viewer*/
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
