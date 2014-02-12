@@ -34,6 +34,9 @@ import perspectives.Viewer;
 //import util.ImageTilerFactory;
 
 import HeatMap.*;
+import brain.BrainDataFactory;
+import brain.BrainStatsD3ViewerFactory;
+import brain.BrainViewerFactory;
 import d3.D3Viewer;
 import d3.GraphD3ViewerFactory;
 import java.util.ArrayList;
@@ -83,6 +86,7 @@ public class VizOnlineServlet extends HttpServlet {
             e = new Environment(true);
             e.registerDataSourceFactory(new TableDataFactory());
             e.registerDataSourceFactory(new GraphDataFactory());
+            e.registerDataSourceFactory(new BrainDataFactory());
             //dataSourceIndex = 0;
 
             //register Viewers
@@ -90,6 +94,9 @@ public class VizOnlineServlet extends HttpServlet {
             e.registerViewerFactory(new GraphViewerFactory());
             e.registerViewerFactory(new ParallelCoordinateViewerFactory());
             e.registerViewerFactory(new GraphD3ViewerFactory());
+            e.registerViewerFactory(new BrainViewerFactory());
+            e.registerViewerFactory(new BrainStatsD3ViewerFactory());
+            
 
             propsInit();    //call the propsInit again for new sessions.
 
