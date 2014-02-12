@@ -32,8 +32,11 @@
 
         <script type="text/javascript">
 
+            var showPropsMargin = 10; //margin upto where we have the showPropsbox
+            var hidePropsMargin = 320; //margin upto where we have the hidePropsbox
 
-            var xMargin = 300;
+
+            var xMargin = hidePropsMargin;
             var yMargin = 10;
 
             var ims = [];
@@ -68,6 +71,13 @@
             var ts = 0;
             var inpollprops = false;
             var xmlhttp;
+            var browserWidth = getBrowserWidth(), browserHeight = getBrowserHeight();
+            var numOfTileRows = 2, numOfTileColumns = 2;
+            var intervalVar;
+
+
+
+
 
             function initialize() {
                 // alert("The name of the viewer is " +document.getElementById("viewerName").value);
@@ -78,18 +88,22 @@
                 document.getElementById("canv").onmouseup = handleMouseUp;
                 document.getElementById("canv").onmousemove = handleMouseMove;
 
-                //alert("hiYa");
+                //setBrowserWindowDimensions();
 
-                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
-                setInterval(function() {
-                    imageTransf.imageUpdate();
-                }, 50);
+                var tOut;
+                window.onresize = function() {
+                    clearTimeout(tOut);
+                    tOut = setTimeout(setBrowserWindowDimensions, 100);
+                };
+
+                callImageTransferer();
 
                 setInterval(pollprops, 500);
 
                 window.oncontextmenu = handleContextMenu;
 
             }
+
 
             function pollprops()
             {
@@ -153,7 +167,7 @@
                 //check if mousedrag or mouse click
                 var elem = event.target;
 
-                if ((mousePos.x - xMargin) > 1000)
+                if ((mousePos.x - xMargin) > browserWidth)
                     return true;
 
 
@@ -199,7 +213,7 @@
                 };
                 //  alert(mousePos.x  + " " + mousePos.y);  
 
-                if ((mousePos.x) >= 1000 || mousePos.y >= 800)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -225,14 +239,6 @@
 
                 dragFlag = 1;
 
-
-
-
-
-
-
-
-
                 if (event.which === 3) {
                     mouseType = "right";
                 }
@@ -246,13 +252,8 @@
 
                 sendCommand(theUrl);
 
-
-
                 return false; //this is to prevent image dragging.
             }
-
-
-
 
             function handleMouseMove(event) {
 
@@ -264,7 +265,6 @@
                 event = event || window.event; // IE-ism
                 var elem = event.target;
 
-
                 mousePos = {
                     x: event.clientX - xMargin,
                     y: event.clientY - yMargin
@@ -273,7 +273,7 @@
                 document.getElementById("fps2").innerHTML = mousePos.x + " " + mousePos.y;
                 document.getElementById("fps").innerHTML = document.body.scrollLeft + " " + document.body.scrollTop;
 
-                if ((mousePos.x) >= 1000 || mousePos.y >= 800)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -323,12 +323,118 @@
 
             }
 
-            function addProperty(name, type, value)
-            {
+            function setBrowserWindowDimensions() {
+                browserWidth = getBrowserWidth();
+
+                browserHeight = getBrowserHeight();
+                
+                document.getElementById("hideProperties").style.height = (browserHeight) + "px";
+                document.getElementById("showProperties").style.height = (browserHeight) + "px";
+
+
+                callImageTransferer(); //recall the imageTransferer with the new dimensions
 
             }
 
-            // };
+            function getBrowserWidth() {
+                browserWidth = window.innerWidth
+                        || document.documentElement.clientWidth
+                        || document.body.clientWidth;
+
+                browserWidth = browserWidth - xMargin;
+                return browserWidth;
+            }
+
+            function getBrowserHeight() {
+                browserHeight = window.innerHeight
+                        || document.documentElement.clientHeight
+                        || document.body.clientHeight;
+
+                browserHeight = browserHeight - yMargin;
+                
+                return browserHeight;
+            }
+
+
+            function showProperties() {
+                document.getElementById("propslot").style.display = "block";
+                document.getElementById("hideProperties").style.display = "block";
+                document.getElementById("showProperties").style.display = "none";
+
+                xMargin = hidePropsMargin;
+
+                document.getElementById("rightVdiv").style.marginLeft = hidePropsMargin + "px";
+
+                browserWidth = browserWidth - hidePropsMargin;
+                callImageTransferer();
+
+            }
+
+            function hideProperties() {
+                document.getElementById("propslot").style.display = "none";
+                document.getElementById("hideProperties").style.display = "none";
+                document.getElementById("showProperties").style.display = "block";
+
+                xMargin = showPropsMargin;
+                document.getElementById("rightVdiv").style.marginLeft = showPropsMargin + "px";
+
+
+
+                browserWidth = window.innerWidth
+                        || document.documentElement.clientWidth
+                        || document.body.clientWidth;
+
+                browserWidth = browserWidth - showPropsMargin; //resizing the windows width: //NB: the window is shifted left giving more room
+                callImageTransferer(); //recall the imageTransferer with the new dimensions
+
+            }
+
+            function callImageTransferer() {
+                browserWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
+                browserHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
+
+                //first resize the server side viewer dimensions then call the new imageTransferer
+                var viewerName = document.getElementById("viewerName").value;
+                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + browserWidth + '&height='
+                        + browserHeight + "&viewerName=" + viewerName + "&r=" + cnt;
+
+                //set the width and height of the canv
+                document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                document.getElementById("rightVdiv").style.height = browserHeight + "px";
+                document.getElementById("canv").style.width = browserWidth + "px";
+                document.getElementById("canv").style.height = browserHeight + "px";
+
+
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", theUrl, true);
+                /*xmlhttp.onreadystatechange = function()
+                 {*/
+                if (intervalVar) {
+                    // alert("interval cleared");
+                    clearInterval(intervalVar); //clear the previous interval and set new interval
+                }
+
+
+
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+
+                intervalVar = setInterval(function() {
+                    imageTransf.imageUpdate();
+                }, 50);
+
+                //alert("returned");
+
+                //};
+                xmlhttp.send();
+
+
+                /* document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                 document.getElementById("rightVdiv").style.height = browserHeight + "px";*/
+
+                // alert("canv resized");
+            }
+
+
 
         </script>
 
@@ -338,57 +444,57 @@
     <body onload="initialize();">
         <div id="generalHolder">
 
-            <div class ="container"> 
+            <!--  <div class ="container">  -->
 
-               <!-- <div id="showProperties"></div> -->
-                <div class="leftVdiv" >
-                    <div id="propslot">
-                        <div id="fps" style="left:0px;">frame/sec</div>
-                        <div id="fps2" style="left:0px;">frame/sec</div> <br>
-                        <div id="controls" style="left:0;">
-                            <input type="text" id="refresh" /><button id = "button1" onclick="alert('fff');"></button><br>
-                            <input type="text" id="encoding" /><button  id="button2"></button><br>
-                            <input type="text" id="loading" /><br>
-                        </div>
 
-                        <div id='sent'></div>                  
 
-                        <h1>Viewer Properties</h1>
-                        <div  id='properties' > 
-                        </div>       
+            <div id="leftVdiv" >
+                <div id="showProperties" onclick="showProperties();"></div>
+
+                <div id="propslot">
+                    <div id="fps" style="left:0px;">frame/sec</div>
+                    <div id="fps2" style="left:0px;">frame/sec</div> <br>
+                    <div id="controls" style="left:0;">
+                        <input type="text" id="refresh" /><button id = "button1" onclick="alert('fff');"></button><br>
+                        <input type="text" id="encoding" /><button  id="button2"></button><br>
+                        <input type="text" id="loading" /><br>
                     </div>
-                     <div id="hideProperties"></div>
-                </div>   
-              
-                
 
+                    <div id='sent'></div>                  
 
-
-
-
-                <!-- IMAGE DIV -->
-
-                <div id='output'  class="rightVdiv">
-                    <div id="canv" style="width:800pt; height:450pt;"></div>                
+                    <h1>Viewer Properties</h1>
+                    <div  id='properties' > 
+                    </div>       
                 </div>
+                <div id="hideProperties" onclick="hideProperties();"></div>
+            </div>   
 
-                <!--  -->
+            <!-- IMAGE DIV -->
 
-                <input type="hidden" id="factoryType" value="Viewer" />
-                <input type ="hidden" id="factoryItemName" value="" />
-                <input type="hidden" id="viewerName" value="" />
-                <input type ="hidden" id="pollprops" value="false" />
+            <div id="rightVdiv">
+                <div id="canv" style="width:800pt; height:450pt;"></div>                
+            </div>
+
+            <!--  -->
+
+            <input type="hidden" id="factoryType" value="Viewer" />
+            <input type ="hidden" id="factoryItemName" value="" />
+            <input type="hidden" id="viewerName" value="" />
+            <input type ="hidden" id="pollprops" value="false" />
 
 
-                <div>
-                    <a id="downloadFile" href="" style="display:none"></a>    
-                </div>
-
+            <div>
+                <a id="downloadFile" href="" style="display:none"></a>    
             </div>
 
 
 
+
         </div>
+
+
+
+        <!-- </div> -->
 
 
     </body>

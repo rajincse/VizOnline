@@ -23,7 +23,7 @@ function ImageTransferer(div, w,h, tch, tcv)
         function imageUpdate() {
 
 
-		if (this.images != null)
+		if (this.images !== null)
 			return;
 
 		var viewerName = document.getElementById("viewerName").value;
@@ -44,7 +44,7 @@ function ImageTransferer(div, w,h, tch, tcv)
 				var url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
                                         +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
 
-				if (this.cnt == 1){
+				if (this.cnt === 1){
 					url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
                                         +"&tileX=-1&tileY=-1&diff=1&r=" + this.cnt;
                                 }
@@ -69,23 +69,25 @@ function ImageTransferer(div, w,h, tch, tcv)
 
 	this.fimloaded = fimloaded;
 	function fimloaded() {
+           
 		console.log(this.loaded + " " + tch*tcv);
-		if (this.loaded == tch*tcv)
+		if (this.loaded === tch*tcv)
 		{
-			if (this.images[0][0].width == 1)
+                     //alert(this.tw);
+			if (this.images[0][0].width === 1)
 			{
 				this.images = null;
 				return;
 			}
 
-			else if (this.images[0][0].width != 500 )
+			else if (this.images[0][0].width !== this.tw )  //this.tw is the width of a tile, it used to be 500 which was half of a thousand
 			{
 				var last;
     				while (last = this.div.lastChild) this.div.removeChild(last);
 				//alert(this.images[0][0].width);
 			}
 
-
+                         //alert(this.tw);
 			for (var i=0; i<this.images.length; i++)
 				for (var j=0; j<this.images[i].length; j++)
 				{

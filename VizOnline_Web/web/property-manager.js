@@ -2,6 +2,7 @@
 var propID = 1;
 var viewerIndex;
 var hash;
+var inputPropSize = 10;
 
 function addProperties(div, propertiesString) {
     //alert(propertiesString);
@@ -290,6 +291,7 @@ function showColorPicker(div, id, name, value) {
     var label = createLabel(id, name);
     var colorInputBox = document.createElement('input');
     colorInputBox.setAttribute("id", "I" + id);
+    colorInputBox.setAttribute("size", inputPropSize);
     colorInputBox.setAttribute("class", "color {onImmediateChange:\'updateColorInfo(this," + id + ");\'}");
     //append the label and input box to the paragraph
     paragraph.appendChild(label);
@@ -322,7 +324,8 @@ function showIntegerBox(div, id, name, value) {
     integerInputBox.setAttribute("id", "I" + id);
     integerInputBox.setAttribute("value", value);
     integerInputBox.setAttribute("type", "number");
-    integerInputBox.setAttribute("size", 20); //the size of the inputBoxes
+    integerInputBox.setAttribute("class", "inputProperty");
+   // integerInputBox.setAttribute("size", inputPropSize); //the size of the inputBoxes
 
     integerInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
@@ -348,7 +351,8 @@ function showDoubleBox(div, id, name, value) {
     doubleInputBox.setAttribute("id", "I" + id);
     doubleInputBox.setAttribute("value", value);
     doubleInputBox.setAttribute("type", "number");
-    doubleInputBox.setAttribute("size", 20); //the size of the inputBoxes
+    doubleInputBox.setAttribute("class", "inputProperty");
+    //doubleInputBox.setAttribute("size", inputPropSize); //the size of the inputBoxes
 
     doubleInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
@@ -375,7 +379,7 @@ function showLetterBox(div, id, name, value) {
     letterInputBox.setAttribute("id", "I" + id);
     letterInputBox.setAttribute("value", value);
     letterInputBox.setAttribute("type", "text");
-    letterInputBox.setAttribute("size", 20); //the size of the inputBoxes
+    letterInputBox.setAttribute("size", inputPropSize); //the size of the inputBoxes
 
     letterInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
@@ -422,6 +426,7 @@ function showUploadButton(div, id, name) {
 
     fileBox.setAttribute("id", "I" + id);
     fileBox.setAttribute("type", "file");
+    fileBox.setAttribute("class", "fileProperty");
     fileBox.setAttribute("onchange", "updateFileInfo(" + id + ");");
     //create a paragraph and add the label and the checkbox to it
 
@@ -501,10 +506,11 @@ function showRange(div, id, name, value) {
     rangeInputBox.setAttribute("id", "I" + id);
     rangeInputBox.setAttribute("value", value);
     rangeInputBox.setAttribute("type", "range");
+    rangeInputBox.setAttribute("class", "inputProperty");
     rangeInputBox.setAttribute("min", 0);
     rangeInputBox.setAttribute("max", 1);
-    rangeInputBox.setAttribute("step", 0.01);
-    //rangeInputBox.setAttribute("size", 20); //the size of the inputBoxes
+    rangeInputBox.setAttribute("step", 0.1);
+    //rangeInputBox.setAttribute("size", inputPropSize); //the size of the inputBoxes
 
     rangeInputBox.setAttribute("onchange", "updateInputValueInfo(" + id + ");");
 
