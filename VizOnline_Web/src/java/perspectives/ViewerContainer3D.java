@@ -1,80 +1,26 @@
 package perspectives;
-
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.awt.image.PixelGrabber;
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
-
-import javax.imageio.ImageIO;
-import javax.media.opengl.FPSCounter;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES1;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLException;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.fixedfunc.GLLightingFunc;
-import javax.media.opengl.fixedfunc.GLMatrixFunc;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JToggleButton;
-import javax.swing.SwingWorker;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
-
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.ARBBufferObject;
 import org.lwjgl.opengl.ARBPixelBufferObject;
-import org.lwjgl.opengl.EXTBgra;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL44;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 
 import perspectives.navigation.ObjectController3D;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.newt.Display;
-import com.jogamp.newt.NewtFactory;
-import com.jogamp.newt.Screen;
-import com.jogamp.newt.opengl.GLWindow;
+
 
 
 
@@ -90,7 +36,6 @@ public class ViewerContainer3D extends ViewerContainer{
 	final Environment env;
 	
 	 	
-	Thread thread = null;
 	
 	
 	int dragPrevX;
@@ -99,9 +44,7 @@ public class ViewerContainer3D extends ViewerContainer{
 	int renderCount = 0;	
 	
 	ObjectController3D controller;
-	
-	BufferedImage image = null;
-	
+		
 	int oldx = 0, oldy = 0;
 	
 	
@@ -112,16 +55,30 @@ public class ViewerContainer3D extends ViewerContainer{
 	public ViewerContainer3D(Viewer3D v, Environment env, int width, int height)
 	{	
 		super(v,env,width,height);
+		
+		System.out.println("creating viewer cont 3D");
 
 		this.env = env;				
 
-		GLProfile glp = GLProfile.getDefault();	       
+		//GLProfile glp = GLProfile.getDefault();	 
+		
+		System.out.println("creating viewer cont 3D _ 1");
 
 		try {
 			
 			pbuffer = new Pbuffer(width, height, new PixelFormat(), null, null);
 			
+			System.out.println("creating viewer cont 3D _ 2");
+			
 			pbuffer.makeCurrent();
+			
+			System.out.println("creating viewer cont 3D _ 3");
+			
+			System.out.println("creating viewer cont 3D _ 31");
+			
+			System.out.println("creating viewer cont 3D _ 32");
+			
+			System.out.println("creating viewer cont 3D _ 33");
 			
 	       // int pbo1 = ARBBufferObject.glGenBuffersARB();
 	       // int pbo2 = ARBBufferObject.glGenBuffersARB();
@@ -137,8 +94,12 @@ public class ViewerContainer3D extends ViewerContainer{
 	     //  ARBBufferObject.glBindBufferARB(ARBPixelBufferObject.GL_PIXEL_PACK_BUFFER_ARB, 0);
 			
 			controller = new ObjectController3D();
+			
+			System.out.println("creating viewer cont 3D _ 4");
 	        
 	        pbuffer.releaseContext();
+	        
+	        System.out.println("creating viewer cont 3D _ 5");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -156,18 +117,20 @@ public class ViewerContainer3D extends ViewerContainer{
 		viewer.em.scheduleEvent(new PEvent()
 		{
 			public void process() {
-				th.display();
+				BufferedImage image = th.display();
 				((Viewer3D)viewer).render2DOverlay(image.createGraphics());
-				renderDoneCallback();	
+				renderDoneCallback(image);	
+				
 			}
 		});
 	}
 	
-	public void renderDoneCallback()
+	public void renderDoneCallback(BufferedImage image)
 	{
 		renderCount--;		
 		setViewerImage(image);
-		this.window.redraw();
+		if (window != null)
+			this.window.redraw();
 	}
 
 
@@ -206,12 +169,7 @@ public class ViewerContainer3D extends ViewerContainer{
 		}
 	}
 	
-	
 
-	public BufferedImage getImage()
-	{
-		return image;
-	}
 		 
 	 
 	
@@ -269,7 +227,7 @@ public class ViewerContainer3D extends ViewerContainer{
 		
 		ByteBuffer pixelsRGB = null;
 		
-		public void display() {
+		public BufferedImage display() {
 			synchronized(o)
 			{			
 				try {
@@ -286,8 +244,14 @@ public class ViewerContainer3D extends ViewerContainer{
 			    GLU.gluPerspective(60f, width/(float)height, 1f, 100.0f);
 			    GL11.glMatrixMode(GL11.GL_MODELVIEW);		
 			    
-			    GL11.glLoadMatrix(Buffers.newDirectDoubleBuffer(new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-5,1}));
-			    GL11.glMultMatrix(Buffers.newDirectDoubleBuffer(controller.mvmatrix));
+			    DoubleBuffer db1 = BufferUtils.createDoubleBuffer(16);
+			    db1.put(new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-5,1});
+			    db1.rewind();
+			    GL11.glLoadMatrix(db1);
+			    DoubleBuffer db2 = BufferUtils.createDoubleBuffer(16);
+			    db2.put(controller.mvmatrix);
+			    db2.rewind();
+			    GL11.glMultMatrix(db2);
 			    
 			 			 
 			    GL11.glViewport(0, 0, width, height);
@@ -302,13 +266,16 @@ public class ViewerContainer3D extends ViewerContainer{
 		      //  controller.render();
 		       
 		       
-		       this.glToImage();
+		       BufferedImage image =  this.glToImage();
 		       
 		       try {
 				pbuffer.releaseContext();
+				return image;
 			} catch (LWJGLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				BufferedImage image2 =  new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB);
+				return image2;
 			}
 			}
 	       
@@ -321,19 +288,19 @@ public class ViewerContainer3D extends ViewerContainer{
 	    
 	    private void glToImagePBO()
 	    {
-			image = new BufferedImage(1800, 1200, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage image = new BufferedImage(1800, 1200, BufferedImage.TYPE_INT_ARGB);
 				
 			int[] pixelInts = new int[1800*1200];
 						  
 		     // set the framebuffer to read
-		     GL11.glReadBuffer(GL.GL_FRONT);
+		     GL11.glReadBuffer(GL11.GL_FRONT);
 		     
 		     
 		     //create a read to the "next" buffer, pbo 2
 		     ARBBufferObject.glBindBufferARB(ARBPixelBufferObject.GL_PIXEL_PACK_BUFFER_BINDING_ARB, pbo2);
 		       
 		     long ttt = new Date().getTime();
-		     GL11.glReadPixels(0, 0, 1800, 1200, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, 0);	       
+		     GL11.glReadPixels(0, 0, 1800, 1200, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, 0);	       
 		     System.out.println("time: " + (new Date().getTime()-ttt));
 		          
 		     //process the data from the "current" buffer, pbo1
@@ -388,20 +355,18 @@ public class ViewerContainer3D extends ViewerContainer{
 	        image.setRGB(0, 0, width, height, pixelInts, 0, width);
 	    }
 	    
-	    private  void glToImage() {
+	    private  BufferedImage glToImage() {
 	    	
 	    	try{
 	    	    		
 	    	
-	    	ByteBuffer pixelsRGB = Buffers.newDirectByteBuffer(width * height * 4);
+	    	ByteBuffer pixelsRGB = BufferUtils.createByteBuffer(width * height * 4);
 	    	 
 	    	long ttt1 = new Date().getTime();
-	      
-	      //  int[] pixelInts = new int[width * height];
 	        
-	        GL11.glReadBuffer(GL.GL_BACK);
+	        GL11.glReadBuffer(GL11.GL_BACK);
 	        
-	       GL11.glReadPixels(0, 0, width, height, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, pixelsRGB);
+	       GL11.glReadPixels(0, 0, width, height, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, pixelsRGB);
 	               
 	        long ttt2 = new Date().getTime();
 
@@ -411,7 +376,7 @@ public class ViewerContainer3D extends ViewerContainer{
 	        int i = 0;                  // Index into target int[]
 	        int w3 = width * 4;         // Number of bytes in each row
 	        
-	        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+	        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	        int[] pixelInts = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
 	        for (int row = 0; row < height; row++) {
@@ -431,7 +396,8 @@ public class ViewerContainer3D extends ViewerContainer{
 	                        | (iB & 0x000000FF);
 	            }
 
-	        }
+	        }       
+	        
 	        
 	       
 	        
@@ -441,11 +407,17 @@ public class ViewerContainer3D extends ViewerContainer{
 	        long ttt4 = new Date().getTime();
 	        System.out.println("write buffer to image: " + (ttt2 - ttt1) + " " + (ttt3-ttt2) + " " + (ttt4-ttt3));
 	        
+	        return image;
+	        
 	    	}
 	    	catch(Exception e)
 	    	{
 	    		e.printStackTrace();
-	    		image =  new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB);
+	    		BufferedImage image = new BufferedImage(100,100,BufferedImage.TYPE_INT_ARGB);
+	    		Graphics g = image.createGraphics();
+	    		g.setColor(Color.black);
+	    		g.fillRect(0, 0, 100, 100);
+	    		return image;
 	    	}
 
 	    }

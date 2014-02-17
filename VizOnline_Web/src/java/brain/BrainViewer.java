@@ -16,16 +16,19 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.fixedfunc.GLLightingFunc;
-import javax.media.opengl.glu.GLU;
+//import javax.media.opengl.GL2;
+//import javax.media.opengl.GLProfile;
+//import javax.media.opengl.fixedfunc.GLLightingFunc;
+//import javax.media.opengl.glu.GLU;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.util.glu.GLU;
 
-import com.jogamp.common.nio.Buffers;
+
+
 
 import perspectives.Task;
 import perspectives.Viewer3D;
@@ -71,6 +74,8 @@ public class BrainViewer extends Viewer3D{
 		super(name);
 		this.data = dat;	
 		
+		System.out.println("creating brainviewer");
+		
 		createGeometry(6,0.01, Color.LIGHT_GRAY);
 		
 		try {
@@ -91,7 +96,9 @@ public class BrainViewer extends Viewer3D{
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
+		
+		System.out.println(" done creating brainviewer");
 	}	
 	
 	
@@ -135,11 +142,13 @@ public class BrainViewer extends Viewer3D{
 			super.propertyUpdated(p, newvalue);
 	}
 	
-	private boolean creating = false;
+	public boolean creating = false;
 	private void createGeometry(int faces, double width, Color color)
 	{	
 		if (creating) return;
 		creating = true;
+		
+		System.out.println("setup creating geometry");
 		final int facesf = faces;
 		final double widthf = width;
 		final Color colorf = color;
@@ -148,6 +157,7 @@ public class BrainViewer extends Viewer3D{
 			@Override
 			public void task() {
 				created = false;
+				System.out.println("creating geom");
 				
 				tubes = new Tube[data.segments.length];
 				for (int i=0; i<data.segments.length; i++)
@@ -160,6 +170,7 @@ public class BrainViewer extends Viewer3D{
 				done();
 				
 				creating = false;
+				System.out.println("done creating geom");
 			}			
 		};
 		t.blocking = true;
@@ -193,12 +204,12 @@ public class BrainViewer extends Viewer3D{
 		changeColorTube.clear();
 		
 		
-        GL11.glShadeModel(GLLightingFunc.GL_SMOOTH);
+        GL11.glShadeModel(GL11.GL_SMOOTH);
      //   GL11.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
      //   GL11.glClearDepth(1.0f);
         GL11.glEnable( GL11.GL_DEPTH_TEST);
         GL11.glDepthFunc( GL11.GL_LEQUAL);
-        GL11.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT,  GL11.GL_NICEST);
+        GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT,  GL11.GL_NICEST);
         
 
 		GL11.glPushMatrix();
@@ -208,15 +219,15 @@ public class BrainViewer extends Viewer3D{
 		int[] savedViewport = viewport;
 		
 		
-		FloatBuffer pmb = Buffers.newDirectFloatBuffer(proj);
+		FloatBuffer pmb = BufferUtils.createFloatBuffer(proj.length);
 		GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, pmb);
 		pmb.get(proj);
 		
-		FloatBuffer mvb = Buffers.newDirectFloatBuffer(model);
+		FloatBuffer mvb = BufferUtils.createFloatBuffer(model.length);
 		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, mvb);
 		mvb.get(model);
 		
-		IntBuffer vpb = Buffers.newDirectIntBuffer(new int[16]);
+		IntBuffer vpb = BufferUtils.createIntBuffer(16);
 		GL11.glGetInteger(GL11.GL_VIEWPORT, vpb);
 		vpb.get(viewport);	 
 		
@@ -231,25 +242,30 @@ public class BrainViewer extends Viewer3D{
 	
 		 
         float SHINE_ALL_DIRECTIONS = 1;
-        float[] lightPos = {0, 0, -10, SHINE_ALL_DIRECTIONS};
-        float[] lightColorAmbient = {0.01f, 0.01f, 0.01f, 1f};
-        float[] lightColorSpecular = {0.99f, 0.99f, 0.99f, 1f};
+        FloatBuffer lightPos = BufferUtils.createFloatBuffer(4);
+        lightPos.put(new float[]{0, 0, -10, SHINE_ALL_DIRECTIONS}); lightPos.rewind();
+        FloatBuffer lightColorAmbient = BufferUtils.createFloatBuffer(4);
+        lightColorAmbient.put(new float[]{0.01f, 0.01f, 0.01f, 1f}); lightColorAmbient.rewind();
+        FloatBuffer lightColorSpecular = BufferUtils.createFloatBuffer(4);
+        lightColorSpecular.put(new float[]{0.99f, 0.99f, 0.99f, 1f});lightColorSpecular.rewind();
         
 
         // Set light parameters.
-        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, Buffers.newDirectFloatBuffer(lightPos));
-        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, Buffers.newDirectFloatBuffer(lightColorAmbient));
-        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, Buffers.newDirectFloatBuffer(lightColorSpecular));
-        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, Buffers.newDirectFloatBuffer(lightColorSpecular));
+        
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos);
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, lightColorAmbient);
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, lightColorSpecular);
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColorSpecular);
 
         // Enable lighting in GL.
         GL11.glEnable(GL11.GL_LIGHT1);
         GL11.glEnable(GL11.GL_LIGHTING);
 
         // Set material properties.
-        float[] rgba = {.1f, .1f, .1f, 1f};
+        FloatBuffer rgba = BufferUtils.createFloatBuffer(4);
+        rgba.put(new float[]{.1f, .1f, .1f, 1f});rgba.rewind();
        // gl.glMaterialfv(GL.GL_FRONT, GL.GL_AMBIENT, rgba, 0);
-        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, Buffers.newDirectFloatBuffer(rgba));
+        GL11.glMaterial(GL11.GL_FRONT, GL11.GL_SPECULAR, rgba);
         //gl.glMateria
         GL11.glMaterialf(GL11.GL_FRONT, GL11.GL_SHININESS, 1f);
         
@@ -267,9 +283,9 @@ public class BrainViewer extends Viewer3D{
         {	
         	GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo[i]);
 
-        	GL11.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-        	GL11.glEnableClientState(GL2.GL_COLOR_ARRAY);
-        	GL11.glEnableClientState(GL2.GL_NORMAL_ARRAY);
+        	GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+        	GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+        	GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
 	      
         	GL11.glColorMaterial( GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE );
         	GL11.glEnable(GL11.GL_COLOR_MATERIAL);
@@ -280,9 +296,9 @@ public class BrainViewer extends Viewer3D{
 
         	GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, totalNumVerts[i]);
 
-        	GL11.glDisableClientState(GL2.GL_VERTEX_ARRAY);
-        	GL11.glDisableClientState(GL2.GL_COLOR_ARRAY);
-        	GL11.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+        	GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        	GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+        	GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
         	GL11.glDisable(GL11.GL_COLOR_MATERIAL);
 
         	GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
@@ -311,19 +327,26 @@ public class BrainViewer extends Viewer3D{
 		long ttt = new Date().getTime();
 		GLU glu = new GLU();
 		
+	   	 FloatBuffer modelbuf = BufferUtils.createFloatBuffer(16);
+    	 modelbuf.put(model); modelbuf.rewind();
+    	 FloatBuffer projbuf = BufferUtils.createFloatBuffer(16);
+    	 projbuf.put(proj); projbuf.rewind();
+    	 IntBuffer viewportbuf = BufferUtils.createIntBuffer(viewport.length);
+    	 viewportbuf.put(viewport); viewportbuf.rewind();
+		
 		projectedSegments = new Vector3D[tubes.length][];
 		for (int i=0; i<tubes.length; i++)
 		{
 			projectedSegments[i] = new Vector3D[tubes[i].segments.length];
 			for (int j=0; j<projectedSegments[i].length; j++)
 			{
-				float[] result = new float[3];
+				FloatBuffer result = BufferUtils.createFloatBuffer(3);
 				
 				glu.gluProject(tubes[i].segments[j].x, tubes[i].segments[j].y, tubes[i].segments[j].z,
-						model, 0, proj, 0, viewport, 0,
-						result, 0);
+						modelbuf,  projbuf,  viewportbuf, 
+						result);
 			
-				Vector3D p = new Vector3D(result[0], viewport[3] - result[1] -1 , result[2]);
+				Vector3D p = new Vector3D(result.get(0), viewport[3] - result.get(1) -1 , result.get(2));
 				
 			//	int realy = viewport[3] - (int) y - 1;
 				
@@ -441,12 +464,12 @@ public class BrainViewer extends Viewer3D{
 		totalNumVerts[tube] = tubes[tube].indeces.length;
 
 		// generate a VBO pointer / handle
-		      IntBuffer buf = Buffers.newDirectIntBuffer(1);
+		      IntBuffer buf = BufferUtils.createIntBuffer(1);
 		      GL15.glGenBuffers(buf);
 		      vbo[tube] = buf.get();
 
 		      // interleave vertex / color data
-		      FloatBuffer data = Buffers.newDirectFloatBuffer(tubes[tube].indeces.length * 9);
+		      FloatBuffer data = BufferUtils.createFloatBuffer(tubes[tube].indeces.length * 9);
 		      
 		      for (int i = 0; i < tubes[tube].indeces.length; i++) {		        	
 		            data.put(c);
