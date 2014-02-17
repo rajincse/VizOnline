@@ -2,35 +2,26 @@ package perspectives.navigation;
 
 import java.awt.event.KeyEvent;
 import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.util.Date;
 
-import javax.media.opengl.FPSCounter;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLContext;
-import javax.media.opengl.GLDrawable;
-import javax.media.opengl.GLException;
-import javax.media.opengl.GLProfile;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import perspectives.Trackball;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.newt.Display;
-import com.jogamp.newt.NewtFactory;
-import com.jogamp.newt.Screen;
-import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.opengl.math.Quaternion;
+
 
 public class ObjectController3D {
 	
 	
-	Trackball tb = new Trackball(0,0,0,5);
 	
+	Trackball tb;
 	int dragPrevX;
 	int dragPrevY;
 		
@@ -42,7 +33,8 @@ public class ObjectController3D {
 	
 	public ObjectController3D()
 	{
-		
+		System.out.println("create object controller 3D");
+		tb = new Trackball(0,0,0,5);
 	}
 	
 	
@@ -60,6 +52,8 @@ public class ObjectController3D {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			System.out.println("rotating");
 				
 									
 			tb.setRadius(10/2.2f);
@@ -70,20 +64,28 @@ public class ObjectController3D {
 			//this gets PRE-multiplied to the existing transformation, and then the whole thing gets re-stored into mvmatrix				
 				 GL11.glMatrixMode (GL11.GL_MODELVIEW);
 				 GL11.glLoadIdentity();
-				 GL11.glMultMatrix(Buffers.newDirectFloatBuffer(tb.getRot().toMatrix()));
-				 GL11.glMultMatrix(Buffers.newDirectDoubleBuffer(mvmatrix));
-				 DoubleBuffer mvbuff = Buffers.newDirectDoubleBuffer(mvmatrix);
-				 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvbuff);
-				 mvbuff.get(mvmatrix); 
+				 DoubleBuffer mvmatrixbuf = BufferUtils.createDoubleBuffer(mvmatrix.length);
+				 mvmatrixbuf.put(mvmatrix);
+				 mvmatrixbuf.rewind();
+				 FloatBuffer rotbuf = BufferUtils.createFloatBuffer(16);
+				 Matrix4f mrot = new Matrix4f();
+				 mrot.rotate(tb.getRot().getW(), new Vector3f(tb.getRot().getX(), tb.getRot().getY(), tb.getRot().getZ()));
+				 rotbuf.put(new float[]{mrot.m00, mrot.m01, mrot.m02, mrot.m03, mrot.m10, mrot.m11, mrot.m12, mrot.m13, mrot.m20, mrot.m21, mrot.m22,mrot.m23, mrot.m30, mrot.m31, mrot.m32, mrot.m33});
+				 rotbuf.rewind();
+				 GL11.glMultMatrix(rotbuf);
+				 GL11.glMultMatrix(mvmatrixbuf); mvmatrixbuf.rewind();
+				 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvmatrixbuf);
+				 mvmatrixbuf.get(mvmatrix); 
 			
 		    //this computes the global rotation that should be applied to the trackball representation (it ignores all the translations...)
 				 GL11.glMatrixMode (GL11.GL_MODELVIEW);
 				 GL11.glLoadIdentity();
-				 GL11.glMultMatrix(Buffers.newDirectFloatBuffer(tb.getRot().toMatrix()));
-				 GL11.glMultMatrix(Buffers.newDirectDoubleBuffer(this.mvmatrixrot));
-				 DoubleBuffer mvbuff2 = Buffers.newDirectDoubleBuffer(mvmatrixrot);
-				 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvbuff2);
-				 mvbuff2.get(mvmatrixrot);
+				 
+				 rotbuf.rewind();
+				 GL11.glMultMatrix(rotbuf); mvmatrixbuf.rewind();
+				 GL11.glMultMatrix(mvmatrixbuf);mvmatrixbuf.rewind();
+				 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvmatrixbuf);
+				 mvmatrixbuf.get(mvmatrixrot);
 				 
 				 
 
@@ -127,6 +129,7 @@ public class ObjectController3D {
 		
 		public void keyPressed(KeyEvent e, Pbuffer buff)
 		{	
+			System.out.println("obj controller 3D key press");
 			try {
 				buff.makeCurrent();
 			} catch (LWJGLException e2) {
@@ -156,10 +159,11 @@ public class ObjectController3D {
 			 GL11.glMatrixMode (GL11.GL_MODELVIEW);
 			 GL11.glLoadIdentity();
 			 GL11.glTranslated(transx,transy,transz);
-			 GL11.glMultMatrix(Buffers.newDirectDoubleBuffer(mvmatrix));
-			 DoubleBuffer mvbuff = Buffers.newDirectDoubleBuffer(mvmatrix);
-			 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvbuff);
-			 mvbuff.get(mvmatrix);
+			 DoubleBuffer mvmatrixbuf = BufferUtils.createDoubleBuffer(mvmatrix.length);
+			 mvmatrixbuf.put(mvmatrix);mvmatrixbuf.rewind();
+			 GL11.glMultMatrix(mvmatrixbuf);mvmatrixbuf.rewind();
+			 GL11.glGetDouble(GL11.GL_MODELVIEW_MATRIX, mvmatrixbuf);
+			 mvmatrixbuf.get(mvmatrix);
 			 
 			 for (int i=0; i<mvmatrix.length; i++)
 				 System.out.println(mvmatrix[i]);
@@ -182,8 +186,12 @@ public class ObjectController3D {
 			if (rotating)
 			{
 				 GL11.glMatrixMode ( GL11.GL_MODELVIEW);
-				 GL11.glLoadMatrix(Buffers.newDirectDoubleBuffer(new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-10,1}));
-				 GL11.glMultMatrix(Buffers.newDirectDoubleBuffer(this.mvmatrixrot));			 
+				 DoubleBuffer cambuf = BufferUtils.createDoubleBuffer(16);
+				 cambuf.put(new double[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-10,1});
+				 GL11.glLoadMatrix(cambuf);
+				 DoubleBuffer mvmatrixbuf = BufferUtils.createDoubleBuffer(mvmatrix.length);
+				 mvmatrixbuf.put(mvmatrix);
+				 GL11.glMultMatrix(mvmatrixbuf);			 
 		      
 				 GL11.glDisable(GL11.GL_LIGHTING);
 				 

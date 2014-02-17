@@ -1,5 +1,4 @@
 package brain;
-
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -75,6 +74,7 @@ public class BrainData extends DataSource {
 	
 	public void fromFile(String fileName)
 	{
+		System.out.println("loading tubes...");
 		
 		FileInputStream fstream;
 		try {
@@ -89,8 +89,8 @@ public class BrainData extends DataSource {
 		//tubes = new Triangle[n][];
 			segments = new Vector3D[n][];
 			
-			Vector3D min = new Vector3D(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-			Vector3D max = new Vector3D(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+			Vector3D min = new Vector3D(99999,99999,99999);
+			Vector3D max = new Vector3D(-99999,-99999,-99999);
 			
 		
 			for (int k=0; k<n; k++)
@@ -119,11 +119,16 @@ public class BrainData extends DataSource {
 				}
 			}
 			
+			//Vector3D center = new Vector3D((max.x-min.x)/2, (max.y-min.y)/2, (max.z-min.z)/2);
+			Vector3D center = new Vector3D(min.x+100, min.y, min.z);
 			for (int i=0; i<segments.length; i++)
 				for (int j=0; j<segments[i].length; j++)
-					segments[i][j] = segments[i][j].minus(new Vector3D((max.x-min.x)/2, (max.y-min.y)/2, (max.z-min.z)/2)).div(max.minus(min).length()).times(5);
+				{
+					segments[i][j] = segments[i][j].minus(center).div(max.minus(min).length()).times(5);
+				}
 			
 	
+			System.out.println("done loading tubes");
 		}
 		catch(Exception e)
 		{

@@ -2,7 +2,8 @@ package perspectives.navigation;
 
 import java.awt.event.KeyEvent;
 
-import javax.media.opengl.GL2;
+
+import org.lwjgl.opengl.GL11;
 
 import perspectives.Viewer3D;
 
@@ -43,7 +44,7 @@ public class UserNavigation extends NavigationController{
 	}
 
 	@Override
-	public void render(GL2 gl) {
+	public void render(GL11 gl) {
 		// TODO Auto-generated method stub
 		gl.glTranslatef(this.transx, this.transy, this.transz);
 	}

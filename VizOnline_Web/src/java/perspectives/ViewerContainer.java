@@ -84,6 +84,17 @@ public class ViewerContainer{
 	BufferedImage savedImage = null;
 	boolean blocked = false;
 	
+	
+	public void saveImageDebug(BufferedImage im)
+	{
+		try {
+			ImageIO.write(im, "PNG", new File("c:\\debugimage.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public ViewerContainer(Viewer v, Environment env, int width, int height)
 	{		
 		this.env = env;		
@@ -262,6 +273,7 @@ public class ViewerContainer{
 		synchronized(o2)
 		{
 			image = newimage;
+			//System.out.println("changed image: " + image);
 		}
 
 	}
@@ -291,15 +303,24 @@ public class ViewerContainer{
 	
 	private void tileTasks(BufferedImage image)
 	{
+		
+		System.out.println("tiletasks1");
+		
+		if (image == null)
+			return;
+		
 		synchronized(o6)
 		{
 			if (working) return;
 			working = true;
 		}
 		
+		System.out.println("tiletasks2");
+		
 		BufferedImage difImage = diffImage(image, lastImage);
 		if (diffcount == 0 && history == 0 && !changeSequenceTest)
 		{
+			System.out.println("tiletasks3");
 			if (changeSequenceTest)
 			{
 				changeSequenceTest = false;
@@ -314,6 +335,7 @@ public class ViewerContainer{
 		}
 		else if (diffcount > 50000 && history == 0 && !changeSequenceTest)
 		{
+			System.out.println("tiletasks4");
 			synchronized(o6)
 			{
 				changeSequenceTest = true;
@@ -338,7 +360,7 @@ public class ViewerContainer{
 		
 		long ttt = new Date().getTime();
 		
-		
+		System.out.println("tiletasks5");
 		
 		if (diffcount > 50000)
 		{
@@ -464,9 +486,9 @@ public class ViewerContainer{
 	int difsSent = 0;
 	
 	public void createTiles()
-	{
+	{	
 		if (image != lastImage || history > 0)
-		{		
+		{	
 			final BufferedImage im = image;
 			
 			long tm = new Date().getTime();
@@ -540,20 +562,26 @@ public class ViewerContainer{
 	
 	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
 	{
+		System.out.println("dif1");
 		long ttt = new Date().getTime();
 		
 			diffcount = 0;
+			
+			System.out.println(image);
 		
 	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+	        System.out.println("dif2");
+	        
 	        dif.createGraphics().drawImage(image, 0,0,null);
 	  
-	        
+	        System.out.println("dif3");
 	        if (lastImage == null)
 	        {
+	        	System.out.println("dif4");
 	        	diffcount = image.getWidth()*image.getHeight();
 	        	return dif;    
 	        }
-	      
+	        System.out.println("dif5");
 	        
 	         int[] cpixels = ((DataBufferInt) dif.getRaster().getDataBuffer()).getData();
 	         int[] spixels;	        

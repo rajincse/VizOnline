@@ -3,8 +3,9 @@ package perspectives.navigation;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 
-import javax.media.opengl.GL2;
-import javax.media.opengl.glu.GLU;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
 import perspectives.ViewerContainer3D;
 
@@ -15,7 +16,6 @@ public class UserNavigation3D extends Controller3D{
 	private static final int CENTER_Y = 374;
 	private static final int THRESHOLD_RADIUS = 50;
 	private ViewerContainer3D container;
-	private GLU glu;
 	   
 	private Point3D cameraLocation;
 	private Point3D cameraTarget;
@@ -26,10 +26,9 @@ public class UserNavigation3D extends Controller3D{
 	
 	private int lastX;
 	private int lastY;
-	public UserNavigation3D(ViewerContainer3D container,GLU glu)
+	public UserNavigation3D(ViewerContainer3D container)
 	{
 		this.container = container;
-		this.glu = glu;
 		
 		this.angleY = 0;
 		this.angleY =0;
@@ -47,13 +46,14 @@ public class UserNavigation3D extends Controller3D{
 	
 	
 	@Override
-	public void render(GL2 gl) {
+	public void render(GL11 gl) {
 		// TODO Auto-generated method stub
 		//System.out.println("Look at"+this.cameraTarget[0]+","+this.cameraTarget[1]+","+ this.cameraTarget[2]);
-		glu.gluLookAt(
-				this.cameraLocation.x,this.cameraLocation.y, this.cameraLocation.z,
-				this.cameraTarget.x,this.cameraTarget.y, this.cameraTarget.z, 
-				this.upVector.x,this.upVector.y, this.upVector.z);
+		
+		GLU.gluLookAt(
+				(float)this.cameraLocation.x,(float)this.cameraLocation.y,(float) this.cameraLocation.z,
+				(float)this.cameraTarget.x,(float)this.cameraTarget.y,(float) this.cameraTarget.z, 
+				(float)this.upVector.x,(float)this.upVector.y,(float) this.upVector.z);
 	}
 	
 	@Override
