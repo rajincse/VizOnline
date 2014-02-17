@@ -489,6 +489,7 @@ public class ViewerContainer{
 			{
 				lastImage = null;
 				round = 0;
+                                history=1;
 				return noImage();
 			}
 			

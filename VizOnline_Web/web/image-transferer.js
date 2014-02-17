@@ -1,5 +1,5 @@
 function ImageTransferer(div, w,h, tch, tcv)
-{
+{       
 	this.div = div;
 	this.tch = tch;
 	this.tcv = tcv;
@@ -42,11 +42,11 @@ function ImageTransferer(div, w,h, tch, tcv)
 			for (var j=0; j<tch; j++)
 			{
 				var url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
-                                        +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt;
+                                        +"&tileX="+j+"&tileY="+i+"&diff=1&r=" + this.cnt + ((new Date()).getTime());
 
 				if (this.cnt === 1){
 					url = "VizOnlineServlet?page=viewer&viewerName="+viewerName
-                                        +"&tileX=-1&tileY=-1&diff=1&r=" + this.cnt;
+                                        +"&tileX=-1&tileY=-1&diff=1&r=" + this.cnt+ ((new Date()).getTime());
                                 }
 
 				var image = new Image();

@@ -277,6 +277,7 @@ public class VizOnlineServlet extends HttpServlet {
                     outResponse = creatorType;
                 }
             } else if (request.getParameter("page").equals("resizeViewerWindow")) {
+                
                 String viewerName = request.getParameter("viewerName");
                 int width = Integer.parseInt(request.getParameter("width"));
                 int height = Integer.parseInt(request.getParameter("height"));
@@ -290,6 +291,12 @@ public class VizOnlineServlet extends HttpServlet {
                     e.getViewerContainers().get(index).setWidth(width);
                     //set the height of the viewerContainer
                     e.getViewerContainers().get(index).setHeight(height);
+                    
+                    
+                   // System.out.println("The Width is ::: "+ width);
+                    //System.out.println("The Height is::: "+ height);
+                    
+                  //  Thread.sleep(500); 
                     
                     outResponse = "Successful";
                 }
@@ -358,7 +365,8 @@ public class VizOnlineServlet extends HttpServlet {
         if (outResponse != null) {
             out = response.getWriter();
             out.write(outResponse);
-            out.flush();
+            response.flushBuffer();
+            //out.flush();
             out.close();
         }
 
@@ -469,7 +477,7 @@ public class VizOnlineServlet extends HttpServlet {
                 }
 
                 if (cmd.equalsIgnoreCase("mouseUp")) {
-
+                    System.out.println("mouseUp");
                     if (leftMouse) {
                         e.getViewerContainers().get(index).mouseReleased(x, y, MouseEvent.BUTTON1);
                     } else {
@@ -477,7 +485,7 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                 } else if (cmd.equalsIgnoreCase("mouseDown")) {
 
-                    //System.out.println("MOUSE-DOWN");
+                    System.out.println("MOUSE-DOWN");
                     if (leftMouse) {
                         e.getViewerContainers().get(index).mousePressed(x, y, MouseEvent.BUTTON1);
                     } else {
@@ -492,7 +500,7 @@ public class VizOnlineServlet extends HttpServlet {
                     //System.out.println("The class of the viewer is: "+ (e.getViewerContainers().get(index).getClass().getName()));
 
                 } else if (cmd.equalsIgnoreCase("mouseDragged")) {
-                    // System.out.println("MOUSE-DRAGGED");
+                    System.out.println("MOUSE-DRAGGED");
                     e.getViewerContainers().get(index).mouseDragged(x, y);
                 }
             } else {
@@ -698,11 +706,16 @@ public class VizOnlineServlet extends HttpServlet {
 
         long t2 = new Date().getTime();
         try {
-            response.getOutputStream().write(bs);
-            //System.out.println("-3-");
-            response.flushBuffer();
+            if (response.getOutputStream()!= null){
+                response.getOutputStream().write(bs);
+               //System.out.println("-3-");
+              response.flushBuffer();
             //System.out.println("-4-");
 
+            }else{
+                System.out.println("OUTPUT-STREAM WAS NULL-----------");
+            }
+            
             long t3 = new Date().getTime();
 
         } catch (Exception e) {

@@ -71,18 +71,24 @@
             var ts = 0;
             var inpollprops = false;
             var xmlhttp;
-            var browserWidth = getBrowserWidth(), browserHeight = getBrowserHeight();
+            var browserWidth = 1000, browserHeight = 700;
             var numOfTileRows = 2, numOfTileColumns = 2;
             var intervalVar;
 
+            var currentDate;
+            var oldtime;
+            var timeOut1 = 0;
+            var timeOut2 = 0;
+            var inImageTransfare = false;
 
 
 
 
             function initialize() {
-                // alert("The name of the viewer is " +document.getElementById("viewerName").value);
-                // alert("mo");
                 makeRequest('properties');
+                //set the browser width and height
+                setBrowserWidthAndHeight();
+
                 //alert("me");
                 document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
                 document.getElementById("canv").onmouseup = handleMouseUp;
@@ -90,11 +96,16 @@
 
                 //setBrowserWindowDimensions();
 
-                var tOut;
-                window.onresize = function() {
-                    clearTimeout(tOut);
-                    tOut = setTimeout(setBrowserWindowDimensions, 100);
-                };
+                /*  var timeOut =0;
+                 window.onresize = function() {
+                 currentDate = new Date();
+                 oldtime = currentDate.getTime();
+                 clearTimeout(timeOut);
+                 timeOut = setTimeout(browserWindowResized, 500);
+                 };*/
+
+                window.onresize = browserWindowResized;
+
 
                 callImageTransferer();
 
@@ -167,7 +178,7 @@
                 //check if mousedrag or mouse click
                 var elem = event.target;
 
-                if ((mousePos.x - xMargin) > browserWidth)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight || (inImageTransfare))
                     return true;
 
 
@@ -213,7 +224,7 @@
                 };
                 //  alert(mousePos.x  + " " + mousePos.y);  
 
-                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight || (inImageTransfare))
                 {
                     return true;
                 }
@@ -273,7 +284,7 @@
                 document.getElementById("fps2").innerHTML = mousePos.x + " " + mousePos.y;
                 document.getElementById("fps").innerHTML = document.body.scrollLeft + " " + document.body.scrollTop;
 
-                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight  || (inImageTransfare))
                 {
                     return true;
                 }
@@ -323,36 +334,30 @@
 
             }
 
-            function setBrowserWindowDimensions() {
-                browserWidth = getBrowserWidth();
+            function browserWindowResized() {
 
-                browserHeight = getBrowserHeight();
-                
-                document.getElementById("hideProperties").style.height = (browserHeight) + "px";
-                document.getElementById("showProperties").style.height = (browserHeight) + "px";
-
-
-                callImageTransferer(); //recall the imageTransferer with the new dimensions
+                //setBrowserWidthAndHeight();
+                clearTimeout(timeOut1);
+                timeOut1 = setTimeout(setBrowserWidthAndHeight, 450);
+                // clearTimeout(timeOut2);
+                // timeOut2 = setTimeout(callImageTransferer, 500);             
 
             }
 
-            function getBrowserWidth() {
+            function setBrowserWidthAndHeight() {
                 browserWidth = window.innerWidth
                         || document.documentElement.clientWidth
                         || document.body.clientWidth;
 
                 browserWidth = browserWidth - xMargin;
-                return browserWidth;
-            }
 
-            function getBrowserHeight() {
                 browserHeight = window.innerHeight
                         || document.documentElement.clientHeight
                         || document.body.clientHeight;
 
                 browserHeight = browserHeight - yMargin;
-                
-                return browserHeight;
+
+                callImageTransferer();
             }
 
 
@@ -366,6 +371,7 @@
                 document.getElementById("rightVdiv").style.marginLeft = hidePropsMargin + "px";
 
                 browserWidth = browserWidth - hidePropsMargin;
+
                 callImageTransferer();
 
             }
@@ -385,53 +391,71 @@
                         || document.body.clientWidth;
 
                 browserWidth = browserWidth - showPropsMargin; //resizing the windows width: //NB: the window is shifted left giving more room
+
                 callImageTransferer(); //recall the imageTransferer with the new dimensions
 
             }
 
             function callImageTransferer() {
-                browserWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
-                browserHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
+                inImageTransfare = true;
+
+                var viewerWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
+                var viewerHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
+
+
+
 
                 //first resize the server side viewer dimensions then call the new imageTransferer
                 var viewerName = document.getElementById("viewerName").value;
-                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + browserWidth + '&height='
-                        + browserHeight + "&viewerName=" + viewerName + "&r=" + cnt;
+                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + viewerWidth + '&height='
+                        + viewerHeight + "&viewerName=" + viewerName + "&r=" + cnt;
 
-                //set the width and height of the canv
-                document.getElementById("rightVdiv").style.width = browserWidth + "px";
-                document.getElementById("rightVdiv").style.height = browserHeight + "px";
-                document.getElementById("canv").style.width = browserWidth + "px";
-                document.getElementById("canv").style.height = browserHeight + "px";
-
+                //sendCommand(theUrl);
 
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.open("GET", theUrl, true);
-                /*xmlhttp.onreadystatechange = function()
-                 {*/
-                if (intervalVar) {
-                    // alert("interval cleared");
-                    clearInterval(intervalVar); //clear the previous interval and set new interval
-                }
+                // xmlhttp.send(); 
+
+                xmlhttp.onreadystatechange = function()
+                {
+
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                    {
 
 
+                        if (intervalVar) {
+                            // alert("interval cleared");
+                            clearInterval(intervalVar); //clear the previous interval and set new interval
 
-                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+                        }
 
-                intervalVar = setInterval(function() {
-                    imageTransf.imageUpdate();
-                }, 50);
+                        //  alert(browserWidth +" --- "+browserHeight);
 
-                //alert("returned");
+                        var imageTransf = new ImageTransferer(document.getElementById("canv"), viewerWidth, viewerHeight, numOfTileColumns, numOfTileRows);
 
-                //};
+                        intervalVar = setInterval(function() {
+                            imageTransf.imageUpdate();
+                        }, 50);
+
+
+                        //set the width and height of the canv
+                        document.getElementById("rightVdiv").style.width = viewerWidth + "px";
+                        document.getElementById("rightVdiv").style.height = viewerHeight + "px";
+                        document.getElementById("canv").style.width = viewerWidth + "px";
+                        document.getElementById("canv").style.height = viewerHeight + "px";
+                        document.getElementById("hideProperties").style.height = viewerHeight + "px";
+                        document.getElementById("showProperties").style.height = viewerHeight + "px";
+                        
+                        inImageTransfare = false;
+
+                    }
+
+
+                };
+
                 xmlhttp.send();
 
 
-                /* document.getElementById("rightVdiv").style.width = browserWidth + "px";
-                 document.getElementById("rightVdiv").style.height = browserHeight + "px";*/
-
-                // alert("canv resized");
             }
 
 
