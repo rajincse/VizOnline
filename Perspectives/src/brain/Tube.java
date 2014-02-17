@@ -1,5 +1,4 @@
 package brain;
-
 import java.awt.Color;
 
 import util.Vector3D;

@@ -2,7 +2,8 @@ package perspectives.navigation;
 
 import java.awt.event.KeyEvent;
 
-import javax.media.opengl.GL2;
+import org.lwjgl.opengl.GL11;
+
 
 public abstract class Controller3D {
 	//transformation matrix
@@ -21,6 +22,6 @@ public abstract class Controller3D {
 	abstract public void mouseReleased(int x, int y, int button);
 	abstract public void keyPressed(KeyEvent e);
 	abstract public void keyReleased(KeyEvent e);
-	abstract public void render(GL2 gl);
+	abstract public void render(GL11 gl);
 	
 }
