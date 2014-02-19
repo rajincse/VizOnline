@@ -276,7 +276,13 @@ public class VizOnlineServlet extends HttpServlet {
                     }
                     outResponse = creatorType;
                 }
-            } else if (request.getParameter("page").equals("resizeViewerWindow")) {
+            }
+            else if (request.getParameter("page").equalsIgnoreCase("linkViewers")) {
+                int index1 = Integer.parseInt(request.getParameter("first"));
+                int index2 = Integer.parseInt(request.getParameter("second"));
+                e.linkViewers(index1, index2);
+            }
+            else if (request.getParameter("page").equals("resizeViewerWindow")) {
                 
                 String viewerName = request.getParameter("viewerName");
                 int width = Integer.parseInt(request.getParameter("width"));

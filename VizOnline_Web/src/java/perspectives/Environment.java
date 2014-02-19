@@ -969,6 +969,13 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 		dataSources.remove(index);
 		dataFrames.remove(index);
 	}
+        
+        public void linkViewers(int viewer1Index, int viewer2Index)
+        {
+            links1.add(new Integer(viewer1Index));
+            links2.add(new Integer(viewer2Index));
+            linksDouble.add(false);
+        }
 
 
 	@Override
