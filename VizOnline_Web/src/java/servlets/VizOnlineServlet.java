@@ -292,6 +292,7 @@ public class VizOnlineServlet extends HttpServlet {
                     //set the height of the viewerContainer
                     e.getViewerContainers().get(index).setHeight(height);
                     
+                    System.out.println("Resize was successful...................................");
                     
                    // System.out.println("The Width is ::: "+ width);
                     //System.out.println("The Height is::: "+ height);
@@ -365,8 +366,8 @@ public class VizOnlineServlet extends HttpServlet {
         if (outResponse != null) {
             out = response.getWriter();
             out.write(outResponse);
-            response.flushBuffer();
-            //out.flush();
+            out.flush();
+            response.flushBuffer();           
             out.close();
         }
 

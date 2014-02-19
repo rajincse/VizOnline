@@ -64,6 +64,7 @@
             var cttt = 0;
             var ttt = 0;
             var loading = 0;
+            var resizeCnt = 0;
 
 
             var inmousemove = false;
@@ -80,34 +81,33 @@
             var timeOut1 = 0;
             var timeOut2 = 0;
             var inImageTransfare = false;
-
+            var imageTransf = null;
 
 
 
             function initialize() {
                 makeRequest('properties');
                 //set the browser width and height
-                setBrowserWidthAndHeight();
+                //setBrowserWidthAndHeight();
 
                 //alert("me");
                 document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
                 document.getElementById("canv").onmouseup = handleMouseUp;
                 document.getElementById("canv").onmousemove = handleMouseMove;
 
-                //setBrowserWindowDimensions();
-
-                /*  var timeOut =0;
-                 window.onresize = function() {
-                 currentDate = new Date();
-                 oldtime = currentDate.getTime();
-                 clearTimeout(timeOut);
-                 timeOut = setTimeout(browserWindowResized, 500);
-                 };*/
-
-                window.onresize = browserWindowResized;
+                window.onresize = function() {
+                    browserWindowResized();
+                };
 
 
-                callImageTransferer();
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+
+                intervalVar = setInterval(function() {
+                    imageTransf.imageUpdate();
+                }, 50);
+
+
+                // callImageTransferer();
 
                 setInterval(pollprops, 500);
 
@@ -178,7 +178,7 @@
                 //check if mousedrag or mouse click
                 var elem = event.target;
 
-                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight || (inImageTransfare))
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                     return true;
 
 
@@ -224,7 +224,7 @@
                 };
                 //  alert(mousePos.x  + " " + mousePos.y);  
 
-                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight || (inImageTransfare))
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -284,7 +284,7 @@
                 document.getElementById("fps2").innerHTML = mousePos.x + " " + mousePos.y;
                 document.getElementById("fps").innerHTML = document.body.scrollLeft + " " + document.body.scrollTop;
 
-                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight  || (inImageTransfare))
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -345,19 +345,33 @@
             }
 
             function setBrowserWidthAndHeight() {
-                browserWidth = window.innerWidth
-                        || document.documentElement.clientWidth
-                        || document.body.clientWidth;
+                browserWidth = window.innerWidth;  //document.documentElement.clientWidth
+                /*|| window.innerWidth
+                 || document.body.clientWidth; */
 
                 browserWidth = browserWidth - xMargin;
 
-                browserHeight = window.innerHeight
-                        || document.documentElement.clientHeight
-                        || document.body.clientHeight;
+                browserHeight = window.innerHeight; //document.documentElement.clientHeight
+                /* || window.innerHeight
+                 || document.body.clientHeight;*/
 
                 browserHeight = browserHeight - yMargin;
 
+                browserWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
+                browserHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
+
+
+                /* document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                 document.getElementById("rightVdiv").style.height = browserHeight + "px";
+                 document.getElementById("canv").style.width = browserWidth + "px";
+                 document.getElementById("canv").style.height = browserHeight + "px";*/
+                document.getElementById("hideProperties").style.height = browserHeight + "px";
+                document.getElementById("showProperties").style.height = browserHeight + "px";
+
+                /* if(resizeCnt>0)*/
                 callImageTransferer();
+
+                // resizeCnt++;
             }
 
 
@@ -370,10 +384,7 @@
 
                 document.getElementById("rightVdiv").style.marginLeft = hidePropsMargin + "px";
 
-                browserWidth = browserWidth - hidePropsMargin;
-
-                callImageTransferer();
-
+                browserWindowResized();
             }
 
             function hideProperties() {
@@ -384,81 +395,56 @@
                 xMargin = showPropsMargin;
                 document.getElementById("rightVdiv").style.marginLeft = showPropsMargin + "px";
 
-
-
-                browserWidth = window.innerWidth
-                        || document.documentElement.clientWidth
-                        || document.body.clientWidth;
-
-                browserWidth = browserWidth - showPropsMargin; //resizing the windows width: //NB: the window is shifted left giving more room
-
-                callImageTransferer(); //recall the imageTransferer with the new dimensions
+                browserWindowResized();
 
             }
 
             function callImageTransferer() {
-                inImageTransfare = true;
-
-                var viewerWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
-                var viewerHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
 
 
+                if (intervalVar) {
+                    clearInterval(intervalVar); //clear the previous interval and set new interval      
+                    //  alert("interval cleared");
 
+                }
 
-                //first resize the server side viewer dimensions then call the new imageTransferer
-                var viewerName = document.getElementById("viewerName").value;
-                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + viewerWidth + '&height='
-                        + viewerHeight + "&viewerName=" + viewerName + "&r=" + cnt;
-
-                //sendCommand(theUrl);
-
-                xmlhttp = new XMLHttpRequest();
-                xmlhttp.open("GET", theUrl, true);
-                // xmlhttp.send(); 
-
-                xmlhttp.onreadystatechange = function()
-                {
-
-                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-                    {
-
-
-                        if (intervalVar) {
-                            // alert("interval cleared");
-                            clearInterval(intervalVar); //clear the previous interval and set new interval
-
-                        }
-
-                        //  alert(browserWidth +" --- "+browserHeight);
-
-                        var imageTransf = new ImageTransferer(document.getElementById("canv"), viewerWidth, viewerHeight, numOfTileColumns, numOfTileRows);
-
-                        intervalVar = setInterval(function() {
-                            imageTransf.imageUpdate();
-                        }, 50);
-
-
-                        //set the width and height of the canv
-                        document.getElementById("rightVdiv").style.width = viewerWidth + "px";
-                        document.getElementById("rightVdiv").style.height = viewerHeight + "px";
-                        document.getElementById("canv").style.width = viewerWidth + "px";
-                        document.getElementById("canv").style.height = viewerHeight + "px";
-                        document.getElementById("hideProperties").style.height = viewerHeight + "px";
-                        document.getElementById("showProperties").style.height = viewerHeight + "px";
-                        
-                        inImageTransfare = false;
-
-                    }
-
-
-                };
-
-                xmlhttp.send();
-
+                setTimeout(function() {
+                    callImageTransferer2();
+                }, 200);
 
             }
 
+            function callImageTransferer2() {
+                // alert("yea");
+                var div = document.getElementById("canv");
+                while (div.firstChild) {
+                    div.removeChild(div.firstChild);
+                }
 
+                var viewerName = document.getElementById("viewerName").value;
+                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + browserWidth + '&height='
+                        + browserHeight + "&viewerName=" + viewerName + "&r=" + cnt + ((new Date()).getTime());
+
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", theUrl, true);
+                xmlhttp.send();
+
+
+
+
+                document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                document.getElementById("rightVdiv").style.height = browserHeight + "px";
+
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+
+
+                intervalVar = setInterval(function() {
+                    imageTransf.imageUpdate();
+                }, 50);
+
+                //setTimeout(callImageTransferer3,)
+
+            }
 
         </script>
 
@@ -496,7 +482,7 @@
             <!-- IMAGE DIV -->
 
             <div id="rightVdiv">
-                <div id="canv" style="width:800pt; height:450pt;"></div>                
+                <div id="canv"></div>                
             </div>
 
             <!--  -->
