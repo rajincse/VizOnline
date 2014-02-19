@@ -154,10 +154,13 @@
 
 
             function sendCommand(url) {
-                xmlhttp = new XMLHttpRequest();
-                console.log(url);
-                xmlhttp.open("GET", url, true);
-                xmlhttp.send();
+                if (inImageTransfare === false) {
+                    xmlhttp = new XMLHttpRequest();
+                    console.log(url);
+                    xmlhttp.open("GET", url, true);
+                    xmlhttp.send();
+                }
+
             }
 
 
@@ -400,7 +403,7 @@
             }
 
             function callImageTransferer() {
-
+                inImageTransfare = true;
 
                 if (intervalVar) {
                     clearInterval(intervalVar); //clear the previous interval and set new interval      
@@ -415,7 +418,6 @@
             }
 
             function callImageTransferer2() {
-                // alert("yea");
                 var div = document.getElementById("canv");
                 while (div.firstChild) {
                     div.removeChild(div.firstChild);
@@ -435,13 +437,14 @@
                 document.getElementById("rightVdiv").style.width = browserWidth + "px";
                 document.getElementById("rightVdiv").style.height = browserHeight + "px";
 
-                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+                var imageTransf = new ImageTransferer(div, browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
 
 
                 intervalVar = setInterval(function() {
                     imageTransf.imageUpdate();
                 }, 50);
 
+                inImageTransfare = false;
                 //setTimeout(callImageTransferer3,)
 
             }
