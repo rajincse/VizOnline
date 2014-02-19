@@ -43,6 +43,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
 import com.keypoint.PngEncoder;
+import java.io.Serializable;
 
 import properties.Property;
 
@@ -53,7 +54,7 @@ import properties.Property;
  * @author rdjianu
  *
  */
-public class ViewerContainer{
+public class ViewerContainer implements Serializable{
 	
 	//used to implement double buffering for 2d and 3d viewers
 	private BufferedImage viewerImage = null;
@@ -511,6 +512,7 @@ public class ViewerContainer{
 			{
 				lastImage = null;
 				round = 0;
+                                history=1;
 				return noImage();
 			}
 			

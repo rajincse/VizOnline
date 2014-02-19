@@ -32,8 +32,11 @@
 
         <script type="text/javascript">
 
+            var showPropsMargin = 10; //margin upto where we have the showPropsbox
+            var hidePropsMargin = 320; //margin upto where we have the hidePropsbox
 
-            var xMargin = 300;
+
+            var xMargin = hidePropsMargin;
             var yMargin = 10;
 
             var ims = [];
@@ -61,6 +64,7 @@
             var cttt = 0;
             var ttt = 0;
             var loading = 0;
+            var resizeCnt = 0;
 
 
             var inmousemove = false;
@@ -68,28 +72,49 @@
             var ts = 0;
             var inpollprops = false;
             var xmlhttp;
+            var browserWidth = 1000, browserHeight = 700;
+            var numOfTileRows = 2, numOfTileColumns = 2;
+            var intervalVar;
+
+            var currentDate;
+            var oldtime;
+            var timeOut1 = 0;
+            var timeOut2 = 0;
+            var inImageTransfare = false;
+            var imageTransf = null;
+
+
 
             function initialize() {
-                // alert("The name of the viewer is " +document.getElementById("viewerName").value);
-               // alert("mo");
                 makeRequest('properties');
+                //set the browser width and height
+                //setBrowserWidthAndHeight();
+
                 //alert("me");
                 document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
                 document.getElementById("canv").onmouseup = handleMouseUp;
                 document.getElementById("canv").onmousemove = handleMouseMove;
-                
-                //alert("hiYa");
 
-                var imageTransf = new ImageTransferer(document.getElementById("canv"), 1000, 700, 2, 2);
-                setInterval(function() {
+                window.onresize = function() {
+                    browserWindowResized();
+                };
+
+
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+
+                intervalVar = setInterval(function() {
                     imageTransf.imageUpdate();
                 }, 50);
+
+
+                // callImageTransferer();
 
                 setInterval(pollprops, 500);
 
                 window.oncontextmenu = handleContextMenu;
 
             }
+
 
             function pollprops()
             {
@@ -102,28 +127,28 @@
                 xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function()
                 {
-                    
-                   if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+
+                    if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
                     {
-                    
+
                         if (xmlhttp.responseText.length !== 0)
                         {
 
-                           var viewerProperties = document.getElementById("properties");
+                            var viewerProperties = document.getElementById("properties");
 
-                          document.getElementById("pollprops").value="true";
-                         addProperties(viewerProperties, xmlhttp.responseText);
+                            document.getElementById("pollprops").value = "true";
+                            addProperties(viewerProperties, xmlhttp.responseText);
 
 
                         }
-                         document.getElementById("pollprops").value="false";
+                        document.getElementById("pollprops").value = "false";
                         inpollprops = false;
                     }
                 };
 
                 var viewerName = document.getElementById("viewerName").value;
-                
-                xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName="+viewerName+"&r=" + cnt, true);
+
+                xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName=" + viewerName + "&r=" + cnt, true);
                 xmlhttp.send();
             }
 
@@ -153,7 +178,7 @@
                 //check if mousedrag or mouse click
                 var elem = event.target;
 
-                if ((mousePos.x - xMargin) > 1000)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                     return true;
 
 
@@ -199,7 +224,7 @@
                 };
                 //  alert(mousePos.x  + " " + mousePos.y);  
 
-                if ((mousePos.x) >= 1000 || mousePos.y >= 800)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -217,21 +242,13 @@
 
                     var viewerName = document.getElementById("viewerName").value;
                     theUrl = 'VizOnlineServlet?changeEncoding=' + document.getElementById("encoding").value
-                            +"&viewerName="+viewerName+"&r=" + cnt;
+                            + "&viewerName=" + viewerName + "&r=" + cnt;
                     //alert(theUrl);  
                     sendCommand(theUrl);
                     return true;
                 }
 
                 dragFlag = 1;
-
-
-
-
-
-
-
-
 
                 if (event.which === 3) {
                     mouseType = "right";
@@ -242,17 +259,12 @@
 
                 var viewerName = document.getElementById("viewerName").value;
                 theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDown&mx=' + mousePos.x
-                        + '&my=' + mousePos.y + "&viewerName="+viewerName + "&r=" + cnt;
+                        + '&my=' + mousePos.y + "&viewerName=" + viewerName + "&r=" + cnt;
 
                 sendCommand(theUrl);
 
-
-
                 return false; //this is to prevent image dragging.
             }
-
-
-
 
             function handleMouseMove(event) {
 
@@ -264,7 +276,6 @@
                 event = event || window.event; // IE-ism
                 var elem = event.target;
 
-
                 mousePos = {
                     x: event.clientX - xMargin,
                     y: event.clientY - yMargin
@@ -273,7 +284,7 @@
                 document.getElementById("fps2").innerHTML = mousePos.x + " " + mousePos.y;
                 document.getElementById("fps").innerHTML = document.body.scrollLeft + " " + document.body.scrollTop;
 
-                if ((mousePos.x) >= 1000 || mousePos.y >= 800)
+                if ((mousePos.x) >= browserWidth || mousePos.y >= browserHeight)
                 {
                     return true;
                 }
@@ -296,16 +307,16 @@
                 }
 
                 if (dragFlag === 1) {//mouse is being dragged
-                    
+
                     var viewerName = document.getElementById("viewerName").value;
                     theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseDragged&mx='
-                            + mousePos.x + '&my=' + mousePos.y + "&viewerName="+viewerName + "&r=" + cnt;
+                            + mousePos.x + '&my=' + mousePos.y + "&viewerName=" + viewerName + "&r=" + cnt;
                     sendCommand(theUrl);
                 }
                 else { //normal mouse move
                     var viewerName = document.getElementById("viewerName").value;
                     theUrl = 'VizOnlineServlet?page=viewer&mousetype=' + mouseType + '&cmd=mouseMoved&mx='
-                            + mousePos.x + '&my=' + mousePos.y + "&viewerName="+viewerName + "&r=" + cnt;
+                            + mousePos.x + '&my=' + mousePos.y + "&viewerName=" + viewerName + "&r=" + cnt;
                     sendCommand(theUrl);
                 }
                 inmousemove = false;
@@ -323,12 +334,117 @@
 
             }
 
-            function addProperty(name, type, value)
-            {
+            function browserWindowResized() {
+
+                //setBrowserWidthAndHeight();
+                clearTimeout(timeOut1);
+                timeOut1 = setTimeout(setBrowserWidthAndHeight, 450);
+                // clearTimeout(timeOut2);
+                // timeOut2 = setTimeout(callImageTransferer, 500);             
 
             }
 
-            // };
+            function setBrowserWidthAndHeight() {
+                browserWidth = window.innerWidth;  //document.documentElement.clientWidth
+                /*|| window.innerWidth
+                 || document.body.clientWidth; */
+
+                browserWidth = browserWidth - xMargin;
+
+                browserHeight = window.innerHeight; //document.documentElement.clientHeight
+                /* || window.innerHeight
+                 || document.body.clientHeight;*/
+
+                browserHeight = browserHeight - yMargin;
+
+                browserWidth = browserWidth - (browserWidth % numOfTileColumns); //ensure the width is divisible by numOfColumns
+                browserHeight = browserHeight - (browserHeight % numOfTileRows); //ensure the height is divisible by numOfRows
+
+
+                /* document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                 document.getElementById("rightVdiv").style.height = browserHeight + "px";
+                 document.getElementById("canv").style.width = browserWidth + "px";
+                 document.getElementById("canv").style.height = browserHeight + "px";*/
+                document.getElementById("hideProperties").style.height = browserHeight + "px";
+                document.getElementById("showProperties").style.height = browserHeight + "px";
+
+                /* if(resizeCnt>0)*/
+                callImageTransferer();
+
+                // resizeCnt++;
+            }
+
+
+            function showProperties() {
+                document.getElementById("propslot").style.display = "block";
+                document.getElementById("hideProperties").style.display = "block";
+                document.getElementById("showProperties").style.display = "none";
+
+                xMargin = hidePropsMargin;
+
+                document.getElementById("rightVdiv").style.marginLeft = hidePropsMargin + "px";
+
+                browserWindowResized();
+            }
+
+            function hideProperties() {
+                document.getElementById("propslot").style.display = "none";
+                document.getElementById("hideProperties").style.display = "none";
+                document.getElementById("showProperties").style.display = "block";
+
+                xMargin = showPropsMargin;
+                document.getElementById("rightVdiv").style.marginLeft = showPropsMargin + "px";
+
+                browserWindowResized();
+
+            }
+
+            function callImageTransferer() {
+
+
+                if (intervalVar) {
+                    clearInterval(intervalVar); //clear the previous interval and set new interval      
+                    //  alert("interval cleared");
+
+                }
+
+                setTimeout(function() {
+                    callImageTransferer2();
+                }, 200);
+
+            }
+
+            function callImageTransferer2() {
+                // alert("yea");
+                var div = document.getElementById("canv");
+                while (div.firstChild) {
+                    div.removeChild(div.firstChild);
+                }
+
+                var viewerName = document.getElementById("viewerName").value;
+                theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + browserWidth + '&height='
+                        + browserHeight + "&viewerName=" + viewerName + "&r=" + cnt + ((new Date()).getTime());
+
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", theUrl, true);
+                xmlhttp.send();
+
+
+
+
+                document.getElementById("rightVdiv").style.width = browserWidth + "px";
+                document.getElementById("rightVdiv").style.height = browserHeight + "px";
+
+                var imageTransf = new ImageTransferer(document.getElementById("canv"), browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
+
+
+                intervalVar = setInterval(function() {
+                    imageTransf.imageUpdate();
+                }, 50);
+
+                //setTimeout(callImageTransferer3,)
+
+            }
 
         </script>
 
@@ -338,58 +454,57 @@
     <body onload="initialize();">
         <div id="generalHolder">
 
-            <div class ="container"> 
+            <!--  <div class ="container">  -->
 
-                <div class="leftVdiv" >
 
+
+            <div id="leftVdiv" >
+                <div id="showProperties" onclick="showProperties();"></div>
+
+                <div id="propslot">
                     <div id="fps" style="left:0px;">frame/sec</div>
                     <div id="fps2" style="left:0px;">frame/sec</div> <br>
                     <div id="controls" style="left:0;">
                         <input type="text" id="refresh" /><button id = "button1" onclick="alert('fff');"></button><br>
                         <input type="text" id="encoding" /><button  id="button2"></button><br>
                         <input type="text" id="loading" /><br>
-
-                        <div id="propslot" style="position: absolute;"></div>
                     </div>
 
+                    <div id='sent'></div>                  
 
-                    <div id='sent'></div>
                     <h1>Viewer Properties</h1>
-                   <!-- <form> -->
-
-                        <!--   <input type ="button" class="small button blue" value="Show Properties"
-                                         onclick="makeRequest('properties')"/>  -->    
-                        <div  id='properties' > 
-                            <!-- end innerleftdiv --> </div>              
-                    <!-- </form>  -->
-                    <!-- end .leftdiv -->    
-                </div>   
-
-
-
-                <!-- IMAGE DIV -->
-
-                <div id='output'  class="rightVdiv">
-                    <div id="canv" style="width:800pt; height:450pt;"></div>                
+                    <div  id='properties' > 
+                    </div>       
                 </div>
+                <div id="hideProperties" onclick="hideProperties();"></div>
+            </div>   
 
-                <!--  -->
+            <!-- IMAGE DIV -->
 
-                <input type="hidden" id="factoryType" value="Viewer" />
-                <input type ="hidden" id="factoryItemName" value="" />
-                <input type="hidden" id="viewerName" value="" />
-                 <input type ="hidden" id="pollprops" value="false" />
-                 
-                 
-                 <div>
-                     <a id="downloadFile" href="" style="display:none"></a>    
-                 </div>
+            <div id="rightVdiv">
+                <div id="canv"></div>                
+            </div>
 
+            <!--  -->
+
+            <input type="hidden" id="factoryType" value="Viewer" />
+            <input type ="hidden" id="factoryItemName" value="" />
+            <input type="hidden" id="viewerName" value="" />
+            <input type ="hidden" id="pollprops" value="false" />
+
+
+            <div>
+                <a id="downloadFile" href="" style="display:none"></a>    
             </div>
 
 
 
+
         </div>
+
+
+
+        <!-- </div> -->
 
 
     </body>
