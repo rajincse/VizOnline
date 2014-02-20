@@ -341,7 +341,7 @@
 
                 //setBrowserWidthAndHeight();
                 clearTimeout(timeOut1);
-                timeOut1 = setTimeout(setBrowserWidthAndHeight, 450);
+                timeOut1 = setTimeout(setBrowserWidthAndHeight, 200);
                 // clearTimeout(timeOut2);
                 // timeOut2 = setTimeout(callImageTransferer, 500);             
 
@@ -407,22 +407,17 @@
 
                 if (intervalVar) {
                     clearInterval(intervalVar); //clear the previous interval and set new interval      
-                    //  alert("interval cleared");
+                     }
 
-                }
-
-                setTimeout(function() {
+                setTimeout(function() { //call the newImageTransferer after the old one has been cleared approx. 50ms
                     callImageTransferer2();
-                }, 200);
+                }, 50);
 
             }
 
             function callImageTransferer2() {
-                var div = document.getElementById("canv");
-                while (div.firstChild) {
-                    div.removeChild(div.firstChild);
-                }
-
+              
+              
                 var viewerName = document.getElementById("viewerName").value;
                 theUrl = 'VizOnlineServlet?page=resizeViewerWindow&width=' + browserWidth + '&height='
                         + browserHeight + "&viewerName=" + viewerName + "&r=" + cnt + ((new Date()).getTime());
@@ -437,12 +432,13 @@
                 document.getElementById("rightVdiv").style.width = browserWidth + "px";
                 document.getElementById("rightVdiv").style.height = browserHeight + "px";
 
+                var div = document.getElementById("canv");
                 var imageTransf = new ImageTransferer(div, browserWidth, browserHeight, numOfTileColumns, numOfTileRows);
 
 
                 intervalVar = setInterval(function() {
                     imageTransf.imageUpdate();
-                }, 100);
+                }, 50);
 
                 inImageTransfare = false;
                 //setTimeout(callImageTransferer3,)
