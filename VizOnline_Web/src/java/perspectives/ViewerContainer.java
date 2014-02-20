@@ -181,8 +181,19 @@ public class ViewerContainer implements Serializable{
 
 	public void keyReleased(KeyEvent e) {					
 	}
+        
+        
+	public void keyPressed(int  keyCode)
+	{		
+                
+	}
+
+	public void keyReleased(int keyCode) {			
+          
+	}
 	
 	public void keyTyped(KeyEvent arg0) {
+            
 	}	
 	
 	
