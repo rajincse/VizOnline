@@ -129,53 +129,57 @@
     <body onload="initialize();">
         <div id="generalHolder">
 
-            <div class ="container"> 
+            <!--  <div class ="container">  -->
 
-                <div class="leftVdiv" >
 
+
+            <div id="leftVdiv" >
+                <div id="showProperties" onclick="showProperties();"></div>
+
+                <div id="propslot">
                     <div id="fps" style="left:0px;">frame/sec</div>
                     <div id="fps2" style="left:0px;">frame/sec</div> <br>
                     <div id="controls" style="left:0;">
                         <input type="text" id="refresh" /><button id = "button1" onclick="alert('fff');"></button><br>
                         <input type="text" id="encoding" /><button  id="button2"></button><br>
                         <input type="text" id="loading" /><br>
-
-                        <div id="propslot" style="position: absolute;"></div>
                     </div>
 
+                    <div id='sent'></div>                  
 
-                    <div id='sent'></div>
                     <h1>Viewer Properties</h1>
-                    <form>
-
-                        <!--   <input type ="button" class="small button blue" value="Show Properties"
-                                         onclick="makeRequest('properties')"/>  -->    
-                        <div  id='properties' > 
-                            <!-- end innerleftdiv --> </div>              
-                    </form> 
-                    <!-- end .leftdiv -->    
-                </div>   
-
-
-
-                <!-- IMAGE DIV -->
-
-                <div id='output'  class="rightVdiv">
-                    <div id="canv" style="width:800pt; height:450pt;"></div>                
+                    <div  id='properties' > 
+                    </div>       
                 </div>
+                <div id="hideProperties" onclick="hideProperties();"></div>
+            </div>   
 
-                <!--  -->
+            <!-- IMAGE DIV -->
 
-                <input type="hidden" id="factoryType" value="Viewer" />
-                <input type ="hidden" id="factoryItemName" value="" />
-                <input type="hidden" id="viewerName" value="" />
-                 <input type ="hidden" id="pollprops" value="false" />
+            <div id="rightVdiv">
+                <div id="canv"></div>                
+            </div>
 
+            <!--  -->
+
+            <input type="hidden" id="factoryType" value="Viewer" />
+            <input type ="hidden" id="factoryItemName" value="" />
+            <input type="hidden" id="viewerName" value="" />
+            <input type ="hidden" id="pollprops" value="false" />
+
+
+            <div>
+                <a id="downloadFile" href="" style="display:none"></a>    
             </div>
 
 
 
+
         </div>
+
+
+
+        <!-- </div> -->
 
 
     </body>
