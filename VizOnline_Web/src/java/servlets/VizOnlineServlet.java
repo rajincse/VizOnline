@@ -39,6 +39,8 @@ import brain.BrainStatsD3ViewerFactory;
 import brain.BrainViewerFactory;
 import d3.D3Viewer;
 import d3.GraphD3ViewerFactory;
+import java.awt.Component;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
@@ -290,21 +292,12 @@ public class VizOnlineServlet extends HttpServlet {
 
                 int index = getViewerIndex(e, viewerName);
 
-                System.out.println("THE INDEX OF THE VIEWER IS::::::: "+ index +" -----viewerName is "+viewerName);
-
                 //set the width of the viewerContainer
                 if (index >= 0) {
                     e.getViewerContainers().get(index).setWidth(width);
                     //set the height of the viewerContainer
                     e.getViewerContainers().get(index).setHeight(height);
-                    
-                    System.out.println("Resize was successful...................................");
-                    
-                   // System.out.println("The Width is ::: "+ width);
-                    //System.out.println("The Height is::: "+ height);
-                    
-                  //  Thread.sleep(500); 
-                    
+                                     
                     outResponse = "Successful";
                 }
                 
@@ -450,6 +443,7 @@ public class VizOnlineServlet extends HttpServlet {
 
         String mType = request.getParameter("mousetype");
         String changeProp = request.getParameter("changeProp");
+        String keyPressAction = request.getParameter("keyPressAction");
 
         int index = getViewerIndex(e, viewerName);
 
@@ -510,7 +504,20 @@ public class VizOnlineServlet extends HttpServlet {
                     System.out.println("MOUSE-DRAGGED");
                     e.getViewerContainers().get(index).mouseDragged(x, y);
                 }
-            } else {
+            }
+            else if(keyPressAction != null){
+                int keyCode = Integer.parseInt(request.getParameter("keyCode"));
+                //pass the keypressed on to the viewer
+                if(keyPressAction.equalsIgnoreCase("keyDown")){                    
+                    e.getViewerContainers().get(index).keyPressed(keyCode);
+                }
+                else if(keyPressAction.equalsIgnoreCase("keyUp")){
+                    e.getViewerContainers().get(index).keyReleased(keyCode);
+                }
+                
+            }
+            
+            else {
                 response.setContentType("image/png");
                 response.setHeader("Cache-control", "no-cache, no-store");
                 response.setHeader("Pragma", "no-cache");

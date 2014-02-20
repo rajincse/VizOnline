@@ -3,6 +3,7 @@ var propID = 1;
 var viewerIndex;
 var hash;
 var inputPropSize = 10;
+var progressintervalVar;
 
 function addProperties(div, propertiesString) {
     //alert(propertiesString);
@@ -80,6 +81,7 @@ function addProperties(div, propertiesString) {
                         showOptionBox(div, propID, label, value);
                         break;
                     case "PProgress":
+                        showProgressBar(div, propID, label, value);
                         //TO-DO
                         //do nothing for now;                     
                         break;
@@ -121,6 +123,109 @@ function addProperties(div, propertiesString) {
 
 
 }
+
+function showProgressBar(div, id, name, value){
+    
+    var paragraph = createParagraph();
+
+    var label = createLabel(id, name);
+  
+    
+    
+       var hiddenInput = createHiddenInput(id, name);
+
+    
+    
+    var progressBar = document.createElement("div");
+    progressBar.setAttribute("id", "I" + id);
+    
+   
+    
+    
+    div.appendChild(hiddenInput);
+    
+    var progressBegin = document.createElement('img');
+    progressBegin.setAttribute("src", "Images/progressBegin.png");
+    progressBegin.setAttribute("id", "progressBegin"+id);
+    progressBegin.style.display="inline";
+        
+    var progressMiddle = document.createElement('img');
+    progressMiddle.setAttribute("src", "Images/progressMiddle.png");
+    progressMiddle.setAttribute("id", "progressMiddle"+id);
+    progressMiddle.style.display ="none";
+    
+    
+    var progressEnd = document.createElement('img');
+    progressEnd.setAttribute("src", "Images/progressEnd.png");
+    progressEnd.setAttribute("id", "progressEnd"+id);
+    progressEnd.style.display = "none";
+    
+    paragraph.appendChild(label);
+    paragraph.appendChild(progressMiddle);
+    paragraph.appendChild(progressEnd);
+    paragraph.appendChild(progressBegin);
+    //progressBar.appendChild(p)
+    
+    
+    
+    progressBar.appendChild(paragraph);
+
+    //append the paragraph to the properties
+    div.appendChild(progressBar);
+    
+    //use an interval to display the progress bar images
+    
+    progressintervalVar = setInterval(function(){
+        progressBarInterval(div, id);
+    }, 100);
+    
+}
+
+function progressBarInterval(div, id){
+    if(div){
+       if(typeof progressBarInterval.counter ==='undefined'){
+           progressBarInterval.counter = 0;
+       }
+       var progressBegin = document.getElementById("progressBegin"+id);
+       var progressMiddle = document.getElementById("progressMiddle"+id);
+       var progressEnd = document.getElementById("progressEnd"+id);
+       
+       if (progressBarInterval.counter === 0){ //remove progressBegin and show progressMiddle
+           
+           if(progressBegin){
+               progressBegin.style.display="none";
+               progressMiddle.style.display = "inline";
+               progressBarInterval.counter++;
+               
+               return;
+           }
+       }
+       else if (progressBarInterval.counter === 1){ //remove progressMiddle and show progressEnd
+           if(progressMiddle){
+               progressMiddle.style.display="none";
+               progressEnd.style.display = "inline";
+               progressBarInterval.counter++;
+               
+               return;
+           }
+       }
+       
+       else if (progressBarInterval.counter === 2){ //remove progressEnd and show progressBegin
+           if(progressEnd){
+               progressEnd.style.display="none";
+               progressBegin.style.display = "inline";
+               progressBarInterval.counter = 0;
+               
+               return;
+           }          
+       }
+    }
+    
+    //clear interval if it gets this far
+    clearInterval(progressintervalVar);
+}
+
+
 
 /*function to set the readOnly of properties */
 function setPropertyReadOnly(id, readOnly) {

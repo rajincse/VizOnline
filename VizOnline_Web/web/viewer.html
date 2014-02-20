@@ -94,6 +94,9 @@
                 document.getElementById("canv").onmousedown = handleMouseDown; //to handle mouse-clicks
                 document.getElementById("canv").onmouseup = handleMouseUp;
                 document.getElementById("canv").onmousemove = handleMouseMove;
+                
+                window.onkeydown = handleKeyDown;
+                window.onkeyup = handleKeyUp;
 
                 window.onresize = function() {
                     browserWindowResized();
@@ -323,6 +326,32 @@
                     sendCommand(theUrl);
                 }
                 inmousemove = false;
+            }
+            
+            function handleKeyDown(event){
+                event = event || window.event; // IE-ism
+                
+                var keyCode = event.keyCode;
+                
+                 var viewerName = document.getElementById("viewerName").value;
+                    
+                        theUrl = 'VizOnlineServlet?page=viewer&keyPressAction=keyDown&keyCode=' 
+                                + keyCode + "&viewerName=" + viewerName + "&r=" + cnt;
+                           
+                    sendCommand(theUrl);
+            }
+            
+            function handleKeyUp(event){
+                event = event || window.event; // IE-ism
+                
+                var keyCode = event.keyCode;
+                
+                 var viewerName = document.getElementById("viewerName").value;
+                    
+                        theUrl = 'VizOnlineServlet?page=viewer&keyPressAction=keyUp&keyCode=' 
+                                + keyCode + "&viewerName=" + viewerName + "&r=" + cnt;
+                           
+                    sendCommand(theUrl);
             }
 
             function getMousePosition() {
