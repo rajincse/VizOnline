@@ -512,7 +512,9 @@ public class ViewerContainer implements Serializable{
 			{
 				lastImage = null;
 				round = 0;
-                                //history=1;
+                                image = null;
+                                history=1;
+                                diffcount = 0;
 				return noImage();
 			}
 			
