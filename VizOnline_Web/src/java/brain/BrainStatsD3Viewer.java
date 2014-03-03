@@ -52,7 +52,8 @@ public class BrainStatsD3Viewer extends D3Viewer{
         // Property Data
         JSONObject propertyData= new JSONObject();
         
-        String selectedTubes = this.getProperty(PROPERTY_SELECTED_TUBES).getValue().serialize();
+        Property<PString> propertySelectedTube = this.getProperty(PROPERTY_SELECTED_TUBES);
+        String selectedTubes = propertySelectedTube.getValue().stringValue();
         propertyData.put(PROPERTY_SELECTED_TUBES, selectedTubes);
         
         boolean dataUpdated = false;
