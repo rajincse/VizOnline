@@ -10,43 +10,22 @@ function DataTransfer(div, w, h)
 
 DataTransfer.prototype.readCreatorType = function(callback)
 {
-    var viewerName;
-    var test = function() {//recurring function to ensure the viewer is set
-        viewerName = document.getElementById("viewerName").value;
-        if (viewerName !== "") {
-
-            var url = 'VizOnlineServlet?page=d3viewer&method=readCreatorType';
-            url += "&viewerName=" + document.getElementById("viewerName").value;
-            $.get(url, callback);
-
-            clearInterval(id);
-        }
-    };
-    var id = setInterval(test, 100);
+    var url = 'ViewerManagement?page=d3viewer&method=readCreatorType';
+    url += "&viewerName=" + window.viewerName;
+    $.get(url, callback);
 };
 
 DataTransfer.prototype.readViewerData = function(callbackMethod, isInitialCall)
 {
 
-    //make sure the viewer name is set
-    var viewerName;
-    var test = function() {//recurring function to ensure the viewer is set
-        viewerName = document.getElementById("viewerName").value;
-        if (viewerName !== "") {
+    var url = 'ViewerManagement?page=d3viewer&method=readViewerData&isinitcall='+isInitialCall;
+    url += "&viewerName=" + window.viewerName;
 
-            var url = 'VizOnlineServlet?page=d3viewer&method=readViewerData&isinitcall='+isInitialCall;
-            url += "&viewerName=" + document.getElementById("viewerName").value;
+    $.get(url, function(data) {
 
-            $.get(url, function(data) {
+        callbackMethod(data, canvas, canvasWidth, canvasHeight);
+    });
 
-                callbackMethod(data, canvas, canvasWidth, canvasHeight);
-            });
-
-
-            clearInterval(id);
-        }
-    };
-    var id = setInterval(test, 100);
 };
 
 

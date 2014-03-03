@@ -143,6 +143,30 @@ public class ViewerManagement extends HttpServlet {
 		                }
 	
 		            } 
+                            else if (request.getParameter("page").equals("d3viewer")) {
+
+                                String viewerName = request.getParameter("viewerName");
+
+                                //Request to get Initial Properties    
+                                String method = request.getParameter("method");
+                                if (method.equals("readViewerData")) {
+                                    loadD3Viewer(e, viewerName, request, response);
+                                } else if (method.equals("readCreatorType")) {
+
+                                    Viewer viewer = this.getViewer(e, viewerName);
+
+                                    Vector<ViewerFactory> factories = e.getViewerFactories();
+                                    String creatorType = "";
+                                    for (ViewerFactory factory : factories) {
+                                        Viewer factoryViewer = factory.create("sample");
+                                        if (factoryViewer != null && factoryViewer.getClass() == viewer.getClass()) {
+                                            creatorType = factory.creatorType();
+                                            break;
+                                        }
+                                    }
+                                    outResponse = creatorType;
+                                }
+                            }
 		            
 		            
 		        } catch (Exception ex) {
@@ -278,6 +302,45 @@ public class ViewerManagement extends HttpServlet {
 	    	return null;
 	    		
 	    }
-	    
-	    
+	   
+    public void loadD3Viewer(Environment e, String viewerName, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+
+        HttpSession session = request.getSession();
+
+        if (request.getParameter("isinitcall") != null
+                && request.getParameter("isinitcall").equalsIgnoreCase("True")) {
+
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+//            int index = getViewerIndex(e, viewerName);
+
+
+            D3Viewer viewer = (D3Viewer) this.getViewer(e, viewerName);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData(true));
+
+            session.setAttribute("environment", e); //reset the environment session
+        } else {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("Cache-control", "no-cache, no-store");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "-1");
+
+
+            D3Viewer viewer = (D3Viewer) this.getViewer(e, viewerName);
+            PrintWriter out = response.getWriter();
+            out.println(viewer.updateData(false));
+
+            session.setAttribute("environment", e); //reset the environment session
+        }
+
+
+
+    }
 }
