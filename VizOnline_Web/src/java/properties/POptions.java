@@ -38,16 +38,25 @@ public class POptions extends PropertyType
                         optionString +="-" + options[i];
                     }
                 }
+                optionString += "-" + selectedIndex;
+          
                 return optionString;
 	}
 
 	@Override
 	public POptions deserialize(String s) {
-	    //it will return a POptioin object which contains only one object and the 
-            //selected index is 0
-            POptions pOptions = new POptions(new String[]{s});
-            
-            pOptions.selectedIndex =0;
+		String[] sopt = s.split("-");
+		
+		String[] opt = new String[sopt.length-1];
+		for (int i=0; i<opt.length; i++)
+			opt[i] = sopt[i];
+		
+		POptions pOptions = new POptions(opt);   
+		pOptions.selectedIndex = Integer.parseInt(sopt[sopt.length-1]);
+		
+		
+             
+           
             
             return pOptions;
 		

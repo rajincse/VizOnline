@@ -1,11 +1,6 @@
 package util;
 
-import java.io.Serializable;
-
-
-
-public class Vector3D implements Serializable{
-        private static final long serialVersionUID = 1091125830187524410L;
+public class Vector3D {
 	
 	public float x,y,z;
 	public Vector3D(float x, float y, float z)

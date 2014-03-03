@@ -7,6 +7,12 @@ public class PList extends PropertyType
 	public String[] items;
 	
 	public boolean prefixSearchable = true;
+	
+	public PList()
+	{
+		selectedIndeces = new int[0];
+		items = new String[0];
+	}
 
 	@Override
 	public PList copy() {
@@ -16,7 +22,7 @@ public class PList extends PropertyType
 		l.items = new String[items.length];
 		for (int i=0; i<items.length; i++)
 			l.items[i] = new String(items[i]);
-		return null;
+		return l;
 	}
 	
 	public String typeName() {

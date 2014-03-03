@@ -15,7 +15,7 @@ public abstract class ViewerFactory implements Serializable{
 	
 	Vector<DataSource> data = new Vector<DataSource>();
 	
-	void addDataSource(DataSource d)
+	public void addDataSource(DataSource d)
 	{
 		data.add(d);
 	}

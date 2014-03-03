@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 
 import perspectives.DataSource;
 import properties.PBoolean;
-import properties.PFile;
+import properties.PFileInput;
 import properties.PInteger;
 import properties.POptions;
 import properties.Property;
@@ -62,10 +62,10 @@ public class TableData extends DataSource {
             Property<POptions> p3 = new Property<POptions>("Delimiter", new POptions(new String[]{"TAB","SPACE","COMMA"}));
             addProperty(p3);
 
-            PFile f = new PFile();
+            PFileInput f = new PFileInput();
             f.dialogTitle = "Open Data File";
             f.extensions = new String[]{"*", "txt", "xml"};
-            Property<PFile> p1 = new Property<PFile>("Tabular File",f);
+            Property<PFileInput> p1 = new Property<PFileInput>("Tabular File",f);
             addProperty(p1);
 
         } catch (Exception e) {
@@ -99,7 +99,7 @@ public class TableData extends DataSource {
               //hide the others if it is a json file
 
              int delim = ((POptions) (getProperty("Delimiter").getValue())).selectedIndex;
-            PFile f = ((PFile) newvalue);
+             PFileInput f = ((PFileInput) newvalue);
              String d = "\t";   //default selection
              if (delim == 1) {
                 d = " ";

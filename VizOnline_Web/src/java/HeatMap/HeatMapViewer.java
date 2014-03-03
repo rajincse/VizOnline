@@ -8,7 +8,6 @@ import data.TableData;
 import java.util.ArrayList;
 import properties.PColor;
 import properties.PColorWidget;
-import properties.PFile;
 import properties.PInteger;
 //import perspectives.DefaultProperties.*;
 import properties.PropertyType;

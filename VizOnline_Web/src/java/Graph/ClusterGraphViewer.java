@@ -20,7 +20,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 
-import properties.PFile;
+import properties.PFileInput;
 import properties.Property;
 import properties.PropertyType;
 import util.BubbleSets;
@@ -40,10 +40,10 @@ public class ClusterGraphViewer extends GraphViewer {
 		
 	try {	
 	
-	Property<PFile> p1 = new Property<PFile>("Load Clusters", new PFile());	
+	Property<PFileInput> p1 = new Property<PFileInput>("Load Clusters", new PFileInput());	
 	this.addProperty(p1);	
 	
-	Property<PFile> p2 = new Property<PFile>("Load Cluster Colors", new PFile());	
+	Property<PFileInput> p2 = new Property<PFileInput>("Load Cluster Colors", new PFileInput());	
 	this.addProperty(p2);
 	}
 	catch (Exception e) {		
@@ -62,7 +62,7 @@ public class ClusterGraphViewer extends GraphViewer {
 			clusterTypes = new ArrayList<String>();
 			
 			try{
-			 FileInputStream fstream = new FileInputStream(((PFile)newvalue).path);
+			 FileInputStream fstream = new FileInputStream(((PFileInput)newvalue).path);
 			 DataInputStream in = new DataInputStream(fstream);
 			 BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			 String s;
@@ -103,7 +103,7 @@ public class ClusterGraphViewer extends GraphViewer {
 				ArrayList<String> nodes = graph.getNodes();
 								
 				try{
-				 FileInputStream fstream = new FileInputStream(((PFile)newvalue).path);
+				 FileInputStream fstream = new FileInputStream(((PFileInput)newvalue).path);
 				 DataInputStream in = new DataInputStream(fstream);
 				 BufferedReader br = new BufferedReader(new InputStreamReader(in));
 				 String s;

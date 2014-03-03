@@ -6,7 +6,7 @@ import javax.swing.JButton;
 import perspectives.DataSource;
 import perspectives.PropertyManager;
 import perspectives.Task;
-import properties.PFile;
+import properties.PFileInput;
 import properties.PInteger;
 import properties.POptions;
 import properties.Property;
@@ -29,15 +29,16 @@ public class GraphData extends DataSource {
 		
 		try {
 			
-			PFile f = new PFile();
+			PFileInput f = new PFileInput();
 			f.dialogTitle = "Open Graph File";
 			f.extensions = new String[]{"xml","txt","*"};
 
 			
-			Property<PFile> p1 = new Property<PFile>("Graph File",f);		
+			Property<PFileInput> p1 = new Property<PFileInput>("Graph File",f);		
 			addProperty(p1);
 			
-			POptions o = new POptions(new String[]{"GraphML","EdgeList"});					
+			POptions o = new POptions(new String[]{"GraphML","EdgeList"});
+			o.selectedIndex = 1;
 			Property<POptions> p2 = new Property<POptions>("Format", o);
 			this.addProperty(p2);
 			
@@ -68,9 +69,9 @@ public class GraphData extends DataSource {
 					String fs = pf.options[pf.selectedIndex];
 								
 					if (fs.equals("GraphML"))
-						graph.fromGraphML(new File(((PFile) newvalue_).path));
+						graph.fromGraphML(new File(((PFileInput) newvalue_).path));
 					else if (fs.equals("EdgeList"))
-						graph.fromEdgeList(new File(((PFile)newvalue_).path));				
+						graph.fromEdgeList(new File(((PFileInput)newvalue_).path));				
 					
 					
 					if (graph.numberOfNodes() != 0)
@@ -111,9 +112,9 @@ public class GraphData extends DataSource {
 			String fs = ((POptions)newvalue).options[((POptions)newvalue).selectedIndex];
 			
 			if (fs.equals("GraphML"))
-				((PFile)this.getProperty("Graph File").getValue()).currentExtension = 0;
+				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 0;
 			else if (fs.equals("EdgeList"))
-				((PFile)this.getProperty("Graph File").getValue()).currentExtension = 1;
+				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 1;
 		}
 	}
 	

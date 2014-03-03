@@ -128,7 +128,7 @@ public class Uploads extends HttpServlet {
                     String myFileName = "";
 
                     //get the dataSourceName
-                    String factoryItemName = request.getParameter("factoryItemName");
+                    String propertyManagerName = request.getParameter("propertyManager");
                     uploadedItems = upload.parseRequest(request);
 
                     Iterator i = uploadedItems.iterator();
@@ -146,20 +146,13 @@ public class Uploads extends HttpServlet {
                                 String uploadsDirPath = getServletContext().getRealPath(uploadsPath);
                                 uploadedFile = new File(uploadsDirPath, myFileName);
                                 fileItem.write(uploadedFile);
-                                //out.write(dataSourceName + ";" +myFileName);
-                                //out.write(myFileName);
-                                //out.flush();
-                                ///    out.close();
                             }
-                        } else {
-                            /*String name = fileItem.getFieldName();
-                             String value = fileItem.getString(); */
                         }
                     }
 
                     //Put the name of the data in the hashmap
-                    String dsName = factoryItemName+userID;
-                    theDataSources.put(dsName, myFileName);
+                   // String dsName = factoryItemName+userID;
+                   // theDataSources.put(dsName, myFileName);
 
                     String filePath = getServletContext().getRealPath(uploadsPath + myFileName);
 
@@ -167,9 +160,9 @@ public class Uploads extends HttpServlet {
                     String factoryType = request.getParameter("factoryType");
                     String propertyName = request.getParameter("property");
 
-                    String url = "VizOnlineServlet?page=updateProperty&newValue=" + filePath
-                            + "&property=" + propertyName + "&factoryType=" + factoryType
-                            + "&factoryItemName=" + factoryItemName
+                    String url = "PropertyManagement?page=updateProperty&newValue=" + filePath
+                            + "&property=" + propertyName 
+                            + "&propertyManager=" + propertyManagerName 
                             + "&fileName=" + myFileName;
 
                     //System.out.println("UPLOADING ....... url: " + url);

@@ -1,1 +1,0 @@
-We need the uploads and downloads directory

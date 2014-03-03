@@ -142,6 +142,7 @@ public class ViewerContainer2D extends ViewerContainer{
 	
 	public void renderDoneCallback(BufferedImage im)
 	{
+		System.out.println("set viewr image : " + im.getWidth());
 		renderCount--;		
 		this.setViewerImage(im);
 	}

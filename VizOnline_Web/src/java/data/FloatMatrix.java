@@ -12,7 +12,7 @@ import java.util.Vector;
 import perspectives.DataSource;
 
 import properties.PBoolean;
-import properties.PFile;
+import properties.PFileInput;
 import properties.POptions;
 import properties.Property;
 
@@ -26,7 +26,7 @@ public class FloatMatrix extends DataSource {
 		super(name);
 		
 		try {
-			Property<PFile> p1 = new Property<PFile>("Source File", new PFile());
+			Property<PFileInput> p1 = new Property<PFileInput>("Source File", new PFileInput());
 			this.addProperty(p1);
 			
 			Property<PBoolean> p2 = new Property<PBoolean>("Col Headers?",new PBoolean(true));
@@ -71,7 +71,7 @@ public class FloatMatrix extends DataSource {
 			boolean ch = ((PBoolean)getProperty("Col Headers?").getValue()).boolValue();
 			boolean rh = ((PBoolean)getProperty("Row Headers?").getValue()).boolValue();
 			int delim = ((POptions)(getProperty("Delimiter").getValue())).selectedIndex;
-			PFile f = ((PFile)newvalue);
+			PFileInput f = ((PFileInput)newvalue);
 			
 			String d = "\t";
 			if (delim == 1) d = " ";

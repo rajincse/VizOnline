@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import perspectives.PropertyManager;
 import properties.PString;
 import properties.Property;
 import properties.PropertyType;
@@ -44,18 +43,7 @@ public class BrainStatsD3Viewer extends D3Viewer{
                 e.printStackTrace();
         }
     }
-   @Override
-	public <T extends PropertyType> boolean propertyBroadcast(Property p,
-			T newvalue, PropertyManager origin) 
-   {
-		if (p.getName() == PROPERTY_SELECTED_TUBES)
-		{
-                        Property<PString> propertySelectedTube = this.getProperty(PROPERTY_SELECTED_TUBES);
-                        propertySelectedTube.setValue((PString)newvalue);
-			this.requestRender();
-		}
-		return super.propertyBroadcast(p, newvalue, origin);
-   }
+   
     @Override
     public JSONObject updateData(boolean isInitialCall) {
         JSONObject data = new JSONObject();

@@ -12,11 +12,20 @@
         </style>
         <![endif]-->
        
-         <script src="jQuery/jquery-1.10.2.js"></script>
-        
-         <script src="http://code.jquery.com/jquery-latest.min.js"></script>        
-        
         <script type="text/javascript" src="ajax.js"></script>
+ 	<script type="text/javascript" src="properties.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script>
+	<script type="text/javascript" src="viewer-manager.js"></script>
+
+        <script>
+
+	var viewerManager;
+
+        window.onload = function() {
+		viewerManager  = new  ViewerManager(document.getElementById("viewers"));
+	}
+
+        </script>
        
     </head>
 
@@ -40,29 +49,9 @@
             
             
 
-            <div class="leftdiv" id="viewers">
-                <h1>Create Viewers</h1>                
-                <form action="javascript:makeRequest('createViewer')" > 
-                    Select Viewer Type:<br></br> 
-                    <select  class ="dropdown" name ="selViewers" id ="viewerlist">
-                    </select><script> makeRequest('views');</script>
-                    <br></br> Select Dataset:<br></br> 
-                    <select  class ="dropdown" name ="selData" id ="datalist">
-                    </select><script> makeRequest('viewDataSourceNames');</script><br></br>
-                    <input type="submit" value="Create Viewer" class="small button blue"></form>
-                <br></br> <br></br> 
-                    <div>
-                        <!--                <p><a href="viewer.jsp" target="_blank" class="small button blue">Create</a></p>
-                                        <p><a href="viewerT.jsp" target="_blank" class="small button blue">CreateTEST</a></p>-->
-                    </div>
+            <div id="viewers">
+            </div>  
 
-                    <!-- end .leftdiv --></div>  
-
-            <div class="rightdiv">
-                <h1>Current Viewers</h1>
-                <div id="currviewers"><script>makeRequest('currentviewers');</script></div>
-
-            </div>
 
 
             <div class="content">
