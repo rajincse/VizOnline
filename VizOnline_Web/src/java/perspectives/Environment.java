@@ -71,8 +71,10 @@ import properties.PColor;
 import properties.PColorWidget;
 import properties.PDouble;
 import properties.PDoubleWidget;
-import properties.PFile;
-import properties.PFileWidget;
+import properties.PFileInput;
+import properties.PFileInputWidget;
+import properties.PFileOutput;
+import properties.PFileOutputWidget;
 import properties.PInteger;
 import properties.PIntegerWidget;
 import properties.PList;
@@ -167,8 +169,8 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 	// -----------------------------    Managing and drawing links -----------------------------
 	
 	//this is how we store connections between viewers: pairs of viewers and then a boolean indicating whether the connection is bidirectional or not.
-	private Vector<Integer> links1 = new Vector<Integer>();
-	private Vector<Integer> links2 = new Vector<Integer>();
+	private Vector<Viewer> links1 = new Vector<Viewer>();
+	private Vector<Viewer> links2 = new Vector<Viewer>();
 	private Vector<Boolean> linksDouble = new Vector<Boolean>();
 	
 	private boolean showingLinks = false; //indicating whether we are in link dragging mode
@@ -217,10 +219,15 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 						return new POptionsWidget();
 				}});	
 									
-				this.registerNewType(new PFile(), new PropertyWidgetFactory() {
+				this.registerNewType(new PFileInput(), new PropertyWidgetFactory() {
 					public PropertyWidget createWidget() {
-						return new PFileWidget();
-				}});			
+						return new PFileInputWidget();
+				}});
+				
+				this.registerNewType(new PFileOutput(), new PropertyWidgetFactory() {
+					public PropertyWidget createWidget() {
+						return new PFileOutputWidget();
+				}});	
 								
 						
 								
@@ -278,15 +285,21 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 				{
 					if (ds.get(i).unresponsive())
 					{
-						String title = ev.dataFrames.get(i).getTitle();
-						if (!title.endsWith("Unresponsive"))
-							ev.dataFrames.get(i).setTitle( title +  " -- Unresponsive");
+						if (!ev.offline)
+						{
+							String title = ev.dataFrames.get(i).getTitle();
+							if (!title.endsWith("Unresponsive"))
+								ev.dataFrames.get(i).setTitle( title +  " -- Unresponsive");
+						}
 						ds.get(i).block(true);
 						
 					}
 					else
 					{
-						ev.dataFrames.get(i).setTitle(ds.get(i).getName());
+						if (!ev.offline)
+						{
+							ev.dataFrames.get(i).setTitle(ds.get(i).getName());
+						}
 						ds.get(i).block(false);
 					}
 				}
@@ -364,8 +377,8 @@ public class Environment extends PropertyManagerGroup implements Serializable{
             	    //first draw existing links; we don't draw links between the centers of the viewers; instead we draw the arrows so that they don't overlap the bounds of the viewers; we use intersection points with the bounds for that;
 	    	        for (int i=0; i<links1.size(); i++)
 	    	        {
-	    	        	int i1 = links1.get(i).intValue();
-	    	        	int i2 = links2.get(i).intValue();
+	    	        	int i1 = viewers.indexOf(links1.get(i));
+	    	        	int i2 = viewers.indexOf(links2.get(i));
 	    	        	
 	    	        	int x1 = viewerWindows.get(i1).getBounds().x + 80;
 	    	        	int y1 = viewerWindows.get(i1).getBounds().y + 15;
@@ -498,8 +511,8 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 				// TODO Auto-generated method stub
 				 for (int i=0; i<links1.size(); i++)
 				 {
-	    	        	int i1 = links1.get(i).intValue();
-	    	        	int i2 = links2.get(i).intValue();
+	    	        	int i1 = viewers.indexOf(links1.get(i));
+	    	        	int i2 = viewers.indexOf(links2.get(i));
 	    	        	
 	    	        	int x1 = viewerWindows.get(i1).getBounds().x + 80;
 	    	        	int y1 = viewerWindows.get(i1).getBounds().y + 15;
@@ -564,8 +577,11 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 					boolean alreadyIn = false;
 					for (int i=0; i<links1.size(); i++)
 					{
-						if ((links1.get(i).intValue() == currentArrowDest && links2.get(i).intValue() == currentArrowSource) ||
-								(links2.get(i).intValue() == currentArrowDest && links1.get(i).intValue() == currentArrowSource))
+						int i1 = viewers.indexOf(links1.get(i));
+						int i2 = viewers.indexOf(links2.get(i));
+						
+						if ((i1 == currentArrowDest && i2 == currentArrowSource) ||
+								(i1 == currentArrowDest && i2 == currentArrowSource))
 						{
 							alreadyIn = true;
 							break;
@@ -573,8 +589,8 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 					}
 					if (!alreadyIn)
 					{
-						links1.add(new Integer(currentArrowSource));
-						links2.add(new Integer(currentArrowDest));
+						links1.add(viewers.get(currentArrowSource));
+						links2.add(viewers.get(currentArrowDest));
 						linksDouble.add(new Boolean(currentArrowDouble));
 					}
 				}
@@ -881,7 +897,8 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 		if (index < 0) return;
 		
 		viewers.remove(index);
-                viewerContainers.remove(index);
+		if (!offline)			
+			viewerContainers.remove(index);
 		
 		if (!offline)
 			viewerWindows.get(index).dispose();
@@ -967,15 +984,9 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 			return;
 		
 		dataSources.remove(index);
-		dataFrames.remove(index);
+		if (!this.offline)
+			dataFrames.remove(index);
 	}
-        
-        public void linkViewers(int viewer1Index, int viewer2Index)
-        {
-            links1.add(new Integer(viewer1Index));
-            links2.add(new Integer(viewer2Index));
-            linksDouble.add(false);
-        }
 
 
 	@Override
@@ -984,24 +995,29 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 	 */
 	public <T extends PropertyType> void broadcast(PropertyManager p, Property prop, T newvalue) {
 		
+		System.out.println("\nenvironment broadcast\n");
+		
 		Vector<PropertyManager> receivers = new Vector<PropertyManager>();
 
 		for (int j=0; j<links1.size(); j++)
 		{				
-			int i1 = links1.get(j).intValue();
-			int i2 = links2.get(j).intValue();
+			Viewer v1 = links1.get(j);
+			Viewer v2 = links2.get(j);
+			boolean dob = linksDouble.get(j);
 	        	
-			if (viewers.get(i1) == p)
+			if (v1 == p)
 			{
-				if (receivers.indexOf(viewers.get(i2)) < 0)
-					receivers.add(viewers.get(i2));
+				if (receivers.indexOf(v2) < 0)
+					receivers.add(v2);
 			}
-			else if (viewers.get(i2) == p && linksDouble.get(j).booleanValue())
+			else if (v2 == p && dob)
 			{
-					if (receivers.indexOf(viewers.get(i1)) < 0)
-						receivers.add(viewers.get(i1));
+					if (receivers.indexOf(v1) < 0)
+						receivers.add(v1);
 			}
 		}
+		
+		System.out.println("receivers, " + prop.getName());
 		
 		for (int i=0; i<receivers.size(); i++)
 			receivers.get(i).receivePropertyBroadcast(p, prop.getName(), newvalue);
@@ -1017,55 +1033,42 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 		PropertyManagerViewer.registerNewType(c, pwf);	
 	}	
 	
+	public void linkViewers(Viewer v1, Viewer v2, boolean dir)
+	{
+		this.links1.add(v1);
+		this.links2.add(v2);
+		this.linksDouble.add(dir);
+	}
+	
+	public void unlinkViewers(Viewer v1, Viewer v2)
+	{
+		for (int i=0; i<links1.size(); i++)
+		{
+			if ((links1.get(i) == v1 && links2.get(i) == v2) || (links2.get(i) == v1 && links1.get(i) == v2))
+			{
+				links1.remove(i);
+				links2.remove(i);
+				linksDouble.remove(i);
+				i--;
+			}
+		}
+	}
+	
+	public Viewer[][] getLinks()
+	{
+		Viewer[][] result = new Viewer[links1.size()][];
+		
+		for (int i=0; i<links1.size(); i++)
+		{
+			result[i] = new Viewer[2];
+			result[i][0] = links1.get(i);
+			result[i][1] = links2.get(i);
+		}
+		
+		return result;
+	}
 	
 	
+	
 
-    /**
-     * creates a New Viewer without opening a dialog box
-     *
-     * @param dataSourceName
-     * @param viewerName
-     * @return
-     */
-    public Viewer createNewViewer(String dataSourceName, String viewerName) {
-       String defaultName = "viewer" + (autoViewerName++);
-
-        ViewerFactory currentViewerFactory = null;
-        //    System.out.println("The size of the viewerFactories is "+ env.getViewerFactories().size());
-        ViewerFactory vf = null;
-        for (int i = 0; i < getViewerFactories().size(); i++) {
-            vf = getViewerFactories().get(i);
-            if (vf.creatorType().equalsIgnoreCase(viewerName)) {
-                currentViewerFactory = vf;
-            }
-        }
-
-
-        Viewer v = null;
-
-        if (currentViewerFactory != null) {
-            currentViewerFactory.clearData();
-
-            for (int i = 0; i < getDataSources().size(); i++) {
-                DataSource df = getDataSources().get(i);
-
-                if (df.getName().equalsIgnoreCase(dataSourceName)) {
-                                  currentViewerFactory.addDataSource(df);
-                    break;
-
-                }
-            }
-
-            //create the viewer
-            v = currentViewerFactory.create(defaultName + "-" + viewerName);
-            v.setPropertyManagerGroup(this);
-            addViewer(v);	
-
-        }
-       
-        return v;
-
-
-
-    }
 }

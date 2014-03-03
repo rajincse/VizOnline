@@ -24,7 +24,7 @@ import util.Animation;
  */
 public abstract class Viewer extends PropertyManager
 {
-	EventManager em;
+	public EventManager em;
 
 	boolean simulating = false;
 	

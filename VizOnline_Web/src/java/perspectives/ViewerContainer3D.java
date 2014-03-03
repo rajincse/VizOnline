@@ -135,11 +135,12 @@ public class ViewerContainer3D extends ViewerContainer{
 
 
 	Object o = new Object();
-	public void setWidth(int w)
+	
+	public void resize(int w, int h)
 	{
 		synchronized(o)
 		{
-			super.setWidth(w);
+			super.resize(w,h);
 			try {
 				Pbuffer old = pbuffer;
 				pbuffer = new Pbuffer(w, getHeight(), new PixelFormat(), null, null);
@@ -150,25 +151,10 @@ public class ViewerContainer3D extends ViewerContainer{
 				e.printStackTrace();
 			}
 			((Viewer3D)viewer).width = w;
-		}
-	}
-	public void setHeight(int h)
-	{
-		synchronized(o)
-		{
-			super.setHeight(h);
-			try {
-				Pbuffer old = pbuffer;
-				pbuffer = new Pbuffer(getWidth(), h, new PixelFormat(), null, null);
-				old.destroy();
-			} catch (LWJGLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			((Viewer3D)viewer).height = h;
-		}
+		}		
 	}
 	
+
 
 		 
 	 

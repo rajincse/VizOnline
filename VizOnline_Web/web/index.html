@@ -17,7 +17,63 @@
         ul.nav a { zoom: 1; }  /* the zoom property gives IE the hasLayout trigger it needs to correct extra whiltespace between the links */
         </style>
         <![endif]-->
-        <script src="ajax.js"></script>
+       
+
+      <script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="jscolor/jscolor.js"></script>
+ 	<script type="text/javascript" src="properties.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script>
+	<script type="text/javascript" src="viewer-manager.js"></script>
+	<script type="text/javascript" src="datasource-manager.js"></script>
+
+        <script>
+
+	var viewerManager;
+	var dataManager
+
+        window.onload = function() {
+
+		var dfRequest = getXMLHttpRequest();
+		dfRequest.onreadystatechange = function()
+		{
+			if (dfRequest.readyState === 4 && dfRequest.status === 200)
+                       	{
+				dataManager  = new  DataSourceManager(document.getElementById("dataManagerSlot"));
+				viewerManager  = new  ViewerManager(document.getElementById("viewerManagerSlot"), dataManager);	
+				alert("initialized");	
+			}	
+		};
+        	dfRequest.open("GET", "VizOnlineServlet?page=home", true);
+       		 dfRequest.send(null);
+		
+	}
+
+	function showIntro()
+	{
+		document.getElementById("intro").style.display = "block";
+		document.getElementById("data").style.display = "none";
+		document.getElementById("viewers").style.display = "none";
+	}
+
+	function showData()
+	{
+		document.getElementById("intro").style.display = "none";
+		document.getElementById("data").style.display = "block";
+		document.getElementById("viewers").style.display = "none";
+	}
+
+	function showViewers()
+	{
+		
+		document.getElementById("intro").style.display = "none";
+		document.getElementById("data").style.display = "none";
+		document.getElementById("viewers").style.display = "block";
+	}
+
+        </script>
+
+
+
     </head>
 
     <body>
@@ -29,12 +85,12 @@
 
             <div class="nav">                
 
-                <a rel="tab" href="index.html" class="large button blue">HOME</a>
-                <a rel="tab" href="data.html" class="large button blue">DATA SETS</a>
-                <a rel="tab" href="viewers.html" class="large button blue">VIEWERS</a>
-                <a rel="tab" href="links.html" class="large button blue">LINKS</a>
+                <a rel="tab" href="javascript:showIntro()" class="large button blue">HOME</a>
+                <a rel="tab" href="javascript:showData()" class="large button blue">DATA SETS</a>
+                <a rel="tab" href="javascript:showViewers()" class="large button blue">VIEWERS</a>                
             </div>
-            <!--end of button -->  
+         
+	<div id = "intro"> 
 
             <div class="sidebar1">
                 <h2 align="center">Welcome to Perspectives!</h2>
@@ -74,6 +130,18 @@
                 <h1>Heat Map</h1>
                 <img src="Images/heatmap.png" alt="Example Heat Map" height="250" width="550"> 
             <!-- end .rightdiv --></div>
+
+	</div>
+
+	<div id = "data" style = "dislay: none">
+	    <div id = "dataManagerSlot">
+            </div>  
+	</div>
+
+	<div id = "viewers" style = "dislay: none">
+	    <div id = "viewerManagerSlot">
+            </div>  
+	</div>
 
         <!-- end .container --></div>
     </body>

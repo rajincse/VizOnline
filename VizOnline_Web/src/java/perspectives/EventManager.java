@@ -1,6 +1,5 @@
 package perspectives;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,7 +7,7 @@ import java.util.Date;
 import properties.Property;
 import properties.PropertyType;
 
-public class EventManager implements Runnable, Serializable{
+public class EventManager implements Runnable {
 	
 	private ArrayList<PEvent> events;
 	private ArrayList<Long> when;

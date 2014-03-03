@@ -24,17 +24,20 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
+
 import javax.imageio.ImageIO;
 
 import perspectives.PropertyManager;
 import perspectives.Task;
 import perspectives.Viewer2D;
 import properties.PBoolean;
+import properties.PColor;
 import properties.PDouble;
-import properties.PFile;
 import properties.PInteger;
 import properties.PString;
 import properties.Property;
+import properties.PFileInput;
+import properties.PFileOutput;
 import properties.PropertyType;
 import util.Animation;
 import util.BubbleSets;
@@ -60,51 +63,9 @@ public class GraphViewer extends Viewer2D {
 
         graph = g.graph;
 
-
-
-
         final GraphViewer gv = this;
 
-        try {
-
-            Property<PFile> p33 = new Property<PFile>("Load Positions", new PFile());
-            gv.addProperty(p33);
-
-            Property<PDouble> p = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.));
-            //((BarnesHutGraphDrawer) drawer).setSpringLength(300.);
-            gv.addProperty(p);
-
-            p = new Property<PDouble>("Simulation.MAX_STEP", new PDouble(100.));
-            //((BarnesHutGraphDrawer) drawer).max_step = 200.;
-            gv.addProperty(p);
-
-            Property<PBoolean> p2 = new Property<PBoolean>("Simulation.Simulate", new PBoolean(false));
-            gv.addProperty(p2);
-            
-            PFile f1 = new PFile();
-            f1.save = true;
-            Property<PFile> p3 = new Property<PFile>("Save", f1);
-            gv.addProperty(p3);
-
-            PFile f2 = new PFile();
-            f2.save = true;
-            Property<PFile> p4 = new Property<PFile>("Save Positions", f2);
-            gv.addProperty(p4);
-
-            Property<PInteger> p77 = new Property<PInteger>("ToImage", new PInteger(0));
-            gv.addProperty(p77);
-
-            Property<PString> p99 = new Property<PString>("SelectedNodes", new PString(""));
-            gv.addProperty(p99);
-            p99.setPublic(true);
-
-            Property<PInteger> nodeSize = new Property<PInteger>("Appearance.Node Size", new PInteger(22));
-            addProperty(nodeSize);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+     
         initTask = new Task("Initializing") {
             public void task() {
                 ovals = new ArrayList<Rectangle>();
@@ -178,7 +139,7 @@ public class GraphViewer extends Viewer2D {
 
                 try {
 
-                    Property<PFile> p33 = new Property<PFile>("Load Positions", new PFile());
+                    Property<PFileInput> p33 = new Property<PFileInput>("Load Positions", new PFileInput());
                     gv.addProperty(p33);
 
                     Property<PDouble> p = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.));
@@ -192,12 +153,11 @@ public class GraphViewer extends Viewer2D {
                     Property<PBoolean> p2 = new Property<PBoolean>("Simulation.Simulate", new PBoolean(false));
                     gv.addProperty(p2);
 
-                    Property<PFile> p3 = new Property<PFile>("Save", new PFile());
+                    Property<PFileOutput> p3 = new Property<PFileOutput>("Save", new PFileOutput());
                     gv.addProperty(p3);
 
-                    PFile f = new PFile();
-                    f.save = true;
-                    Property<PFile> p4 = new Property<PFile>("Save Positions", f);
+                    PFileOutput f = new PFileOutput();                   
+                    Property<PFileOutput> p4 = new Property<PFileOutput>("Save Positions", f);
                     gv.addProperty(p4);
 
                     Property<PInteger> p77 = new Property<PInteger>("ToImage", new PInteger(0));
@@ -208,7 +168,12 @@ public class GraphViewer extends Viewer2D {
                     p99.setPublic(true);
 
                     Property<PInteger> nodeSize = new Property<PInteger>("Appearance.Node Size", new PInteger(22));
+                    nodeSize.setPublic(true);
                     addProperty(nodeSize);
+                    
+                    Property<PColor> nodeColor = new Property<PColor>("Appearance.Node Color", new PColor(Color.blue));
+                    nodeColor.setPublic(true);
+                    addProperty(nodeColor);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -254,6 +219,22 @@ public class GraphViewer extends Viewer2D {
          itemInteraction.selectNode(index);
          }
          }*/
+    	
+    	System.out.println("\n\nbroadcast yay!!\n\n");
+    	
+    	if (p.getName() == "Appearance.Node Color")
+    	{
+    		Property<PColor> pp = (Property<PColor>)this.getProperty("Appearance.Node Color");
+    		pp.setValue((PColor)newvalue);
+    	}
+    	
+    	else if (p.getName() == "Appearance.Node Size") {
+            int s = ((PInteger) newvalue).intValue();
+            for (int i = 0; i < ovals.size(); i++) {
+                ovals.get(i).h = s;
+                ovals.get(i).w = s;
+            }
+        } 
 
 
         return true;
@@ -270,7 +251,7 @@ public class GraphViewer extends Viewer2D {
         } else if (p.getName() == "Simulation.MAX_STEP") {
             ((BarnesHutGraphDrawer) drawer).max_step = ((PDouble) newvalue).doubleValue();
         } else if (p.getName() == "Save") {
-            this.save(new File(((PFile) newvalue).path));
+            this.save(new File(((PFileOutput) newvalue).path));
         } else if (p.getName() == "Simulation.Simulate") {
             if (((PBoolean) newvalue).boolValue()) {
                 this.startSimulation(50);
@@ -283,12 +264,14 @@ public class GraphViewer extends Viewer2D {
                 ovals.get(i).h = s;
                 ovals.get(i).w = s;
             }
-        } else if (p.getName() == "Save Positions") {
+        } 
+   
+      else if (p.getName() == "Save Positions") {
             ArrayList<String> nodes = graph.getNodes();
             try {
                 FileWriter fstream;
 
-                fstream = new FileWriter(new File(((PFile) newvalue).path));
+                fstream = new FileWriter(new File(((PFileOutput) newvalue).path));
 
                 BufferedWriter br = new BufferedWriter(fstream);
 
@@ -309,7 +292,7 @@ public class GraphViewer extends Viewer2D {
             ArrayList<String> nodes = graph.getNodes();
 
             try {
-                FileInputStream fstream = new FileInputStream(((PFile) newvalue).path);
+                FileInputStream fstream = new FileInputStream(((PFileInput) newvalue).path);
                 DataInputStream in = new DataInputStream(fstream);
                 BufferedReader br = new BufferedReader(new InputStreamReader(in));
                 String s;
@@ -471,6 +454,8 @@ public class GraphViewer extends Viewer2D {
         ArrayList<String> nodes = graph.getNodes();
         boolean[] hov = new boolean[nodes.size()];
         boolean[] sel = new boolean[nodes.size()];
+        
+        Color nodeColor = ((PColor)(getProperty("Appearance.Node Color").getValue())).colorValue();
 
         ArrayList<Integer> selindex = new ArrayList<Integer>();
         for (int i = 0; i < nodes.size(); i++) {
@@ -484,7 +469,7 @@ public class GraphViewer extends Viewer2D {
                 ovals.get(i).setColor(Color.pink);
                 hov[i] = true;
             } else {
-                ovals.get(i).setColor(new Color(50, 50, 255));
+                ovals.get(i).setColor(nodeColor);
             }
 
         }

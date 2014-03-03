@@ -33,7 +33,6 @@ import org.lwjgl.util.glu.GLU;
 import perspectives.Task;
 import perspectives.Viewer3D;
 import properties.PColor;
-import properties.PFile;
 import properties.PInteger;
 import properties.PPercent;
 import properties.Property;

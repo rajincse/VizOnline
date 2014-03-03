@@ -18,6 +18,24 @@
         <servlet-name>Downloads</servlet-name>
         <servlet-class>servlets.Downloads</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>PropertyManagement</servlet-name>
+        <servlet-class>servlets.PropertyManagement</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DataManagement</servlet-name>
+        <servlet-class>servlets.DataManagement</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewerManagement</servlet-name>
+        <servlet-class>servlets.ViewerManagement</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewerCanvas</servlet-name>
+        <servlet-class>servlets.ViewerCanvas</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>VizOnlineServlet</servlet-name>
         <url-pattern>/VizOnlineServlet</url-pattern>
@@ -40,4 +58,22 @@
     <session-config>
         <session-timeout>10</session-timeout>
     </session-config>
+
+
+    <servlet-mapping>
+        <servlet-name>PropertyManagement</servlet-name>
+        <url-pattern>/PropertyManagement</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DataManagement</servlet-name>
+        <url-pattern>/DataManagement</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewerManagement</servlet-name>
+        <url-pattern>/ViewerManagement</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewerCanvas</servlet-name>
+        <url-pattern>/ViewerCanvas</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import perspectives.DataSource;
 import perspectives.Task;
-import properties.PFile;
+import properties.PFileInput;
 import properties.PInteger;
 import properties.Property;
 import properties.PropertyType;
@@ -24,7 +24,7 @@ public class BrainData extends DataSource {
 	public BrainData(String name) {
 		super(name);
 		
-		Property<PFile> p = new Property<PFile>("Load", new PFile());		
+		Property<PFileInput> p = new Property<PFileInput>("Load", new PFileInput());		
 		try {
 			this.addProperty(p);
 		} catch (Exception e) {
@@ -50,7 +50,7 @@ public class BrainData extends DataSource {
 			
 				@Override
 				public void task() {
-					fromFile(((PFile)newvaluef).path);
+					fromFile(((PFileInput)newvaluef).path);
 					thisf.removeProperty("Load");
 					
 					Property<PInteger> p = new Property<PInteger>("#tubes", new PInteger(thisf.segments.length));

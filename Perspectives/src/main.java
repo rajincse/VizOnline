@@ -23,10 +23,11 @@ import Graph.GraphViewerFactory;
 import ParallelCoord.ParallelCoordinateViewerFactory;
 
 import perspectives.*;
-import properties.PFile;
+
 import properties.POptions;
 
 
+import stimulusgen.GazeAnalyzer;
 import tree.*;
 
 
@@ -53,6 +54,8 @@ public class main {
 	      e.registerDataSourceFactory(new BrainDataFactory());
 	      e.registerViewerFactory(new BrainViewerFactory());
 	      e.registerViewerFactory(new BrainStatsViewerFactory());
+	      
+	      e.addViewer(new GazeAnalyzer("bla"));
 	      
 	      
 	  }

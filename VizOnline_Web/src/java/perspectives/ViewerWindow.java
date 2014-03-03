@@ -319,9 +319,8 @@ public class ViewerWindow extends JInternalFrame  {
 		{
 			public void componentResized(ComponentEvent e)
 			{
-				viewerContainer.setWidth(ff.getWidth());
-				viewerContainer.setHeight(ff.getHeight());
-				viewerContainer.viewer.requestRender();
+				viewerContainer.resize(ff.getWidth(), ff.getHeight());				
+				
 			}
 		});
 		

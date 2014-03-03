@@ -19,10 +19,10 @@ public class TreeData extends DataSource{
 		valid = false;
 		
 		try {
-			PFile f = new PFile();
+			PFileInput f = new PFileInput();
 			f.dialogTitle = "Open Graph File";
 			f.extensions = new String[]{"txt","xml","*"};			
-			Property<PFile> p1 = new Property<PFile>("Tree File",f);
+			Property<PFileInput> p1 = new Property<PFileInput>("Tree File",f);
 			this.addProperty(p1);
 			
 			POptions o = new POptions(new String[]{"Newick", "GraphML"});			
@@ -40,7 +40,7 @@ public class TreeData extends DataSource{
 		if (p.getName() == "Tree File")
 		{
 			POptions format = (POptions)getProperty("Format").getValue();
-			tree = new Tree(new File(((PFile)newvalue).path),format.options[format.selectedIndex]);
+			tree = new Tree(new File(((PFileInput)newvalue).path),format.options[format.selectedIndex]);
 			
 			this.setLoaded(true);
 		}
@@ -49,9 +49,9 @@ public class TreeData extends DataSource{
 			String fs = ((POptions)newvalue).options[((POptions)newvalue).selectedIndex];
 			
 			if (fs.equals("GraphML"))
-				((PFile)this.getProperty("Graph File").getValue()).currentExtension = 1;
+				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 1;
 			else if (fs.equals("Newick"))
-				((PFile)this.getProperty("Graph File").getValue()).currentExtension = 0;	
+				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 0;	
 		}
 	}
 
