@@ -26,6 +26,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.glu.GLU;
+import perspectives.PropertyManager;
 
 
 
@@ -42,7 +43,7 @@ import util.Vector3D;
 
 
 public class BrainViewer extends Viewer3D{
-	
+	public static final String PROPERTY_SELECTED_TUBES="SelectedTubes";
 
 	Tube[] tubes;
 
@@ -87,7 +88,7 @@ public class BrainViewer extends Viewer3D{
 			Property<PColor> ptubecolor = new Property<PColor>("Appearance.TubeColor", new PColor(Color.LIGHT_GRAY));
 			this.addProperty(ptubecolor);
 			
-			Property<PString> pselection = new Property<PString>("SelectedTubes", new PString(""));
+			Property<PString> pselection = new Property<PString>(BrainViewer.PROPERTY_SELECTED_TUBES, new PString(""));
 			pselection.setPublic(true);
 			pselection.setVisible(false);
 			this.addProperty(pselection);
@@ -100,7 +101,20 @@ public class BrainViewer extends Viewer3D{
 		System.out.println(" done creating brainviewer");
 	}	
 	
-	
+	@Override
+        public <T extends PropertyType> boolean propertyBroadcast(Property p,
+                             T newvalue, PropertyManager origin) 
+        {
+            if (p.getName() == BrainViewer.PROPERTY_SELECTED_TUBES)
+            {
+                Property<PString> propertySelectedTube = this.getProperty(BrainViewer.PROPERTY_SELECTED_TUBES);
+                propertySelectedTube.setValue((PString)newvalue);
+                this.requestRender();
+                String value = ((PString)newvalue).stringValue();
+                System.out.println("Brainviewer "+BrainViewer.PROPERTY_SELECTED_TUBES+": "+value);
+            }
+            return super.propertyBroadcast(p, newvalue, origin);
+        }
 
 
 	@Override
@@ -136,6 +150,23 @@ public class BrainViewer extends Viewer3D{
 			
 			Color color = ((PColor)newvalue).colorValue();
 			createGeometry(faces, width, color);		
+		}
+                else if (p.getName() ==BrainViewer.PROPERTY_SELECTED_TUBES)
+		{
+			String selectedTubes =((PString) getProperty(BrainViewer.PROPERTY_SELECTED_TUBES).getValue()).stringValue();
+			String[] split = selectedTubes.split(",");
+			
+			for(String tubeIndex: split)
+			{
+                            if(!tubeIndex.isEmpty())
+                            {
+                                int index = Integer.parseInt(tubeIndex.trim());
+				changeColor.add(Color.red);
+				changeColorTube.add(index);
+                            }
+				
+			}
+			this.requestRender();
 		}
 		else
 			super.propertyUpdated(p, newvalue);
