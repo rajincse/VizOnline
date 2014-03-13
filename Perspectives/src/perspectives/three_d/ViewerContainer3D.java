@@ -110,14 +110,9 @@ public class ViewerContainer3D extends ViewerContainer{
 	}
 	
 	public void render()
-	{
-		if (renderCount >= 1)
-			return;
-
-		renderCount++;
-		
+	{		
 		final ViewerContainer3D th = this;
-		viewer.em.scheduleEvent(new PEvent()
+		viewer.em.replaceEvent(new PEvent()
 		{
 			public void process() {
 				BufferedImage image = th.display();
@@ -125,12 +120,11 @@ public class ViewerContainer3D extends ViewerContainer{
 				renderDoneCallback(image);	
 				
 			}
-		});
+		},"render");
 	}
 	
 	public void renderDoneCallback(BufferedImage image)
 	{
-		renderCount--;		
 		setViewerImage(image);
 		if (window != null)
 			this.window.redraw();
@@ -190,6 +184,7 @@ public class ViewerContainer3D extends ViewerContainer{
 
 		}
 		
+		
 		protected void mouseReleased(int x, int y, int button)
 		{
 	
@@ -200,16 +195,18 @@ public class ViewerContainer3D extends ViewerContainer{
 			}
 		}
 		
-		protected void keyPressed(KeyEvent e)
+		@Override
+		protected void keyPressed(String keyText, String modifiersText)
 		{
 		
-			controller.keyPressed(e, pbuffer);			
+			controller.keyPressed(keyText, modifiersText, pbuffer);			
 			viewer.requestRender();
 		}
 		
-		protected void keyReleased(KeyEvent e)
+		@Override
+		protected void keyReleased(String keyText, String modifiersText)
 		{
-			controller.keyReleased(e, pbuffer);			
+			controller.keyReleased(keyText, modifiersText, pbuffer);			
 			viewer.requestRender();
 		}
 		

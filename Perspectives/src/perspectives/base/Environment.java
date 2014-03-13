@@ -678,9 +678,7 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 	/**
 	 * Overide from PropertyManagerGroup: based on the links network we propagate the the property change from the originating viewer
 	 */
-	public <T extends PropertyType> void broadcast(PropertyManager p, Property prop, T newvalue) {
-		
-		System.out.println("\nenvironment broadcast\n");	
+	public <T extends PropertyType> void broadcast(PropertyManager p, Property prop, T newvalue) {	
 
 		for (int j=0; j<links1.size(); j++)
 		{				

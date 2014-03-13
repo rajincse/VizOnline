@@ -20,16 +20,41 @@ public class TreeData extends DataSource{
 		
 		tree = null;
 		valid = false;
+	
 		
 		try {
 			PFileInput f = new PFileInput();
 			f.dialogTitle = "Open Graph File";
 			f.extensions = new String[]{"txt","xml","*"};			
-			Property<PFileInput> p1 = new Property<PFileInput>("Tree File",f);
+			Property<PFileInput> p1 = new Property<PFileInput>("Tree File",f)
+			{
+
+				@Override
+				protected boolean updating(PFileInput newvalue) {
+					POptions format = (POptions)getProperty("Format").getValue();
+					tree = new Tree(new File(((PFileInput)newvalue).path),format.options[format.selectedIndex]);					
+					setLoaded(true);
+					return true;
+				}
+				
+			};
 			this.addProperty(p1);
 			
 			POptions o = new POptions(new String[]{"Newick", "GraphML"});			
-			Property<POptions> p2 = new Property<POptions>("Format", o);
+			Property<POptions> p2 = new Property<POptions>("Format", o)
+					{
+						@Override
+						protected boolean updating(POptions newvalue) {
+							String fs = newvalue.options[newvalue.selectedIndex];
+							
+							if (fs.equals("GraphML"))
+								((PFileInput)getProperty("Graph File").getValue()).currentExtension = 1;
+							else if (fs.equals("Newick"))
+								((PFileInput)getProperty("Graph File").getValue()).currentExtension = 0;
+							
+							return true;
+						}
+					};
 			p2.setValue(o);
 			this.addProperty(p2);
 			
@@ -37,30 +62,5 @@ public class TreeData extends DataSource{
 			e.printStackTrace();
 		}	
 	}
-
-	@Override
-	public <T extends PropertyType> void propertyUpdated(Property p, T newvalue) {
-		if (p.getName() == "Tree File")
-		{
-			POptions format = (POptions)getProperty("Format").getValue();
-			tree = new Tree(new File(((PFileInput)newvalue).path),format.options[format.selectedIndex]);
-			
-			this.setLoaded(true);
-		}
-		if (p.getName() == "Format")
-		{
-			String fs = ((POptions)newvalue).options[((POptions)newvalue).selectedIndex];
-			
-			if (fs.equals("GraphML"))
-				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 1;
-			else if (fs.equals("Newick"))
-				((PFileInput)this.getProperty("Graph File").getValue()).currentExtension = 0;	
-		}
-	}
-
-	
-
-	
-	
 
 }

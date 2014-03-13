@@ -3,8 +3,6 @@ package perspectives.three_d;
 import java.awt.event.KeyEvent;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
-import java.util.Date;
-
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -15,11 +13,11 @@ import org.lwjgl.util.vector.Vector3f;
 
 
 
-public class ObjectController3D {
+public class ObjectController3D{
 	
 	
 	
-	Trackball tb;
+	perspectives.three_d.Trackball tb;
 	int dragPrevX;
 	int dragPrevY;
 		
@@ -125,7 +123,8 @@ public class ObjectController3D {
 			}
 		}
 		
-		public void keyPressed(KeyEvent e, Pbuffer buff)
+	
+		public void keyPressed(String keyText, String modifiersText, Pbuffer buff)
 		{	
 			System.out.println("obj controller 3D key press");
 			try {
@@ -138,17 +137,17 @@ public class ObjectController3D {
 			int transx = 0;
 			int transy = 0;
 			int transz = 0;
-			if (e.getKeyCode() == e.VK_UP)
+			if (keyText == "Up")
 				transy = 1;
-			else if (e.getKeyCode() == e.VK_DOWN)
+			else if (keyText == "Down")
 				transy = -1;
-			else if (e.getKeyCode() == e.VK_LEFT)
+			else if (keyText == "Left")
 				transx = -1;
-			else if (e.getKeyCode() == e.VK_RIGHT)
+			else if (keyText == "Right")
 				transx = 1;
-			else if (e.getKeyCode() == e.VK_EQUALS)
+			else if (keyText == "Equals")
 				transz = -1;
-			else if (e.getKeyCode() == e.VK_MINUS)
+			else if (keyText == "Minus")
 				transz = 1;
 			else
 				return;
@@ -174,7 +173,8 @@ public class ObjectController3D {
 			}
 		}
 		
-		public void keyReleased(KeyEvent e, Pbuffer buff)
+		
+		public void keyReleased(String keyText, String modifiersText, Pbuffer buff)
 		{
 		}
 

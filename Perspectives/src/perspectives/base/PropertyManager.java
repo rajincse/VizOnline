@@ -120,7 +120,7 @@ public class PropertyManager{
 						
 						blockedd = false;
 					}
-					return;
+					//return;
 				}
 				
 				newValue.sources.add(thisf) ;	

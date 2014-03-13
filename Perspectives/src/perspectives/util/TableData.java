@@ -40,9 +40,9 @@ public class TableData extends DataSource {
         
     }
     
-    public DistanceMatrix toDistanceMatrix()
+    public DistanceMatrix2 toDistanceMatrix2()
     {
-    	DistanceMatrix m = new DistanceMatrix(table.getCount());
+    	DistanceMatrix2 m = new DistanceMatrix2(table.getCount());
     	if (table.getCount() != table.getColumnCount())
     		return null;
     	
@@ -51,7 +51,7 @@ public class TableData extends DataSource {
     		for (int j=i+1; j<table.getCount(); j++)
     		{
     			double v = (Double)table.getValueAt(i, j);
-    			m.set(i, j, (float)v);
+    			m.setDistance(i, j, (float)v);
     		}
     	}
     	return m;

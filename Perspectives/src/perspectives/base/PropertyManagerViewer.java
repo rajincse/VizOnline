@@ -100,11 +100,11 @@ public class PropertyManagerViewer extends JPanel
 		}
 		
 		
-		for (int i = 0; i<pm.props.size(); i++)
+		/*for (int i = 0; i<pm.props.size(); i++)
 		{
 			if (pm.props.get(i).getDisabled())
 				pm.props.get(i).setDisabled(true);
-		}
+		}*/
 		
 		final PropertyManagerViewer thisf = this;
 		PropertyManagerChangeListener pmcl = new PropertyManagerChangeListener()

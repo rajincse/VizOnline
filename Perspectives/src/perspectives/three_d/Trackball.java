@@ -13,15 +13,10 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 
-//import javax.media.opengl.glu.GLU;
-
-//import com.jogamp.opengl.math.Quaternion;
-
-
 
 public class Trackball
 {
-    private float[] v1_, v2_;    
+    private Vector4f v1_, v2_;    
     Sphere s;
     int viewport[] = new int[4];
     double mvmatrix[] = new double[16];
@@ -32,8 +27,8 @@ public class Trackball
 
     public Trackball (float x, float y, float z, float radius)
     {
-        v1_ = new float[4];
-        v2_ = new float[4];
+        v1_ = new Vector4f(0,0,0,0);
+        v2_ = new Vector4f(0,0,0,0);
         rot = new Quaternion(1,0,0,0);
         allRot = new Quaternion(1,0,0,0);
      
@@ -63,12 +58,8 @@ public class Trackball
     {
        v2_ = project(x, y);
        
-        if (v1_[3] < 0 || v2_[3] < 0) return;
-        if (Arrays.equals(v1_, v2_)) return;
-        
-        System.out.println("drag 1: " + v1_[0] + "," + v1_[1] + "," + v1_[2]);
-        System.out.println("drag 2: " + v2_[0] + "," + v2_[1] + "," + v2_[2]);
-        
+        if (v1_.w < 0 || v2_.w < 0) return;
+        if (v1_.x == v2_.x && v1_.y == v2_.y && v1_.z == v2_.z && v1_.w == v2_.w) return;
       
         Matrix4f rotmatrix = new Matrix4f();
         rotmatrix.rotate(rot.getW(), new Vector3f(rot.getX(), rot.getY(), rot.getZ()));
@@ -76,39 +67,29 @@ public class Trackball
         if  (rotmatrix.invert() == null)
         	return;
         
-        Vector4f v1v = Matrix4f.transform(rotmatrix, new Vector4f(v1_[0], v1_[1], v1_[2], 0f), null);
-        Vector4f v2v = Matrix4f.transform(rotmatrix, new Vector4f(v2_[0], v2_[1], v2_[2], 0f), null);
+        Vector4f v1 = Matrix4f.transform(rotmatrix, new Vector4f(v1_.x, v1_.y, v1_.z, 0f), null);
+        Vector4f v2 = Matrix4f.transform(rotmatrix, new Vector4f(v2_.x, v2_.y, v2_.z, 0f), null);
         
-        float[] v1 = new float[]{v1v.getX(), v1v.getY(), v1v.getZ(), v1v.getW()};
-        float[] v2 = new float[]{v2v.getX(), v2v.getY(), v2v.getZ(), v2v.getW()};
-        
-        
-        
-       /* com.jogamp.opengl.math.Quaternion invq = new  com.jogamp.opengl.math.Quaternion(rot.getX(), rot.getY(), rot.getZ(), rot.getW());
-        invq.inverse();
-        float[] v11 = invq.mult(v1_);
-        float[] v21 = invq.mult(v2_);*/
 
-
-        float[] rotAxis1 = Vectors.cross(v1, v2, null);  
+        Vector3f rotAxis = Vector3f.cross(new Vector3f(v1.x, v1.y, v1.z), new Vector3f(v2.x, v2.y, v2.z), null);
+        if (rotAxis.length() == 0)
+        	return;
         
-        System.out.println("drag 3: " + rotAxis1[0] + "," + rotAxis1[1] + "," + rotAxis1[2]);
-        float[] rotAxis = new float[4];
+        rotAxis = rotAxis.normalise(null); 
         
-        Vectors.norm(rotAxis1, rotAxis);
+       System.out.println("rotaxis: " + rotAxis.toString());
+               
         
-        System.out.println("drag 4: " + rotAxis[0] + "," + rotAxis[1] + "," + rotAxis[2]);
-        
-        //rotAxis = rot2_.mult(rotAxis2);
-        
-        
-        if (Float.isInfinite(rotAxis[0]) || Float.isInfinite(rotAxis[1]) || Float.isInfinite(rotAxis[2]) || 
-        		Float.isNaN(rotAxis[0]) || Float.isNaN(rotAxis[1]) || Float.isNaN(rotAxis[2]) ||
-        		rotAxis[0] == 0 || rotAxis[1] == 0 || rotAxis[2] == 0)
+        if (Float.isInfinite(rotAxis.x) || Float.isInfinite(rotAxis.y) || Float.isInfinite(rotAxis.z) || 
+        		Float.isNaN(rotAxis.x) || Float.isNaN(rotAxis.y) || Float.isNaN(rotAxis.z) ||
+        		rotAxis.x == 0 || rotAxis.y == 0 || rotAxis.z == 0)
         	return;
         
         
-        double dot = Vectors.dot(v1,v2);
+        double dot = Vector3f.dot(new Vector3f(v1.x, v1.y, v1.z).normalise(null),new Vector3f(v2.x, v2.y, v2.z).normalise(null));
+        
+        System.out.println("dot: " + dot  + " --- " + v1.toString() + " " + v2.toString());
+        
         double angle = Math.acos(dot);
         
         v1_ = v2_;
@@ -116,15 +97,13 @@ public class Trackball
         if (Double.isInfinite(angle) || Double.isNaN(angle))
         	return;
         
-      //  System.out.println("rot: " + angle + "   " + rotAxis[0] + "," + rotAxis[1] + "," + rotAxis[2]);
-        
-        Quaternion q = new Quaternion(rotAxis[0], rotAxis[1], rotAxis[2], (float)angle*3);
+        Quaternion q = new Quaternion(rotAxis.x, rotAxis.y, rotAxis.z, (float)angle*3);
         
         rot = q;       
   
     }
   
-    public float[] project(float x, float y)
+    public Vector4f project(float x, float y)
     {
     	
     	float[] mvmatrix = new float[]{1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-10,1};
@@ -132,10 +111,7 @@ public class Trackball
     	float[] projmatrix = new float[]{1.2124354839324951f, 0.0f, 0.0f, 0.0f, 0.0f, 1.7320507764816284f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0202020406723022f, -1.0f, 0.0f, 0.0f, -2.0202019214630127f, 0.0f};
     	
     	int realy = viewport[3] - (int) y - 1;
-    	
-    	// double wc1[] = new double[4];
-    	// double wc2[] = new double[4];
-    	 
+
     	 FloatBuffer wc1 = BufferUtils.createFloatBuffer(4);
     	 FloatBuffer wc2 = BufferUtils.createFloatBuffer(4);
     	 FloatBuffer mvmatrixbuf = BufferUtils.createFloatBuffer(16);
@@ -159,12 +135,9 @@ public class Trackball
 	    F3 normal = new F3();
     	float i = s.intersect(r, 100, intersection, normal);
     	
-    	//System.out.println(i + " " + intersection.toString() + " " + normal.toString());
+    	Vector4f v = new Vector4f(intersection.x-s.center.x, intersection.y-s.center.y, intersection.z-s.center.z,i);
     	
-        float[] v = new float[] {intersection.x-s.center.x, intersection.y-s.center.y, intersection.z-s.center.z,i};
-        float[] dest = new float[4];
-        Vectors.norm(v, dest);
-        return dest;
+        return v.normalise(null);
     }
     
     class Ray {

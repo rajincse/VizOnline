@@ -6,7 +6,7 @@ import perspectives.base.PropertyType;
 import perspectives.properties.PFileOutput;
 import perspectives.properties.PInteger;
 import perspectives.two_d.Viewer2D;
-import perspectives.util.DistanceMatrix;
+import perspectives.util.DistanceMatrix2;
 import perspectives.util.TableData;
 
 import java.awt.Color;
@@ -23,14 +23,14 @@ public class PlanarProjectionViewer extends Viewer2D
 {
 	
 	Embedder2D embedder = null;	
-	DistanceMatrix dm;
+	DistanceMatrix2 dm;
 	Color[] colors = null;
 
 	public PlanarProjectionViewer(String name, TableData t)
 	{
 		super(name);
 		
-		this.dm = t.toDistanceMatrix();
+		this.dm = t.toDistanceMatrix2();
 		embedder = new SpringEmbedder(dm);
 		
 		this.startSimulation(30);
@@ -39,10 +39,16 @@ public class PlanarProjectionViewer extends Viewer2D
 		
 		try
 		{
-			Property<PInteger> p = new Property<PInteger>("Color", new PInteger(0));			
-			addProperty(p);			
-			
-			Property<PFileOutput> p3 = new Property<PFileOutput>("Save Colors", new PFileOutput());			
+
+			Property<PFileOutput> p3 = new Property<PFileOutput>("Save Colors", new PFileOutput())
+					{
+						@Override
+						protected boolean updating(PFileOutput newvalue) {
+							saveColors(newvalue.path);
+							return true;
+						}
+						
+					};
 			this.addProperty(p3);
 			
 		}
@@ -52,46 +58,6 @@ public class PlanarProjectionViewer extends Viewer2D
 		}
 		
 	}
-
-	@Override
-	public <T extends PropertyType> void propertyUpdated(Property p, T newvalue) {
-		if (p.getName() == "Color")
-		{
-			colors = new Color[dm.getCount()];
-			for (int i=0; i<dm.getCount(); i++)
-			{
-				Color c = this.embedder.getColor(i);
-				System.out.println(i + " -> " + c.getRed() + " " + c.getGreen() + " " + c.getBlue());
-				colors[i] = c;
-				
-			}
-		}
-		else if (p.getName() == "Save Colors")
-		{
-			try{
-				
-				PrintWriter bw = new PrintWriter(new FileWriter(new File(((PFileOutput)newvalue).path)));
-				
-								 
-				for (int i=0; i<dm.getCount(); i++)
-				{
-						Color c = this.embedder.getColor(i);						
-						String s = c.getRed() + "\t" + c.getGreen() + " \t" + c.getBlue();
-						bw.write(s);
-						bw.println();	
-				}		 	 
-				 bw.close();
-				}
-				catch(Exception e)
-				{
-					
-				};
-		}
-		else
-			super.propertyUpdated(p, newvalue);
-	}
-
-
 
 	@Override
 	public void simulate() {
@@ -124,5 +90,25 @@ public class PlanarProjectionViewer extends Viewer2D
 			g.fillOval(x-10, y-10, 20, 20);			
 			
 		}
+	}
+	
+	public void saveColors(String path)
+	{
+		try{
+			
+			PrintWriter bw = new PrintWriter(new FileWriter(new File(path)));								 
+			for (int i=0; i<dm.getCount(); i++)
+			{
+					Color c = this.embedder.getColor(i);						
+					String s = c.getRed() + "\t" + c.getGreen() + " \t" + c.getBlue();
+					bw.write(s);
+					bw.println();	
+			}		 	 
+			 bw.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			};
 	}
 }

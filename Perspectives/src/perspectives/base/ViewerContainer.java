@@ -179,6 +179,7 @@ public class ViewerContainer{
 	protected void keyPressed(String keyText, String modifiersText)
 	{
 	}
+	
 	public void scheduleKeyPress(String keyText, String modifiersText)
 	{
 		final String s1 = keyText;
@@ -263,16 +264,16 @@ public class ViewerContainer{
 	boolean dragging;
 	public void scheduleMouseDrag(int x, int y) {
 		
-		if (dragging) return;
+		//if (dragging) return;
 		
 		final int xf = x;
 		final int yf = y;
 		
-		dragging = true;
+		//dragging = true;
 		
 		final ViewerContainer vcf = this; 
 	
-		getViewer().em.scheduleEvent(new PEvent()
+		getViewer().em.replaceEvent(new PEvent()
 		{
 			public void process() {
 				vcf.mouseDragged(xf,yf);	
@@ -286,7 +287,7 @@ public class ViewerContainer{
 				
 				dragging = false;
 			}						
-		});
+		},"mousedrag");
 	}
 	
 	protected void mouseMoved(int ex, int ey)
@@ -295,14 +296,14 @@ public class ViewerContainer{
 	
 	public void scheduleMouseMove(int x, int y)
 	{
-		if (dragging) return;		
-		dragging = true;
+	//	if (dragging) return;		
+	//	dragging = true;
 		
 		final int xf = x;
 		final int yf = y;
 		
 		final ViewerContainer vcf = this;
-		getViewer().em.scheduleEvent(new PEvent()
+		getViewer().em.replaceEvent(new PEvent()
 		{
 			public void process() {
 				vcf.mouseMoved(xf,yf);
@@ -316,7 +317,7 @@ public class ViewerContainer{
 				
 				dragging = false;
 			}						
-		});
+		},"mousemove");
 	}
 	
 	public boolean unresponsive()

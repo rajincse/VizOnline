@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.util.glu.GLU;
 
 public class UserNavigation3D extends Controller3D{
@@ -54,31 +55,31 @@ public class UserNavigation3D extends Controller3D{
 				(float)this.upVector.x,(float)this.upVector.y,(float) this.upVector.z);
 	}
 	
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if(this.isActivationPressed(e))
-		{
-			this.isEnabled = true;
-		}
-
-		if(this.isEnabled)
-		{
-			int keyCode = e.getKeyCode();
-			switch(keyCode)
-			{
-				case KeyEvent.VK_UP:
-					this.goForward();
-					break;
-				case KeyEvent.VK_DOWN:
-					this.goBackWard();
-					break;
-				
-			}
-			
-			this.updateCameraTarget();
-			
-		}
-	}
+//	@Override
+//	public void keyPressed(KeyEvent e) {
+//		if(this.isActivationPressed(e))
+//		{
+//			this.isEnabled = true;
+//		}
+//
+//		if(this.isEnabled)
+//		{
+//			int keyCode = e.getKeyCode();
+//			switch(keyCode)
+//			{
+//				case KeyEvent.VK_UP:
+//					this.goForward();
+//					break;
+//				case KeyEvent.VK_DOWN:
+//					this.goBackWard();
+//					break;
+//				
+//			}
+//			
+//			this.updateCameraTarget();
+//			
+//		}
+//	}
 	private void goForward()
 	{
 		double delX = this.cameraTarget.x - this.cameraLocation.x;
@@ -97,13 +98,13 @@ public class UserNavigation3D extends Controller3D{
 		this.cameraLocation.z = this.cameraLocation.z- delz * UNIT_STEP / Math.abs(delz);
 	}
 
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		this.isEnabled = false;
-		this.lastX= INVALID;
-		this.lastY = INVALID;
-	}
+//	@Override
+//	public void keyReleased(KeyEvent e) {
+//		// TODO Auto-generated method stub
+//		this.isEnabled = false;
+//		this.lastX= INVALID;
+//		this.lastY = INVALID;
+//	}
 
 	@Override
 	public void mousePressed(int x, int y, int button) {
@@ -186,6 +187,22 @@ public class UserNavigation3D extends Controller3D{
 		// TODO Auto-generated method stub
 		//return e.getKeyCode() == KeyEvent.VK_N;
 		return e.isControlDown();
+	}
+
+
+
+	@Override
+	public void keyPressed(String keyText, String modifiersText, Pbuffer buff) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void keyReleased(String keyText, String modifiersText, Pbuffer buff) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

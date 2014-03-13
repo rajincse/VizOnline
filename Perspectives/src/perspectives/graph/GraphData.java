@@ -32,6 +32,7 @@ public class GraphData extends DataSource {
 			PFileInput f = new PFileInput();
 			f.dialogTitle = "Open Graph File";
 			f.extensions = new String[]{"xml","txt","*"};
+			f.currentExtension = 1;
 
 			final GraphData thisf = this;
 			Property<PFileInput> p1 = new Property<PFileInput>("Graph File",f)

@@ -27,6 +27,9 @@ public abstract class Viewer3D extends Viewer{
 		return false;
 	};
 	public boolean mousedragged(int currentx, int currenty, int oldx, int oldy){return false;};
+	
+	
+	
 	  
 
 }

@@ -10,6 +10,7 @@ public class EventManager implements Runnable {
 	
 	private ArrayList<PEvent> events;
 	private ArrayList<Long> when;
+	private ArrayList<String> ids; 
 	
 	private long lastProcessTime;
 	
@@ -21,18 +22,63 @@ public class EventManager implements Runnable {
 
 		events = new ArrayList<PEvent>();	
 		when = new ArrayList<Long>();
+		ids = new ArrayList<String>();
 				
 		Thread t = new Thread(this);
 		t.start();
 	}
 	
+	public void replaceEvent(PEvent e, String id)
+	{
+		//System.out.println("replace " + id + " " + events.size());
+		synchronized(events)
+		{	
+			for (int i=0; i<events.size(); i++)
+				if (ids.get(i).equals(id))
+				{
+					events.remove(i);
+					when.remove(i);
+					ids.remove(i);
+					i--;
+					//System.out.println("removing");
+				}
+				
+			long t = new Date().getTime() + 0;
+			
+			int i=0;
+			while (i<events.size() && t > when.get(i))
+				i++;
+			
+			events.add(i,e);	
+			when.add(i, t);
+			ids.add(id);
+				
+				synchronized(this)
+				{
+					this.notifyAll();
+				}			
+		}
+	}
+	
 	public void scheduleEvent(PEvent e)
 	{
-		scheduleEvent(e, 0);
+		scheduleEvent(e, 0, "event");
 	}
 	
 	public void scheduleEvent(PEvent e, long afterTime)
 	{
+		scheduleEvent(e, afterTime, "event");
+	}
+	
+	public void scheduleEvent(PEvent e, String id)
+	{
+		
+		scheduleEvent(e, 0, id);
+	}
+	
+	public void scheduleEvent(PEvent e, long afterTime, String id)
+	{
+	//	System.out.println("schedule " + id + " " + events.size());
 		synchronized(events)
 		{
 			long t = new Date().getTime() + afterTime;
@@ -43,14 +89,11 @@ public class EventManager implements Runnable {
 			
 			events.add(i,e);	
 			when.add(i, t);
-			//System.out.println("Scheduled events:");
-			//for (int j=0; j<events.size(); j++)
-			//	System.out.print(events.get(j)+ ";   ");
-			//System.out.println();
+			ids.add(id);
 			
 			synchronized(this)
 			{
-			this.notifyAll();
+				this.notifyAll();
 			}
 		}
 	}
@@ -62,31 +105,41 @@ public class EventManager implements Runnable {
 		{
 			processing = true;
 		}
-		while (events.size() > 0)
+		while (true)
 		{	
-			//System.out.println("events size: " + events.size());
-			PEvent e = null;		
-			
+			//System.out.println("attempt processing " + events.size());
+			PEvent e = null;			
 			synchronized(events)
 			{
-				long t = new Date().getTime();
-				if (when.get(0) <= t)
+				if (events.size() > 0)
 				{
-					e = events.get(0); 
-					events.remove(0);
-					when.remove(0);
-				}
-				else
-				{
-					time = when.get(0) - t;
-					break;
+					long t = new Date().getTime();
+					if (when.get(0) <= t)
+					{
+					//	System.out.println("actual processing " + ids.get(0));
+						e = events.get(0); 
+						events.remove(0);
+						when.remove(0);
+						ids.remove(0);
+					}
+					else
+					{
+						time = when.get(0) - t;
+						break;
+					}
 				}
 			}
 			
 			if (e != null)
 			{
+				
 				lastProcessTime = (new Date()).getTime();				
 				e.process();		
+			}
+			
+			synchronized(events)
+			{
+				if (events.size() == 0) break;
 			}
 		}
 		synchronized(this)
@@ -95,12 +148,7 @@ public class EventManager implements Runnable {
 		}
 		synchronized(this)
 		{
-		try {
-			//System.out.println("Remaining events:");
-			//for (int j=0; j<events.size(); j++)
-			//	System.out.print(events.get(j)+ ";   ");
-			//System.out.println();
-			
+		try {			
 			if (time >= 0)
 			this.wait(time);
 			else this.wait();

@@ -3,6 +3,7 @@ package perspectives.three_d;
 import java.awt.event.KeyEvent;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.Pbuffer;
 
 
 public abstract class Controller3D {
@@ -20,8 +21,8 @@ public abstract class Controller3D {
 	abstract public void mouseMoved(int x, int y);
 	abstract public void mousePressed(int x, int y, int button);
 	abstract public void mouseReleased(int x, int y, int button);
-	abstract public void keyPressed(KeyEvent e);
-	abstract public void keyReleased(KeyEvent e);
+	abstract public void keyPressed(String keyText,String modifiersText, Pbuffer buff);
+	abstract public void keyReleased(String keyText,String modifiersText, Pbuffer buff);
 	abstract public void render(GL11 gl);
 	
 }

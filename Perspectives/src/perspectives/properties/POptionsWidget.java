@@ -33,6 +33,8 @@ public class POptionsWidget extends PropertyWidget {
 		control.setPreferredSize(new Dimension(100,20));
 		control.setMaximumSize(new Dimension(100,20));
 		
+		control.setSelectedIndex(((POptions)this.p.getValue()).selectedIndex);
+		
 		ActionListener listener = new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {
 		    	  POptions o =  ((POptions)th.getProperty().getValue()).copy();	
