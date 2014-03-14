@@ -1,0 +1,148 @@
+<!--%-- 
+    Document   : index
+    Created on : Aug 13, 2013, 5:28:11 PM
+    Author     : Raul Tobo
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include  file="buttons.jsp" % -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Perspectives Online</title>
+        <link href="Styles.css" rel="stylesheet" type="text/css" /><!--[if lte IE 7]>
+        <style>
+        .content { margin-right: -1px; } /* this 1px negative margin can be placed on any of the columns in this layout with the same corrective effect. */
+        ul.nav a { zoom: 1; }  /* the zoom property gives IE the hasLayout trigger it needs to correct extra whiltespace between the links */
+        </style>
+        <![endif]-->
+       
+
+      <script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="jscolor/jscolor.js"></script>
+ 	<script type="text/javascript" src="properties.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script>
+	<script type="text/javascript" src="viewer-manager.js"></script>
+	<script type="text/javascript" src="datasource-manager.js"></script>
+
+        <script>
+
+	var viewerManager;
+	var dataManager
+
+        window.onload = function() {
+
+		var dfRequest = getXMLHttpRequest();
+		dfRequest.onreadystatechange = function()
+		{
+			if (dfRequest.readyState === 4 && dfRequest.status === 200)
+                       	{
+				dataManager  = new  DataSourceManager(document.getElementById("dataManagerSlot"));
+				viewerManager  = new  ViewerManager(document.getElementById("viewerManagerSlot"), dataManager);	
+				alert("initialized");	
+			}	
+		};
+        	dfRequest.open("GET", "InitServlet?page=home", true);
+       		 dfRequest.send(null);
+		
+	}
+
+	function showIntro()
+	{
+		document.getElementById("intro").style.display = "block";
+		document.getElementById("data").style.display = "none";
+		document.getElementById("viewers").style.display = "none";
+	}
+
+	function showData()
+	{
+		document.getElementById("intro").style.display = "none";
+		document.getElementById("data").style.display = "block";
+		document.getElementById("viewers").style.display = "none";
+	}
+
+	function showViewers()
+	{
+		
+		document.getElementById("intro").style.display = "none";
+		document.getElementById("data").style.display = "none";
+		document.getElementById("viewers").style.display = "block";
+	}
+
+        </script>
+
+
+
+    </head>
+
+    <body>
+        <div class="container">
+            
+          <a href="#"><img src="Images/VizOnline.png" alt="Logo" name="Logo" width="350" height="109" id="Insert_logo" float=left;" /></a>  
+
+            <!-- end .header -->
+
+            <div class="nav">                
+
+                <a rel="tab" href="javascript:showIntro()" class="large button blue">HOME</a>
+                <a rel="tab" href="javascript:showData()" class="large button blue">DATA SETS</a>
+                <a rel="tab" href="javascript:showViewers()" class="large button blue">VIEWERS</a>                
+            </div>
+         
+	<div id = "intro"> 
+
+            <div class="sidebar1">
+                <h2 align="center">Welcome to Perspectives!</h2>
+                <script>makeRequest('home');</script>        
+                
+                <p align="center">                
+                   Perspectives is a framework that facilitates data visualization.<br>
+                   It will allow data files, called Data Sets, to be uploaded and then displayed in different interactive "viewers".<br>
+                </p>
+            <!-- end .sidebar1 --></div>
+            <div class="leftdiv">
+                <h2 align="center">Getting Started<br></h2> 
+                <p> <br>
+                   1. Create a Data Set by clicking the "DATA SETS" link above.<br>
+                   2. Upload a valid data file.<br>                   
+                   3. Create a Viewer by clicking the "VIEWERS" link above.<br>
+                   4. Select an appropriate Viewer type and the data file previously uploaded.<br>
+                   5. Create and Launch the Viewer!<br><br>
+
+                   Once the interactive viewer is launched, it will allow:<br><br>
+                   - Changing of properties<br>
+                   - Zooming in/out of the image (right mouse drag)<br> 
+                   - Dragging the image (left mouse drag)<br>
+                    ... and depending on the type of viewer, <br>
+                    simulations and node interaction may also be available.<br><br>
+
+                </p>
+            <p>Current Environment status: </p>
+            <p id="epar"></p>
+
+            <!-- end .leftDiv --></div>
+
+            <div class="rightdiv">
+                <h2 align="center">Example Viewers<br><br></h2>
+                <h1>Graph Viewer</h1>
+                <img src="Images/graphviewer2.png" alt="Example Graph Viewer" height="250" width="550"> 
+                <h1>Heat Map</h1>
+                <img src="Images/heatmap.png" alt="Example Heat Map" height="250" width="550"> 
+            <!-- end .rightdiv --></div>
+
+	</div>
+
+	<div id = "data" style = "dislay: none">
+	    <div id = "dataManagerSlot">
+            </div>  
+	</div>
+
+	<div id = "viewers" style = "dislay: none">
+	    <div id = "viewerManagerSlot">
+            </div>  
+	</div>
+
+        <!-- end .container --></div>
+    </body>
+</html>

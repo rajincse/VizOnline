@@ -1,0 +1,101 @@
+<!--%-- 
+    Document   : viewer
+    Created on : Jan 7, 2014, 2:13:44 AM
+    Author     : Mershack
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"% -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>The Viewer</title>
+
+        <link href="Styles.css" rel="stylesheet" type="text/css" />
+       
+
+       
+
+
+
+        <script type="text/javascript" src="ajax.js"></script>
+	<script type="text/javascript" src="jscolor/jscolor.js"></script>
+        <script type="text/javascript" src="image-transferer.js"></script>
+ 	<script type="text/javascript" src="properties.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script> 
+        <script type="text/javascript" src="viewer-canvas.js"></script> 
+
+
+        <script type="text/javascript">
+
+	var vc;
+	var pmDiv;
+         
+	function initialize()
+	{
+
+		pmDiv = document.createElement("div");
+		var pm = new PropertyManager(pmDiv, window.viewerName);
+
+		document.getElementById("left").appendChild(pmDiv);
+
+		var vcDiv = document.createElement("div");
+
+
+		vc = new ViewerCanvas(vcDiv, window, window.viewerName);
+
+		document.getElementById("right").appendChild(vcDiv);
+
+
+	}
+
+	window.onresize = function(){
+
+	var winW = 630, winH = 460;
+if (document.body && document.body.offsetWidth) {
+ winW = document.body.offsetWidth;
+ winH = document.body.offsetHeight;
+}
+if (document.compatMode=='CSS1Compat' &&
+    document.documentElement &&
+    document.documentElement.offsetWidth ) {
+ winW = document.documentElement.offsetWidth;
+ winH = document.documentElement.offsetHeight;
+}
+if (window.innerWidth && window.innerHeight) {
+ winW = window.innerWidth;
+ winH = window.innerHeight;
+}
+
+
+ vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
+
+
+};
+
+         
+    
+
+
+        </script>
+
+
+    </head>
+
+    <body onload="initialize();">
+       
+
+  
+
+		<table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+			<tr style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="left" ></div></td>
+				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right"></div></td>				
+			</tr>
+		</table>
+
+
+
+    </body>
+
+</html>
