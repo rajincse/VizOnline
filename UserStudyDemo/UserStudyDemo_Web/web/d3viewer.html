@@ -1,0 +1,117 @@
+<!--%-- 
+    Document   : viewer
+    Created on : Jan 7, 2014, 2:13:44 AM
+    Author     : Mershack
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"% -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>The Viewer</title>
+
+        <link href="Styles.css" rel="stylesheet" type="text/css" />
+        <link href="d3/d3Styles.css" rel="stylesheet" type="text/css" />
+        <script src="jQuery/jquery-1.10.2.js"></script>
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script type="text/javascript" src="jscolor/jscolor.js"></script>
+        <!--      <script type="text/javascript" src="proplist.js"></script> -->
+
+        <!--script and style for jquery slider and spinner -->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+
+
+
+        <script type="text/javascript" src="ajax.js"></script>
+        <script type="text/javascript" src="properties.js"></script>
+        <script type="text/javascript" src="property-manager.js"></script> 
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script type="text/javascript" src="data-transferer.js"></script>
+
+
+        <script type="text/javascript">
+            var dataTransfer=null;
+            var jsD3Client=null;
+            function initialize()
+            {
+                window.viewerName ='Viewer-BrainStatsD3Viewer1';
+		pmDiv = document.createElement("div");
+		var pm = new PropertyManager(pmDiv, window.viewerName);
+                
+		document.getElementById("left").appendChild(pmDiv);
+          
+                dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
+                dataTransfer.readCreatorType(function(data)
+                {
+                    var creatorType = data;
+                    $.getScript('d3/JSClients/' + creatorType + '.js', function(data)
+                    {
+                        jsD3Client = new JSD3Client();
+                        dataTransfer.readViewerData(jsD3Client.dataUpdated, true);
+                    }
+                    
+                );
+                });
+                
+                setInterval(pollUpdateData, 500);
+                
+                
+            }
+            
+            function pollUpdateData()
+            {
+                if(jsD3Client && dataTransfer)
+                {
+                    dataTransfer.readViewerData(jsD3Client.dataUpdated, false);
+                }
+            }
+            window.onresize = function(){
+                
+                var winW = 630, winH = 460;
+                if (document.body && document.body.offsetWidth) {
+                    winW = document.body.offsetWidth;
+                    winH = document.body.offsetHeight;
+                }
+                if (document.compatMode=='CSS1Compat' &&
+                    document.documentElement &&
+                    document.documentElement.offsetWidth ) {
+                    winW = document.documentElement.offsetWidth;
+                    winH = document.documentElement.offsetHeight;
+                }
+                if (window.innerWidth && window.innerHeight) {
+                    winW = window.innerWidth;
+                    winH = window.innerHeight;
+                }
+                
+                
+                vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
+                
+                
+            };
+
+//         
+        </script>
+
+
+    </head>
+
+   <body onload="initialize();">
+       
+
+  
+
+       <table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+           <tr style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+               <td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="left" ></div></td>
+               <td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right"><div id="canv"></div></div></td>				
+           </tr>
+       </table>
+
+
+    </body>
+
+</html>
