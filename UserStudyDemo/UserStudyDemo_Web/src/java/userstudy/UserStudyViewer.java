@@ -131,9 +131,9 @@ public class UserStudyViewer extends Viewer2D {
 	@Override
 	public void render(Graphics2D g) {
 		// TODO Auto-generated method stub
-		int x=0;
-		int y =0;
-		int step =5;
+		int x=200;
+		int y =200;
+		int step =25;
 		Font questionfont = new Font("Arial", Font.BOLD, 20);
 		Font choiceFont = new Font("Arial", Font.PLAIN,20);
 		Font resultfont = new Font("Arial", Font.BOLD, 20);
