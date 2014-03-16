@@ -51,11 +51,11 @@ import perspectives.base.ObjectInteraction;
 public class GraphViewer extends Viewer2D {
 
     protected Graph graph;
-    GraphDrawer drawer;
+    protected GraphDrawer drawer;
     int[] edgeSources;
     int[] edgeTargets;
     ObjectInteraction ovalInteraction;
-    ArrayList<Rectangle> ovals;
+    protected ArrayList<Rectangle> ovals;
     Task initTask;
 
     public GraphViewer(String name, GraphData g) {
@@ -64,7 +64,7 @@ public class GraphViewer extends Viewer2D {
         graph = g.graph;
 
         final GraphViewer gv = this;
-
+        
      
         initTask = new Task("Initializing") {
         	
@@ -73,7 +73,7 @@ public class GraphViewer extends Viewer2D {
                 ovalInteraction = new ObjectInteraction() {
                     @Override
                     protected void mouseIn(int obj) {
-                        gv.setToolTipText(graph.getNodes().get(obj));
+                    	gv.setTooltipContent(obj);
                         final int o = obj;
                         gv.createAnimation(new Animation.IntegerAnimation(22, 30, 300) {
                             public void step(int v) {
@@ -380,6 +380,10 @@ public class GraphViewer extends Viewer2D {
         }
     }
 
+    protected void setTooltipContent(int index)
+    {
+    	this.setToolTipText(graph.getNodes().get(index));
+    }
     public void renderEdge(int p1, int p2, int edgeIndex, boolean selected, boolean hovered, Graphics2D g) {
         int x1 = (int) drawer.getX(p1);
         int y1 = (int) drawer.getY(p1);
