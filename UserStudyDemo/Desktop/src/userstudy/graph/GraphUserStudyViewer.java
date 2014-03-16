@@ -14,6 +14,7 @@ import perspectives.base.Property;
 import perspectives.base.Task;
 import perspectives.graph.GraphData;
 import perspectives.graph.GraphViewer;
+import perspectives.properties.PFileInput;
 import perspectives.properties.PFileOutput;
 import perspectives.properties.POptions;
 import perspectives.properties.PSignal;
@@ -21,9 +22,11 @@ import userstudy.Question;
 import userstudy.UserStudyViewer;
 
 public class GraphUserStudyViewer extends GraphViewer{
-	private static final String PROPERTY_ANSWER ="Answer";
-	private static final String PROPERTY_SUBMIT ="Submit";
-	private static final String PROPERTY_SAVE_RESULT ="Save Result";
+	public static final String PROPERTY_ANSWER ="Answer";
+	public static final String PROPERTY_NEXT ="Next";
+	public static final String PROPERTY_REFRESH ="Refresh";
+	
+	public static final String RESULT_DIR_PATH = "PerspectivesUserStudy/Result/";
 	
 	private ArrayList<GraphUserStudyQuestion> questions ;
 	private ArrayList<Boolean> isCorrectAnswers;
@@ -33,7 +36,12 @@ public class GraphUserStudyViewer extends GraphViewer{
 	
 	private GraphUserStudyData data;
 	
+	private boolean isPositionLoaded =false;
+	private boolean isQuestionLoaded =false;
+	
 	public GraphUserStudyViewer(String name, GraphUserStudyData data) {
+		
+		
 		super(name, data);
 		this.questions = data.getQuestions();
 		this.data = data;
@@ -46,57 +54,87 @@ public class GraphUserStudyViewer extends GraphViewer{
 		{
 			final GraphUserStudyViewer thisf = this;
 			
+			Property<POptions> answerProperty = new Property<POptions>(PROPERTY_ANSWER,new POptions(new String[]{"1","2","3","4","5","6"}))
+					{
+							@Override
+							protected boolean updating(POptions newvalue) {
+								// TODO Auto-generated method stub
+								return super.updating(newvalue);
+							}
+					};
+					
+			this.addProperty(answerProperty);
 			
-			
-			Property<PSignal> submitAnswerProperty = new Property<PSignal>(PROPERTY_SUBMIT, new PSignal())
+			Property<PSignal> nextProperty = new Property<PSignal>(PROPERTY_NEXT, new PSignal())
 					{
 						@Override
 						protected boolean updating(PSignal newvalue) {
-
-							thisf.currentIndex++;
-							thisf.showUserStudy();
-							if(thisf.currentIndex ==thisf.questions.size())
+							POptions options =(POptions)thisf.getProperty(PROPERTY_ANSWER).getValue(); 
+							String answer = options.options[options.selectedIndex];
+							if(thisf.currentIndex < thisf.questions.size())
 							{
-								endOfTest();
+								GraphUserStudyQuestion q = thisf.questions.get(currentIndex);
+								boolean isCorrect = answer.equalsIgnoreCase(""+q.getCorrect());
+								thisf.isCorrectAnswers.add(isCorrect);
+								thisf.currentIndex++;
+								thisf.showUserStudy();
+								if(thisf.currentIndex ==thisf.questions.size())
+								{
+									endOfTest();
+								}
 							}
+							
 							thisf.requestRender();
 							return true;
 						}
 					};
 			
-			this.addProperty(submitAnswerProperty);
-			Property<PFileOutput> saveResultProperty = new Property<PFileOutput>(PROPERTY_SAVE_RESULT, new PFileOutput())
+			this.addProperty(nextProperty);
+			
+			Property<PSignal> refresh = new Property<PSignal>(PROPERTY_REFRESH, new PSignal())
 					{
 						@Override
-						protected boolean updating(PFileOutput newvalue) {
-							// TODO Auto-generated method stub
-							thisf.saveResult(newvalue.path);
+						protected boolean updating(PSignal newvalue) {
+							thisf.showUserStudy();
+							thisf.requestRender();
 							return true;
 						}
 					};
-			saveResultProperty.setDisabled(true);
-			this.addProperty(saveResultProperty);
+			
+			this.addProperty(refresh);
+			
 			
 			Task t = new Task("draw Position") {
 				
 				@Override
 				public void task() {
-					while(drawer == null)
+					while(thisf.drawer == null)
 					{
-						System.out.println("Drawer null");
+//						System.out.println("Drawer null");
 					}
 					thisf.drawPosition();
 					thisf.showUserStudy();
+					
+					thisf.requestRender();
+					
 					done();
+					thisf.isPositionLoaded = true;
+					System.out.println("positions Done");
 				}
 			};
 			t.indeterminate = true;
 			t.blocking = true;
 			thisf.startTask(t);
-			
 		}catch (Exception e) {
             e.printStackTrace();
         }
+		
+		
+	}
+	
+	public boolean isLoaded()
+	{
+		return this.isPositionLoaded && this.isQuestionLoaded;
 	}
 	@Override
 	protected void setTooltipContent(int index) {
@@ -105,7 +143,22 @@ public class GraphUserStudyViewer extends GraphViewer{
 	}
 	private void endOfTest()
 	{
+		this.totalCorrect =0;
+		for(Boolean b: this.isCorrectAnswers )
+		{
+			if(b)
+			{
+				this.totalCorrect++;
+			}
+		}
+		this.isEndOfStudy = true;
+		String result ="Total correct : "+totalCorrect+" / "+this.questions.size()+" ("+String.format("%.2f%%",totalCorrect * 100.0/this.questions.size() )+")";
+		System.out.println(result);
 		
+		String outputFilePath = RESULT_DIR_PATH+new Date().toString().replace(" ", "_").replace(":","")+".txt";
+		this.saveResult(outputFilePath);
+		
+		this.currentIndex=0;
 	}
 	
 	
@@ -122,14 +175,18 @@ public class GraphUserStudyViewer extends GraphViewer{
 			int x2 = (int)this.drawer.getX(question.getTarget());
 			int y2 = (int)this.drawer.getY(question.getTarget());
 			
-			System.out.println(question.getSource()+"=>("+x1+","+y1+")");
-			System.out.println(question.getTarget()+"=>("+x2+","+y2+")");
+			
 			int tx = -(x1+x2)/2 + 600;
 			int ty = -(y1+y2)/2 + 400;
 			
-			System.out.println("tx,ty =>"+tx+", "+ty);
+			
 			this.setTranslation(tx,ty);
-			//this.setTranslation(-x1+600, -y1+400);
+			this.requestRender();
+	
+			this.isQuestionLoaded = true;
+			System.out.println("current index :"+this.currentIndex+" translate :"+tx+", "+ty);
+
+			this.requestRender();
 		}
 		
 	}
@@ -138,8 +195,8 @@ public class GraphUserStudyViewer extends GraphViewer{
 	{
         try {
             FileWriter fstream;
-
-            fstream = new FileWriter(new File(filePath));
+            File outputFile = new File(filePath);
+            fstream = new FileWriter(outputFile);
 
             BufferedWriter br = new BufferedWriter(fstream);
             
@@ -147,13 +204,13 @@ public class GraphUserStudyViewer extends GraphViewer{
             	Boolean isCorrect = this.isCorrectAnswers.get(i);
             	
             	String correctString = isCorrect?"Correct":"Incorrect";
-                br.write("Question "+(i+1)+" "+correctString);//+" correctAnswer:"+this.questions.get(i).getCorrectAnswer());
+                br.write("Question "+(i+1)+" "+correctString+" correctAnswer:"+this.questions.get(i).getCorrect());
                 br.newLine();
             }
             
             br.write("Total correct : "+totalCorrect+" / "+this.questions.size()+" ("+String.format("%.2f%%",totalCorrect * 100.0/this.questions.size() )+")");
             br.close();
-
+            System.out.println("Result saved to "+outputFile.getAbsolutePath());
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -173,7 +230,7 @@ public class GraphUserStudyViewer extends GraphViewer{
 	}
 	private void  drawPosition()
 	{
-		
+		System.out.println("Drawing positions: "+data.graph.getNodes().size()+", "+data.getVertexPositions().size());
 		for(int i=0;i<data.graph.getNodes().size();i++)
 		{
 			Point point = data.getVertexPositions().get(i);
@@ -184,6 +241,7 @@ public class GraphUserStudyViewer extends GraphViewer{
             ovals.get(i).y = point.y;
             ovals.get(i).setAnchor(-5, -5);
 		}
+		System.out.println("Drawn positions");
 		this.requestRender();
 	}
 }

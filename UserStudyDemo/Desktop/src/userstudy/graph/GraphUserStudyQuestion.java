@@ -23,14 +23,16 @@ public class GraphUserStudyQuestion {
 	public static final String TAG_NAME_SOURCE ="source";
 	public static final String TAG_NAME_TARGET ="target";
 	public static final String ATTRIBUTE_NODE_ID ="nodeid";
-	
+	public static final String TAG_NAME_CORRECT ="correct";
 	private int source;
 	private int target;
+	private int correct;
 	
-	public GraphUserStudyQuestion(int source, int target)
+	public GraphUserStudyQuestion(int source, int target, int correct)
 	{
 		this.source = source;
 		this.target = target;
+		this.correct = correct;
 	}
 
 	public int getSource() {
@@ -71,12 +73,21 @@ public class GraphUserStudyQuestion {
 			{
 				int source = Integer.parseInt( ((Element)questionElement.getElementsByTagName(TAG_NAME_SOURCE).item(0)).getAttribute(ATTRIBUTE_NODE_ID));
 				int target = Integer.parseInt( ((Element)questionElement.getElementsByTagName(TAG_NAME_TARGET).item(0)).getAttribute(ATTRIBUTE_NODE_ID));
-				GraphUserStudyQuestion question = new GraphUserStudyQuestion(source, target);
+				int correct = Integer.parseInt( questionElement.getElementsByTagName(TAG_NAME_CORRECT).item(0).getTextContent());
+				GraphUserStudyQuestion question = new GraphUserStudyQuestion(source, target,correct);
 				questions.add(question);
 			}
 			
 		}
 		
 		return questions;
+	}
+
+	public int getCorrect() {
+		return correct;
+	}
+
+	public void setCorrect(int correct) {
+		this.correct = correct;
 	}
 }

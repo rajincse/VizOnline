@@ -1,0 +1,17 @@
+<UserStudy>
+	<Question type='Path'>
+		<source nodeid="641"/>
+		<target nodeid="868"/>
+		<correct>3</correct>
+	</Question>
+	<Question type='Path'>
+		<source nodeid="57"/>
+		<target nodeid="230"/>
+		<correct>3</correct>
+	</Question>
+	<Question type='Path'>
+		<source nodeid="641"/>
+		<target nodeid="868"/>
+		<correct>2</correct>
+	</Question>
+</UserStudy>
