@@ -322,7 +322,69 @@ function PString(name, value, readonly, hidden, disabled, propertyManager)
 
 	}
 }
+function PSignal(name, value, readonly, hidden, disabled, propertyManager)
+{
 
+	this.name = name;
+	this.readOnly = readonly;
+	this.hidden = hidden;
+	this.disabled = disabled;
+
+    this.label = createLabel(name);
+
+    this.button = document.createElement('button');
+
+   this.button.innerHTML = "Click";
+    this.button.onclick = (function(prop,pm) { return function() {			
+			pm.updateValue(prop);
+		};})(this,propertyManager);
+
+   	this.div = createDiv();
+	var table = addPairToTable(this.label, this.button)
+    	this.div.appendChild(table);
+
+	this.setReadOnly = setReadOnly;
+	function setReadOnly(readOnly)
+	{
+		this.readOnly = readOnly;
+		if (this.readOnly || this.disabled)			
+			this.button.disabled = true;
+		else
+			this.button.disabled = false;
+	}
+
+
+	this.setValue = setValue;
+	function setValue(stringVal)
+	{
+		 this.button.value = stringVal;
+	}
+
+	this.setHidden = setHidden;
+	function setHidden(stringVal)
+	{
+		//booleanCheckBox.value = stringVal;
+	}
+
+	this.setDisabled = setDisabled;
+	function setDisabled(disabled)
+	{
+		this.disabled = disabled;
+		if (this.disabled || this.readOnly)	
+			this.button.disabled = true;	
+		else
+			this.button.disabled = false;
+		
+			
+
+		if (this.disabled)
+			this.label.style.color = "#999999";
+		else
+			this.label.style.color = "#000000";
+
+	}
+
+}
 function POptions(name, value, readonly, hidden, disabled, propertyManager)
 {
 	this.name = name;
