@@ -14,6 +14,7 @@ import userstudy.graph.GraphUserStudyViewerFactory;
 
 public class UserStudyDemoMainClass {
 	
+	
 //	public static final String FILEPATH_EDGELIST ="PerspectivesUserStudy/data2/EdgeList.txt";
 //	public static final String FILEPATH_POSITION ="PerspectivesUserStudy/data2/VertexList.txt";
 //	public static final String FILEPATH_QUESTION ="PerspectivesUserStudy/data2/UserStudyData.xml";
@@ -68,15 +69,13 @@ public class UserStudyDemoMainClass {
 		
 		
 		 
-		GraphUserStudyViewer userStudyViewer = new GraphUserStudyViewer("GraphUserStudyViewer", data);
+		GraphUserStudyViewer userStudyViewer = new GraphUserStudyViewer("GraphUserStudyViewer", data, GraphUserStudyViewer.RESULT_DIR_PATH);
 		
-		while(!userStudyViewer.isLoaded());
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		while(!userStudyViewer.isLoaded())
+		{
+			//System.out.println(" viewer loading");
 		}
+		
 		System.out.println("Are you done?");
 		e.addViewer(userStudyViewer);
 	}

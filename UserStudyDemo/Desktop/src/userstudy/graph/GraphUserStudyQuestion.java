@@ -18,23 +18,33 @@ import userstudy.Question;
 
 public class GraphUserStudyQuestion {
 	public static final String TAG_NAME_QUESTION ="Question";
+	public static final String TAG_NAME_TEXT ="text";
 	public static final String ATTRIBUTE_TYPE ="type";
 	public static final String ATTRIBUTE_TYPE_VALUE ="Path";
 	public static final String TAG_NAME_SOURCE ="source";
 	public static final String TAG_NAME_TARGET ="target";
 	public static final String ATTRIBUTE_NODE_ID ="nodeid";
 	public static final String TAG_NAME_CORRECT ="correct";
+	private String questionText;
 	private int source;
 	private int target;
 	private int correct;
 	
-	public GraphUserStudyQuestion(int source, int target, int correct)
+	public GraphUserStudyQuestion(String questionText,int source, int target, int correct)
 	{
+		this.questionText = questionText;
 		this.source = source;
 		this.target = target;
 		this.correct = correct;
 	}
+	public String getQuestionText() {
+		return questionText;
+	}
 
+
+	public void setQuestionText(String questionText) {
+		this.questionText = questionText;
+	}
 	public int getSource() {
 		return source;
 	}
@@ -74,7 +84,8 @@ public class GraphUserStudyQuestion {
 				int source = Integer.parseInt( ((Element)questionElement.getElementsByTagName(TAG_NAME_SOURCE).item(0)).getAttribute(ATTRIBUTE_NODE_ID));
 				int target = Integer.parseInt( ((Element)questionElement.getElementsByTagName(TAG_NAME_TARGET).item(0)).getAttribute(ATTRIBUTE_NODE_ID));
 				int correct = Integer.parseInt( questionElement.getElementsByTagName(TAG_NAME_CORRECT).item(0).getTextContent());
-				GraphUserStudyQuestion question = new GraphUserStudyQuestion(source, target,correct);
+				String questionText = questionElement.getElementsByTagName(TAG_NAME_TEXT).item(0).getTextContent();
+				GraphUserStudyQuestion question = new GraphUserStudyQuestion(questionText, source, target,correct);
 				questions.add(question);
 			}
 			

@@ -18,15 +18,19 @@ import perspectives.properties.PFileInput;
 import perspectives.properties.PFileOutput;
 import perspectives.properties.POptions;
 import perspectives.properties.PSignal;
+import perspectives.properties.PText;
 import userstudy.Question;
+import userstudy.UserStudyDemoMainClass;
 import userstudy.UserStudyViewer;
 
 public class GraphUserStudyViewer extends GraphViewer{
+	public static final String PROPERTY_QUESTION ="Q:";
 	public static final String PROPERTY_ANSWER ="Answer";
 	public static final String PROPERTY_NEXT ="Next";
 	public static final String PROPERTY_REFRESH ="Refresh";
 	
-	public static final String RESULT_DIR_PATH = "PerspectivesUserStudy/Result/";
+	public static final String RESULT_DIR_PATH = "PerspectivesUserStudy/Result";
+	
 	
 	private ArrayList<GraphUserStudyQuestion> questions ;
 	private ArrayList<Boolean> isCorrectAnswers;
@@ -35,11 +39,17 @@ public class GraphUserStudyViewer extends GraphViewer{
 	private int totalCorrect;
 	
 	private GraphUserStudyData data;
+	private String resultDirectoryPath;
 	
 	private boolean isPositionLoaded =false;
 	private boolean isQuestionLoaded =false;
 	
-	public GraphUserStudyViewer(String name, GraphUserStudyData data) {
+	public GraphUserStudyViewer(String name, GraphUserStudyData data)
+	{
+		this(name, data, RESULT_DIR_PATH);
+	}
+		
+	public GraphUserStudyViewer(String name, GraphUserStudyData data, String resultDirectoryPath) {
 		
 		
 		super(name, data);
@@ -49,10 +59,12 @@ public class GraphUserStudyViewer extends GraphViewer{
 		this.isCorrectAnswers = new ArrayList<Boolean>();
 		this.isEndOfStudy = false;
 		this.totalCorrect =0;
-		
+		this.resultDirectoryPath = resultDirectoryPath;
 		try
 		{
 			final GraphUserStudyViewer thisf = this;
+			Property<PText> questionProperty = new Property<PText>(PROPERTY_QUESTION, new PText(""));
+			this.addProperty(questionProperty);
 			
 			Property<POptions> answerProperty = new Property<POptions>(PROPERTY_ANSWER,new POptions(new String[]{"1","2","3","4","5","6"}))
 					{
@@ -129,7 +141,6 @@ public class GraphUserStudyViewer extends GraphViewer{
             e.printStackTrace();
         }
 		
-		
 	}
 	
 	public boolean isLoaded()
@@ -155,10 +166,10 @@ public class GraphUserStudyViewer extends GraphViewer{
 		String result ="Total correct : "+totalCorrect+" / "+this.questions.size()+" ("+String.format("%.2f%%",totalCorrect * 100.0/this.questions.size() )+")";
 		System.out.println(result);
 		
-		String outputFilePath = RESULT_DIR_PATH+new Date().toString().replace(" ", "_").replace(":","")+".txt";
+		String outputFilePath = this.resultDirectoryPath+"/"+new Date().toString().replace(" ", "_").replace(":","")+".txt";
 		this.saveResult(outputFilePath);
 		
-		this.currentIndex=0;
+		
 	}
 	
 	
@@ -167,7 +178,9 @@ public class GraphUserStudyViewer extends GraphViewer{
 		if(currentIndex < this.questions.size())
 		{
 			GraphUserStudyQuestion question =this.questions.get(currentIndex);
-			
+			PText questionText =(PText) this.getProperty(PROPERTY_QUESTION).getValue();
+			questionText.setValue(question.getQuestionText());
+			this.getProperty(PROPERTY_QUESTION).setValue(questionText);
 			
 			int x1 = (int)this.drawer.getX(question.getSource());
 			int y1 = (int)this.drawer.getY(question.getSource());
