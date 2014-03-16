@@ -223,6 +223,11 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 					public PropertyWidget createWidget(Property p) {
 						return new PSignalWidget(p);
 				}});
+				
+				this.registerNewType(new PText(""), new PropertyWidgetFactory() {
+					public PropertyWidget createWidget(Property p) {
+						return new PTextWidget(p);
+				}});
 		
 		final Environment ev = this;
 		Timer unresponsive = new Timer(1000, new ActionListener()
