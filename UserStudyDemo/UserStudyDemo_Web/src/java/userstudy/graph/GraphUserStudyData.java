@@ -15,8 +15,8 @@ import perspectives.properties.PInteger;
 
 public class GraphUserStudyData extends GraphData{
 
-	private static String PROPERTY_LOAD_QUESTION ="Load Questions";
-	private static String PROPERTY_LOAD_POSITION ="Load Positions";
+	public static String PROPERTY_LOAD_QUESTION ="Load Questions";
+	public static String PROPERTY_LOAD_POSITION ="Load Positions";
 	/**
 	 * 
 	 */
@@ -24,7 +24,8 @@ public class GraphUserStudyData extends GraphData{
 	private ArrayList<GraphUserStudyQuestion> questions;
 	private ArrayList<Point> vertexPositions ;
 	
-
+	private boolean isPositionFileLoaded = false;
+	private boolean isQuestionFileLoaded = false;
 
 	public GraphUserStudyData(String name) {
 		super(name);
@@ -60,7 +61,7 @@ public class GraphUserStudyData extends GraphData{
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									loaded = true;
+									thisf.isQuestionFileLoaded = true;
 									done();
 								}
 							};
@@ -101,7 +102,10 @@ public class GraphUserStudyData extends GraphData{
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
+									
+									thisf.isPositionFileLoaded = true;
 									done();
+									
 								}
 							};
 							t.indeterminate = true;
@@ -120,8 +124,26 @@ public class GraphUserStudyData extends GraphData{
 			e.printStackTrace();
 		}
 	}
+	public boolean isGraphLoaded()
+	{
+		return super.isLoaded();
+	}
 	
-
+	public boolean isPositionLoaded()
+	{
+		return this.isPositionFileLoaded;
+	}
+	
+	public boolean isQuestionLoaded()
+	{
+		return this.isQuestionFileLoaded;
+	}
+	
+	public boolean isAllDataLoaded()
+	{
+		return super.isLoaded() && this.isPositionFileLoaded && this.isQuestionFileLoaded;
+	}
+	
 	public ArrayList<GraphUserStudyQuestion> getQuestions() {
 		return questions;
 	}
@@ -165,11 +187,12 @@ public class GraphUserStudyData extends GraphData{
                 //x = x*1.335;
                 //y = -y*1.335;
                 Point point = new Point((int)x, (int)y);
-                this.vertexPositions.add(point);
+                this.vertexPositions.add( point);
              }
 
             in.close();
         } catch (Exception e) {
+        	e.printStackTrace();
         }
 		
 	}  

@@ -1,0 +1,14 @@
+<UserStudy>
+	<Question type='Path'>
+		<text>What is the shortest path length?</text>
+		<source nodeid="2"/>
+		<target nodeid="8"/>
+		<correct>2</correct>
+	</Question>
+	<Question type='Path'>
+		<text>What is the shortest path length?</text>
+		<source nodeid="2"/>
+		<target nodeid="6"/>
+		<correct>2</correct>
+	</Question>
+</UserStudy>
