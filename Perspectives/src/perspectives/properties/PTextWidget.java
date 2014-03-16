@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import perspectives.base.Property;
@@ -18,7 +19,7 @@ public class PTextWidget extends PropertyWidget{
 	}
 
 
-	JLabel control = null;
+	JTextArea control = null;
 	JLabel readOnlyControl = null;
 	
 	public void widgetLayout()
@@ -28,10 +29,12 @@ public class PTextWidget extends PropertyWidget{
 
 		final PropertyWidget th = this;
 		
-		control = new JLabel();
+		control = new JTextArea();
+		control.setLineWrap(true);
+		control.setEditable(false);
 		control.setText(((PText)this.p.getValue()).stringValue());
-		control.setMaximumSize(new Dimension(70,20));
-		control.setPreferredSize(new Dimension(70,20));
+		control.setMaximumSize(new Dimension(140,40));
+		control.setPreferredSize(new Dimension(140,40));
 		
 		readOnlyControl = new JLabel();
 		readOnlyControl.setText(((PText)this.p.getValue()).stringValue());

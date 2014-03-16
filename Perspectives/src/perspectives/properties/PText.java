@@ -14,7 +14,10 @@ public class PText extends PropertyType{
 	{
 		this.value = value;
 	}
-	
+	public void setValue(String value)
+	{
+		this.value = value;
+	}
 	public String stringValue()
 	{
 		return value;
