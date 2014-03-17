@@ -330,19 +330,19 @@ function PSignal(name, value, readonly, hidden, disabled, propertyManager)
 	this.hidden = hidden;
 	this.disabled = disabled;
 
-    this.label = createLabel(name);
-
+    //this.label = createLabel(name);
+    this.label =createDiv();
     this.button = document.createElement('button');
-
-   this.button.innerHTML = "Click";
+    this.button.style.cssText='margin-left: 20%;width: 50%;';
+   this.button.innerHTML = name;
     this.button.onclick = (function(prop,pm) { return function() {			
 			pm.updateValue(prop);
 		};})(this,propertyManager);
 
    	this.div = createDiv();
-	var table = addPairToTable(this.label, this.button)
-    	this.div.appendChild(table);
-
+	//var table = addPairToTable(this.label, this.button)
+    	this.div.appendChild(this.button);
+        
 	this.setReadOnly = setReadOnly;
 	function setReadOnly(readOnly)
 	{
@@ -374,6 +374,66 @@ function PSignal(name, value, readonly, hidden, disabled, propertyManager)
 			this.button.disabled = true;	
 		else
 			this.button.disabled = false;
+		
+			
+
+		if (this.disabled)
+			this.label.style.color = "#999999";
+		else
+			this.label.style.color = "#000000";
+
+	}
+
+}
+function PText(name, value, readonly, hidden, disabled, propertyManager)
+{
+
+	this.name = name;
+	this.readOnly = readonly;
+	this.hidden = hidden;
+	this.disabled = disabled;
+
+    this.label = createLabel(name);
+
+    this.textArea = document.createElement('textarea');
+        this.textArea.style.cssText ='width:155px;height:46px;'
+        this.textArea.innerHTML = value;
+
+   	this.div = createDiv();
+	var table = addPairToTable(this.label, this.textArea)
+    	this.div.appendChild(table);
+
+	this.setReadOnly = setReadOnly;
+	function setReadOnly(readOnly)
+	{
+		this.readOnly = readOnly;
+		if (this.readOnly || this.disabled)			
+			this.textArea.disabled = true;
+		else
+			this.textArea.disabled = false;
+	}
+
+
+	this.setValue = setValue;
+	function setValue(stringVal)
+	{
+		 this.textArea.value = stringVal;
+	}
+
+	this.setHidden = setHidden;
+	function setHidden(stringVal)
+	{
+		//booleanCheckBox.value = stringVal;
+	}
+
+	this.setDisabled = setDisabled;
+	function setDisabled(disabled)
+	{
+		this.disabled = disabled;
+		if (this.disabled || this.readOnly)	
+			this.textArea.disabled = true;	
+		else
+			this.textArea.disabled = false;
 		
 			
 
