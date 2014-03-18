@@ -1,38 +1,10 @@
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-
-import brain.BrainDataFactory;
-import brain.BrainStatsViewerFactory;
-import brain.BrainViewerFactory;
-
-import multidimensional.PlanarProjectionViewerFactory;
-
-import Graph.BubbleSetGraphFactory;
-import Graph.BundledGraphFactory;
-
-import Graph.GraphData;
-import Graph.GraphDataFactory;
-import Graph.GraphViewer;
-import Graph.GraphViewerFactory;
-
-import ParallelCoord.ParallelCoordinateViewerFactory;
-
-import perspectives.*;
-
-import properties.POptions;
 
 
-import stimulusgen.GazeAnalyzer;
-import tree.*;
-
-
-import data.*;
-
+import perspectives.base.*;
+import perspectives.graph.GraphDataFactory;
+import perspectives.graph.GraphViewerFactory;
+import brain.*;
 
 public class main {
 
@@ -41,21 +13,26 @@ public class main {
 		  Environment e = new Environment(false);
 	    
 	       
-	     e.registerDataSourceFactory(new GraphDataFactory());
+	     e.registerDataSourceFactory(new GraphDataFactory());	      
+	    //e.registerDataSourceFactory(new TableDataFactory()); 
 	      
-	     e.registerDataSourceFactory(new TableDataFactory()); 
+	     e.registerViewerFactory(new GraphViewerFactory());
+		  
+		  
 	      
-	      e.registerViewerFactory(new GraphViewerFactory());
+	     // e.registerViewerFactory(new BundledGraphFactory());
 	      
-	      e.registerViewerFactory(new BundledGraphFactory());
+	    //  e.registerViewerFactory(new ParallelCoordinateViewerFactory());
 	      
-	      e.registerViewerFactory(new ParallelCoordinateViewerFactory());
-	      
-	      e.registerDataSourceFactory(new BrainDataFactory());
+	     e.registerDataSourceFactory(new BrainDataFactory());
 	      e.registerViewerFactory(new BrainViewerFactory());
-	      e.registerViewerFactory(new BrainStatsViewerFactory());
+	    //  e.registerViewerFactory(new BrainStatsViewerFactory());
 	      
-	      e.addViewer(new GazeAnalyzer("bla"));
+	   //   e.registerViewerFactory(new PlanarProjectionViewerFactory());
+	      
+	    //  e.addViewer(new GazeAnalyzer("bla"));
+	      
+	   
 	      
 	      
 	  }
