@@ -122,8 +122,8 @@ public class BrainData extends DataSource {
 				}
 			}
 			
-			//Vector3D center = new Vector3D((max.x-min.x)/2, (max.y-min.y)/2, (max.z-min.z)/2);
-			Vector3D center = new Vector3D(min.x+100, min.y, min.z);
+			Vector3D center = new Vector3D(min.x+ (max.x-min.x)/2, min.y+(max.y-min.y)/2, min.z);
+			//Vector3D center = new Vector3D(min.x+100, min.y, min.z);
 			for (int i=0; i<segments.length; i++)
 				for (int j=0; j<segments[i].length; j++)
 				{

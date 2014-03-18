@@ -23,10 +23,13 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 	var resizing = true;
 
 
+
+
+
+//asking for a init on the server ////////////////////
+
 	var url = "ViewerCanvas?page=resize&viewerName=" + viewerName
                         + "&width=" + width + "&height=" + height;
-
-
 
 
 	var xmlhttp = new XMLHttpRequest();
@@ -35,7 +38,7 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 		if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
 		{
 			resizing = false;
-			setInterval(thisObj.imageUpdate, 100);
+			setInterval(thisObj.imageUpdate, 20);
 		}
 	}
 	xmlhttp.open("GET", url, true);
@@ -47,7 +50,7 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 	{
 		//has to divide by tch,tcv
 		while (w % tch != 0) w--;
-		while (w % tcv != 0) h--;
+		while (h % tcv != 0) h--;
 
 		desiredWidth = w;
 		desiredHeight = h;
@@ -78,6 +81,10 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
                 xmlhttp.send(null);
 	}
 
+
+
+
+//image updating functions 
 
 
     this.imageUpdate = imageUpdate;
@@ -123,12 +130,21 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
                     imtr.fimloaded();
 
                 };
-
                 image.src = url;
-                //console.log(url);
+
             }
             thisObj.images.push(rowImages);
         }
+    }
+
+
+    this.divMoved = divMoved;
+    function divMoved()
+    {
+	var divPos = getPos(this.div);		
+	for (var i=0; i<this.div.children.length; i++)
+                this.div.children[i].style.left = this.div.children[i].imageOffsetX + divPos.x + "px";	
+             
     }
 
 	
@@ -139,9 +155,6 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 
         if (this.loaded === tch * tcv)
         {
-
-
-
             if (this.images[0][0].width === 1)
             {
                 this.images = null;
@@ -152,55 +165,51 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
                 var last;
                 while (last = this.div.lastChild)
                     this.div.removeChild(last);
-
 		
             }
 
 	var divPos = getPos(this.div);	
 	divPos.y = 0;
 
-
+	var images = this.images;
+	this.images = null;
       
-            for (var i = 0; i < this.images.length; i++)
-                for (var j = 0; j < this.images[i].length; j++)
+        for (var i = 0; i < images.length; i++)
+                for (var j = 0; j < images[i].length; j++)
                 {
+                   
+                    this.div.appendChild(images[i][j]);
 
-                    //console.log(this.images[i][j].width);
-                    this.div.appendChild(this.images[i][j]);
+			images[i][j].style.position = "absolute";
 
-			this.images[i][j].style.position = "absolute";
-
-			if (this.images[i][j].width < tw)
+			if (images[i][j].width < tw)
 			{
-                    		this.images[i][j].style.width = tw + "px";
-                    		this.images[i][j].style.height = th + "px";
-                   		this.images[i][j].style.top = i * th + divPos.y + "px";
-                   		this.images[i][j].style.left = j * tw + divPos.x + "px";
+                    		images[i][j].style.width = tw + "px";
+                    		images[i][j].style.height = th + "px";
+                   		images[i][j].style.top = i * th + divPos.y + "px";
+                   		images[i][j].style.left = j * tw + divPos.x + "px";
+				images[i][j].imageOffsetX =  j * tw;
 			}
 			else
 			{
-				this.images[i][j].style.top = i * this.images[i][j].height + divPos.y + "px";
-                   		this.images[i][j].style.left = j * this.images[i][j].width + divPos.x + "px";
+				images[i][j].style.top = i * images[i][j].height + divPos.y + "px";
+                   		images[i][j].style.left = j * images[i][j].width + divPos.x + "px";
+				images[i][j].imageOffsetX =  j * images[i][j].width;
 			}
                     
 
                 }
 
-	this.images = null;
-        }
+	 this.images = null;
+       }
     }
-
-
-	function getPos(el) {
+    function getPos(el) {
     
     		for (var lx=0, ly=0;
         		 el != null;
          		lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
     		return {x: lx,y: ly};
 	}
-
-
-
 
 }
 

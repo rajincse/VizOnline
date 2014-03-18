@@ -225,11 +225,7 @@ public class BrainViewer extends Viewer3D{
 		
 		if (!created) return;
 		
-		if (oldWidth != width)
-		{
-			vbo = null;
-			oldWidth = width;
-		}		
+		
 		
 		long ttt = new Date().getTime();		
 		
