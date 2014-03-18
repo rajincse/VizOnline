@@ -115,28 +115,16 @@ public class GraphUserStudyViewer extends GraphViewer{
 			
 			this.addProperty(refresh);
 			
+			while(thisf.drawer == null)
+			{
+			}
+			this.drawPosition();
+			this.showUserStudy();
 			
-			Task t = new Task("draw Position") {
-				
-				@Override
-				public void task() {
-					while(thisf.drawer == null)
-					{
-//						System.out.println("Drawer null");
-					}
-					thisf.drawPosition();
-					thisf.showUserStudy();
-					
-					thisf.requestRender();
-					
-					done();
-					thisf.isPositionLoaded = true;
-					System.out.println("positions Done");
-				}
-			};
-			t.indeterminate = true;
-			t.blocking = true;
-			thisf.startTask(t);
+			this.requestRender();
+			
+			this.isPositionLoaded = true;
+			System.out.println("positions Done");
 		}catch (Exception e) {
             e.printStackTrace();
         }
