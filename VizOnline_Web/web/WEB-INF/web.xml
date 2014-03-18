@@ -1,40 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <listener>
-        <listener-class>servlets.ContextListener</listener-class>
+        <listener-class>perspectives.web.ContextListener</listener-class>
     </listener>
     <listener>
-        <listener-class>servlets.SessionListener</listener-class>
+        <listener-class>perspectives.web.SessionListener</listener-class>
     </listener>
     <servlet>
         <servlet-name>VizOnlineServlet</servlet-name>
-        <servlet-class>servlets.VizOnlineServlet</servlet-class>
+        <servlet-class>MyInitServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InitServlet</servlet-name>
+        <servlet-class>MyInitServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Uploads</servlet-name>
-        <servlet-class>servlets.Uploads</servlet-class>
+        <servlet-class>perspectives.web.Uploads</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Downloads</servlet-name>
-        <servlet-class>servlets.Downloads</servlet-class>
+        <servlet-class>perspectives.web.Downloads</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>PropertyManagement</servlet-name>
-        <servlet-class>servlets.PropertyManagement</servlet-class>
+        <servlet-class>perspectives.web.PropertyManagement</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>DataManagement</servlet-name>
-        <servlet-class>servlets.DataManagement</servlet-class>
+        <servlet-class>perspectives.web.DataManagement</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ViewerManagement</servlet-name>
-        <servlet-class>servlets.ViewerManagement</servlet-class>
+        <servlet-class>perspectives.web.ViewerManagement</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ViewerCanvas</servlet-name>
-        <servlet-class>servlets.ViewerCanvas</servlet-class>
+        <servlet-class>perspectives.web.ViewerCanvas</servlet-class>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>InitServlet</servlet-name>
+        <url-pattern>/InitServlet</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>VizOnlineServlet</servlet-name>
