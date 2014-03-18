@@ -66,9 +66,26 @@ public class ViewerContainer{
 	int tilesY = 2;
 	
 	
+	
 	protected ViewerWindow window = null;
 		 
-	protected Viewer viewer;	
+	protected Viewer viewer;
+	
+	public int sentTiles = 0;
+	public int changedImages = 0;
+	public long interactionTime = 0;
+	public long startInteractionTime = -1;
+	public long lastInteractionTime = -1;
+	public long allPngTime = 0;
+	public int allPngCount = 0;
+	public long allDifTime = 0;
+	public int allDifCount = 0;
+	public long allBytesSent = 0;
+	public int allBytesCount = 0;
+	public long allTaskTime = 0;
+	public int allTaskCount = 0;
+	public long firstGetTileTime = -1;
+	public int allGetTile = 0;
 		
 	//a pointer to the parent Environment class (needed for instance to delete the viewer from the Environment if the user activates the 'X')
 	Environment env;
@@ -84,16 +101,7 @@ public class ViewerContainer{
 	boolean blocked = false;
 	
 	
-	public void saveImageDebug(BufferedImage im)
-	{
-		try {
-			ImageIO.write(im, "PNG", new File("c:\\debugimage.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
+		
 	public ViewerContainer(Viewer v, Environment env, int width, int height)
 	{		
 		this.env = env;		
@@ -141,8 +149,14 @@ public class ViewerContainer{
 		return image;
 	}
 	
+	
 	public void setViewerImage(BufferedImage im)
-	{		
+	{
+	
+		
+		
+		
+		
 		this.viewerImage = im;
 		
 		if (!blocked)
@@ -185,7 +199,7 @@ public class ViewerContainer{
 		final String s1 = keyText;
 		final String s2 = modifiersText;
 		final ViewerContainer vcf = this;
-		System.out.println("scheduling key press");
+		//System.out.println("scheduling key press");
 		getViewer().em.scheduleEvent(new PEvent()
 		{
 			public void process() {
@@ -305,6 +319,7 @@ public class ViewerContainer{
 		final ViewerContainer vcf = this;
 		getViewer().em.replaceEvent(new PEvent()
 		{
+			
 			public void process() {
 				vcf.mouseMoved(xf,yf);
 				vcf.lastMouseMove = new Date().getTime();
@@ -384,6 +399,37 @@ public class ViewerContainer{
 	
 	public void changeImage(BufferedImage newimage)
 	{
+		changedImages++;
+	long t = new Date().getTime();
+	
+
+		
+		if (lastInteractionTime < 0)
+		{
+			System.out.println("init interaction time");
+			lastInteractionTime = t;
+			startInteractionTime = t;
+		}
+		
+		//System.out.println("t-l " + (t-lastInteractionTime));
+		
+		if (t-lastInteractionTime > 100)
+		{
+			//System.out.println("interaction time: long time passed");
+			if (startInteractionTime >= 0)
+			{
+				interactionTime += (lastInteractionTime - startInteractionTime);
+				//System.out.println("interaction time: " + interactionTime);
+			}
+			startInteractionTime = t;
+			lastInteractionTime = t;
+		}
+		else
+		{
+			//System.out.println("interaction time: updating interaction time");
+			lastInteractionTime = t;
+		}
+		
 		synchronized(o2)
 		{
 			image = newimage;
@@ -426,8 +472,28 @@ public class ViewerContainer{
 			working = true;
 		}
 		
-		//System.out.println("tiletasks1");
 		
+		
+		if (allPngCount != 0 && allDifTime != 0 && allBytesCount != 0)
+		{
+			double fps = ((sentTiles/4) / ((double)interactionTime/1000.));
+			long pngtime = allPngTime / allPngCount;
+			long difftime = allDifTime / allDifCount;
+			long bytes = allBytesSent/allBytesCount;
+			long tasks = allTaskTime / allTaskCount;
+			double requests = (1000. * allGetTile) / (new Date().getTime() - firstGetTileTime);
+			System.out.println(" ");
+			System.out.println("web fps: " + fps + " (" + (sentTiles/4) + "," + (interactionTime/1000) + ")");
+			System.out.println("web png: " + pngtime + " (" + allPngCount + "," + allPngTime + ")");
+			System.out.println("web dif: " + difftime + " (" + allDifTime + "," + allDifCount + ")");
+			System.out.println("web bytes: " + bytes + " (" + allBytesSent/4 + "," + allBytesCount + ")");
+			System.out.println("web task: " +  + tasks + " (" + allTaskTime/4 + "," + allTaskCount + ")");
+			System.out.println("web requests: " +  + requests + " (" + allGetTile/4 + "," + (new Date().getTime() - firstGetTileTime) + ")");
+		}
+		
+		
+		
+		final long t = new Date().getTime();
 		
 		BufferedImage difImage = diffImage(image, lastImage);
 		if (diffcount == 0 && history == 0 && !changeSequenceTest)
@@ -474,7 +540,7 @@ public class ViewerContainer{
 		
 		long ttt = new Date().getTime();
 		
-		System.out.println("tiletasks6");
+		//System.out.println("tiletasks6");
 		
 		if (diffcount > 50000)
 		{
@@ -531,22 +597,26 @@ public class ViewerContainer{
 		for (int i=0; i<tilesX; i++)
 			for (int j=0; j<tilesY; j++)	{
 				final int i_f = i;	final int j_f = j;
-				Task t = new Task("t"){							
+				Task tt = new Task("t"){							
 					public void task() {
-						System.out.println("tt: " + i_f + " " + j_f + " " + tiles[i_f][j_f].getWidth());
+						long t2 = new Date().getTime();
 						 PngEncoder p = new PngEncoder(tiles[i_f][j_f], true);
-				         p.setFilter(PngEncoder.FILTER_NONE);
-				             p.setCompressionLevel(2);
+				        // p.setFilter(PngEncoder.FILTER_NONE);
+				             p.setCompressionLevel(8);
 				         byte[] bs = p.pngEncode(true);
 				         
+				         allPngTime += (new Date().getTime() - t2);
+				         allPngCount++;
 				         synchronized (o3)
 				         {
 				        	 tilePngs[i_f][j_f] = bs;					         
 				        	 allTasksDone();
+				        	 allTaskTime += (new Date().getTime() - t);
+				        	 allTaskCount++;
 				         }
 					}
 				};				
-				t.start();
+				tt.start();
 			}
 	}
 	
@@ -557,17 +627,11 @@ public class ViewerContainer{
 			for (int j=0; j<tilePngs[i].length; j++)
 				if (tilePngs[i][j] == null) return;
 		
-		//System.out.println("all tasks done1");
-		
-		
-		
 		synchronized(o6)
-		{	
-			//System.out.println("all tasks done2");
-				working = false;
-				//System.out.println("all tasks done2.1");		
+		{			
+			working = false;
 		}
-		System.out.println("all tasks done2.2");		
+	
 		synchronized(o8)
 		{
 			//System.out.println("all tasks done3");
@@ -583,7 +647,6 @@ public class ViewerContainer{
 	{
 		synchronized(o8)
 		{
-			//System.out.println("getsendtiles: " + (outTiles == null));
 			if (outTiles == null)
 			{	
 				sendTiles = null;
@@ -648,7 +711,7 @@ public class ViewerContainer{
 					e.printStackTrace();
 				}
 			
-			System.out.println("--- reset tiles -----");
+		//	System.out.println("--- reset tiles -----");
 			
 			outTiles = null;
 			sendTiles = null;
@@ -659,10 +722,12 @@ public class ViewerContainer{
 	}
 	
 	public byte[] getTile(int x, int y)
-	{		
+	{
+		allGetTile++;
+		if (firstGetTileTime < 0)
+			firstGetTileTime = new Date().getTime();
 		synchronized(o5)
 		{
-			//System.out.println("\n" + "gettile: " + x + " , " + y + " , " + round + " " + (sendTiles == null) + "\n");
 			if (x < 0 || y < 0)
 			{				
 				lastImage = null;
@@ -688,6 +753,13 @@ public class ViewerContainer{
 			if (round == 0)
 				createTiles(false);
 			
+			
+			if (ret.length > 100)
+			{
+				sentTiles++;
+				allBytesSent += ret.length;
+				allBytesCount++;
+			}
 			return ret;
 		}
 	}
@@ -712,16 +784,13 @@ public class ViewerContainer{
 	Object o11 = new Object();
 	Object o12 = new Object();
 	
-	int allDifTimes = 0;
-	int allDifCounts = 0;
 	
 	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
 	{		
-		long ttt = new Date().getTime();
+			long ttt = new Date().getTime();
 		
 			diffcount = 0;
 			
-			System.out.println(image);
 		
 	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	       
@@ -763,13 +832,15 @@ public class ViewerContainer{
 	                }
 	                else
 	                	diffcount++;
+	                
+	                if (diffcount > 50000)
+	                	break;
       
 	        }
 	        
-	        allDifTimes +=  (new Date().getTime()-ttt);
-	        allDifCounts++;
-	       // System.out.println("diffcount ---- " + diffcount + " ;   time = " +  (new Date().getTime()-ttt)  + " (" + ttt2 + ")" + " " + (allDifTimes/allDifCounts) );
-	        
+	        allDifTime +=  (new Date().getTime()-ttt);
+	        allDifCount++;
+	      
 	        return dif;
 	}
 	
@@ -798,5 +869,6 @@ public class ViewerContainer{
 		
 		return tiles;
 	}
+
 
 }

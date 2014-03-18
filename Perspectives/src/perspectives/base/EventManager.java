@@ -30,7 +30,11 @@ public class EventManager implements Runnable {
 	
 	public void replaceEvent(PEvent e, String id)
 	{
-		//System.out.println("replace " + id + " " + events.size());
+		replaceEvent(e,id,0);
+	}
+	
+	public void replaceEvent(PEvent e, String id, long afterTime)
+	{
 		synchronized(events)
 		{	
 			for (int i=0; i<events.size(); i++)
@@ -40,10 +44,9 @@ public class EventManager implements Runnable {
 					when.remove(i);
 					ids.remove(i);
 					i--;
-					//System.out.println("removing");
 				}
 				
-			long t = new Date().getTime() + 0;
+			long t = new Date().getTime() + afterTime;
 			
 			int i=0;
 			while (i<events.size() && t > when.get(i))
@@ -51,12 +54,14 @@ public class EventManager implements Runnable {
 			
 			events.add(i,e);	
 			when.add(i, t);
-			ids.add(id);
+			ids.add(i,id);
 				
 				synchronized(this)
 				{
 					this.notifyAll();
-				}			
+				}
+				
+				
 		}
 	}
 	
@@ -78,7 +83,6 @@ public class EventManager implements Runnable {
 	
 	public void scheduleEvent(PEvent e, long afterTime, String id)
 	{
-	//	System.out.println("schedule " + id + " " + events.size());
 		synchronized(events)
 		{
 			long t = new Date().getTime() + afterTime;
@@ -107,7 +111,6 @@ public class EventManager implements Runnable {
 		}
 		while (true)
 		{	
-			//System.out.println("attempt processing " + events.size());
 			PEvent e = null;			
 			synchronized(events)
 			{
@@ -115,8 +118,7 @@ public class EventManager implements Runnable {
 				{
 					long t = new Date().getTime();
 					if (when.get(0) <= t)
-					{
-					//	System.out.println("actual processing " + ids.get(0));
+					{					
 						e = events.get(0); 
 						events.remove(0);
 						when.remove(0);

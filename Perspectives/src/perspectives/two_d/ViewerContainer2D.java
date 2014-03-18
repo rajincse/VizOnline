@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -17,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Date;
@@ -78,12 +80,6 @@ public class ViewerContainer2D extends ViewerContainer{
 	
 	public void render()
 	{
-		if (renderCount >= 1)
-			return;
-
-		renderCount++;
-
-
 		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_INT_ARGB);
 
 
@@ -129,7 +125,8 @@ public class ViewerContainer2D extends ViewerContainer{
 
 		final BufferedImage fimage = image;
 		final Graphics2D gcf = gc;
-		viewer.em.scheduleEvent(new PEvent()
+		
+		viewer.em.replaceEvent(new PEvent()
 		{
 			public void process() {
 				((Viewer2D)viewer).render(gcf);
@@ -141,12 +138,11 @@ public class ViewerContainer2D extends ViewerContainer{
                 }
 				renderDoneCallback(fimage);
 			}
-		});	
+		}, "render");	
 	}
 	
 	public void renderDoneCallback(BufferedImage im)
 	{
-		System.out.println("set viewr image : " + im.getWidth());
 		renderCount--;		
 		this.setViewerImage(im);
 	}
@@ -333,7 +329,26 @@ public class ViewerContainer2D extends ViewerContainer{
 		{
 			ee.printStackTrace();
 		}
-	}	
+	}
+	
+	public Point modelToScreen(Point modelPoint)
+	{
+		Point2D p = transform.transform(modelPoint, null);
+		return new Point((int)p.getX(), (int)p.getY());
+	}
+	
+	public Point screenToModel(Point screenPoint)
+	{
+		Point2D p;
+		try {
+			p = transform.inverseTransform(screenPoint, null);
+			return new Point((int)p.getX(), (int)p.getY());
+		} catch (NoninvertibleTransformException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 
 }

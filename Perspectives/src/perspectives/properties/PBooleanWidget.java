@@ -1,6 +1,8 @@
 package perspectives.properties;
 
 import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,14 +35,20 @@ public class PBooleanWidget extends PropertyWidget {
 		
 		control = new JCheckBox();
 		control.setSelected(((PBoolean)this.p.getValue()).boolValue());
-		ChangeListener listener = new ChangeListener() {
-		      public void stateChanged(ChangeEvent e) {
-		    	  boolean b = control.isSelected();
-		    	  System.out.println(b);
-		    	  th.updateProperty(new PBoolean(b));			        
-		      }
+		ItemListener listener = new ItemListener() {
+		     
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				if (arg0.getSource() == control)
+				{
+				 boolean b = control.isSelected();
+		    	  System.out.println("booleanwidget: " + b);
+		    	  th.updateProperty(new PBoolean(b));
+				}
+				
+			}
 		    };
-		control.addChangeListener(listener);
+		control.addItemListener(listener);
 		
 		control.setBackground(new Color(0,0,0,0));
 

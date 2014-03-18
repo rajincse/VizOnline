@@ -35,8 +35,8 @@ public abstract class Viewer extends PropertyManager
 	private int tooltipY = 0;
 	private long tooltipDelay = 1000;	
 	
-	protected int width;
-	protected int height;
+	//protected int width;
+	//protected int height;
 	
 	
 	public void simulate()
@@ -44,14 +44,14 @@ public abstract class Viewer extends PropertyManager
 		
 	}
 	
-	public void setWidth(int w)
+	/*public void setWidth(int w)
 	{
 		width = w;
 	}
 	public void setHeight(int h)
 	{
 		height = h;
-	}
+	}*/
 	
 	private class SimulateEvent implements PEvent
 	{
@@ -61,10 +61,14 @@ public abstract class Viewer extends PropertyManager
 			this.delay = delay;
 		}
 		public void process() {
+			System.out.println("processing simulating event");
 			if (simulating)
 				simulate();
 			if (simulating)
-				em.scheduleEvent(new SimulateEvent(delay), delay);
+			{
+				System.out.println("scheduling sim event");
+				em.scheduleEvent(new SimulateEvent(delay), delay,"simevent");
+			}
 		}
 		
 	}
@@ -82,6 +86,7 @@ public abstract class Viewer extends PropertyManager
 	}
 	public void stopSimulation()
 	{
+		System.out.println("stop simu");
 		synchronized(this)
 		{
 			simulating = false;
@@ -236,6 +241,16 @@ public abstract class Viewer extends PropertyManager
 		super.addProperty(p, where);
 		p.setEventManager(em);
 	}	
+	
+	public int getContainerWidth()
+	{
+		return container.getWidth();
+	}
+	
+	public int getContainerHeight()
+	{
+		return container.getHeight();
+	}
 	
 	
 	
