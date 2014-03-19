@@ -71,12 +71,18 @@ public class PropertyManagement extends HttpServlet {
 	        try {
 	        
 	           if (request.getParameter("page").equals("pollprops")) {
-	        	  
+	        	    System.out.println("********************************");
 	                String pmn = request.getParameter("propManagerName");
 	               
 	                PropertyManager pm = getPropertyManager(e,pmn);
-	                if (pm != null)
-	                	outResponse = pollProps(pm, request, response);
+	                if (pm != null){
+                            System.out.println("::::PM is not null");
+                            outResponse = pollProps(pm, request, response);
+                        }
+                        else{
+                            System.out.println(":::: null PM");
+                        }
+	                	
 	               // System.out.println("pollprops " + pmn + ": " + outResponse + " end poll props");
 	           } 
 	           
@@ -130,6 +136,9 @@ public class PropertyManagement extends HttpServlet {
 	        session.setAttribute("environment", e); //reset the environment session
 	
 	        if (outResponse != null) {
+                    System.out.println("The outResponse is ::::::"+outResponse);
+                  
+                    
 	            out = response.getWriter();
 	            out.write(outResponse);
 	            out.flush();

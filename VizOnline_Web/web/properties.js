@@ -739,7 +739,7 @@ function PFileInput(name, value, readonly, hidden, disabled, propertyManager)
     //create a paragraph and add the label and the checkbox to it
 
     this.div = createDiv();
-	var table = addPairToTable(this.label, this.fileBox)
+	var table = addPairToTable(this.label, this.fileBox);
     	this.div.appendChild(table);
 
 

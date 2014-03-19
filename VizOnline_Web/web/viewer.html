@@ -33,18 +33,26 @@
          
 	function initialize()
 	{
-
-		pmDiv = document.createElement("div");
-		var pm = new PropertyManager(pmDiv, window.viewerName);
+            var parentWindow = window.opener;
+            var viewerName;
+            if(parentWindow){
+                
+                viewerName = parentWindow.selectedViewer;
+            
+                pmDiv = document.createElement("div");
+		var pm = new PropertyManager(pmDiv, viewerName);
 
 		document.getElementById("left").appendChild(pmDiv);
 
 		var vcDiv = document.createElement("div");
 
 
-		vc = new ViewerCanvas(vcDiv, window, window.viewerName);
+		vc = new ViewerCanvas(vcDiv, window, viewerName);
 
 		document.getElementById("right").appendChild(vcDiv);
+               
+        }
+		
 
 
 	}

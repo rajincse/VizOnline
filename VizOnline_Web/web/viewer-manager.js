@@ -7,7 +7,7 @@ function ViewerManager(div, dataSourceManager)
 	this.viewers = [];
 	this.selectedViewerIndex = -1;
 
-	var selectedViewer = "";
+        this.selectedViewer = "";
 
 	////// viewer creation /////////////
 
@@ -398,9 +398,9 @@ function ViewerManager(div, dataSourceManager)
 
                     		var url = getURL() + response[0] ;
 
-                   		//var win = window.open(url, '_blank');
+                   		this.selectedViewer = thisObject.viewers[which];
 				var win = window.open(url);
-				win.viewerName = response[1];
+				
 
                     		win.focus();
            
