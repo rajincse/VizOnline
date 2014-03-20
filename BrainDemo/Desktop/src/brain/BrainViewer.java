@@ -36,8 +36,10 @@ import perspectives.base.PropertyManager;
 import perspectives.base.Task;
 import perspectives.three_d.Vector3D;
 import perspectives.three_d.Viewer3D;
+import perspectives.properties.PBoolean;
 import perspectives.properties.PColor;
 import perspectives.properties.PInteger;
+import perspectives.properties.POptions;
 import perspectives.properties.PPercent;
 import perspectives.base.PropertyType;
 import perspectives.properties.PString;
@@ -48,10 +50,12 @@ public class BrainViewer extends Viewer3D{
 	public static final String PROPERTY_TUBE_WIDTH="Appearance.TubeWidth";
 	public static final String PROPERTY_TUBE_FACES="Appearance.TubeFaces";
 	public static final String PROPERTY_TUBE_COLOR="Appearance.TubeColor";
+	public static final String PROPERTY_SELECTION_MODE="Selection Mode";
+	public static final String PROPERTY_ONLY_SELECTED="Only Selected";
 	
 	public static final double TUBE_WIDTH_COEFFICIENT = 0.01;
+	public static final Color COLOR_SELECTION = Color.red;
 	
-
 	Tube[] tubes;
 
 	
@@ -143,39 +147,60 @@ public class BrainViewer extends Viewer3D{
 							};
                                         addProperty(ptubecolor);
 
-                                        Property<PString> pselection = new Property<PString>(BrainViewer.PROPERTY_SELECTED_TUBES, new PString("")) 
-                                        {
-                                           @Override
-                                            protected void receivedBroadcast(PString newvalue, PropertyManager sender) {
-                                               
-                                                selectedTubes = ((PString) newvalue).stringValue();
+                            Property<PString> pselection = new Property<PString>(BrainViewer.PROPERTY_SELECTED_TUBES, new PString("")) 
+                            {
+                               @Override
+                                protected void receivedBroadcast(PString newvalue, PropertyManager sender) {
+                                   
+                                    selectedTubes = ((PString) newvalue).stringValue();
 
-                                                String[] split = selectedTubes.split(",");
-                                                getProperty("SelectedTubes").setValue(new PString(selectedTubes));
-                                                Color tubeColor = ((PColor) getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
+                                    String[] split = selectedTubes.split(",");
+                                    getProperty("SelectedTubes").setValue(new PString(selectedTubes));
+                                    Color tubeColor = ((PColor) getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
 
-                                                ArrayList<Integer> selectedTubeIndices = new ArrayList<Integer>();
-                                                for (String tubeIndex : split) {
-                                                    if (!tubeIndex.isEmpty()) {
-                                                        int index = Integer.parseInt(tubeIndex.trim());
-                                                        selectedTubeIndices.add(index);
-                                                    }
+                                    ArrayList<Integer> selectedTubeIndices = new ArrayList<Integer>();
+                                    for (String tubeIndex : split) {
+                                        if (!tubeIndex.isEmpty()) {
+                                            int index = Integer.parseInt(tubeIndex.trim());
+                                            selectedTubeIndices.add(index);
+                                        }
 
-                                                }
-                                                for (int i = 0; i < tubes.length; i++) {
-                                                    changeColorTube.add(i);
-                                                    if (selectedTubeIndices.contains(new Integer(i))) {
-                                                        changeColor.add(Color.red);
-                                                    } else {
-                                                        changeColor.add(tubeColor);
-                                                    }
-                                                }
-                                                thisf.requestRender();
-                                            }
-                                        };
-                                        pselection.setPublic(true);
-                                        pselection.setVisible(false);
-                                        addProperty(pselection);
+                                    }
+                                    for (int i = 0; i < tubes.length; i++) {
+                                        changeColorTube.add(i);
+                                        if (selectedTubeIndices.contains(new Integer(i))) {
+                                            changeColor.add(COLOR_SELECTION);
+                                            tubes[i].setSelected(true);
+                                        } else {
+                                            changeColor.add(tubeColor);
+                                            tubes[i].setSelected(false);
+                                        }
+                                    }
+                                    thisf.requestRender();
+                                }
+                            };
+                            pselection.setPublic(true);
+                            pselection.setVisible(false);
+                            addProperty(pselection);
+                            
+                            POptions pOption = new POptions(new String[]{"Add", "Remove"});
+                            Property<POptions> pSelectionMode = new Property<POptions>(PROPERTY_SELECTION_MODE, pOption )
+                    		{
+                            	protected boolean updating(POptions newvalue) {
+                            		thisf.requestRender();
+                            		return true;
+                            	};
+                    		};
+                            thisf.addProperty(pSelectionMode);
+                            
+                            Property<PBoolean> pOnlySelected = new Property<PBoolean>(PROPERTY_ONLY_SELECTED, new PBoolean(false))
+                            {
+                            	protected boolean updating(PBoolean newvalue) {
+                            		thisf.requestRender();
+                            		return true;
+                            	};
+                    		};
+                            thisf.addProperty(pOnlySelected);
 				
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -232,8 +257,43 @@ public class BrainViewer extends Viewer3D{
 
 	}
 
+	private boolean isTubeSelected(int index)
+	{
 
-
+		return this.tubes[index].isSelected();
+	}
+	private void setAllTubesDeselected()
+	{
+		selectedTubes = "";
+		getProperty("SelectedTubes").setValue(new PString(selectedTubes));
+		Color tubeColor = ((PColor)getProperty("Appearance.TubeColor").getValue()).colorValue();
+		for (int i=0; i<tubes.length; i++)
+		{
+		//	System.out.println(tubes[i].color.getRed());
+			//if (tubes[i].color.getRed() == 255)
+			if (tubes[i].color== COLOR_SELECTION)
+			{
+				changeColor.add(tubeColor);
+				changeColorTube.add(i);
+			}
+			tubes[i].setSelected(false);
+		}
+	}
+	private String getSelectedTubesString()
+	{
+		String selected="";
+		for (int i=0; i<tubes.length; i++)
+		{
+			if (tubes[i].isSelected())
+			{
+				if (selected.length() == 0)
+					selected += i;
+				else
+					selected += "," + i;
+			}
+		}
+		return selected;
+	}
 
 	@Override
 	public void render() {
@@ -328,9 +388,15 @@ public class BrainViewer extends Viewer3D{
         	//GL11.glPopMatrix();
         	return;
         	}
+        
+        boolean onlySelectedMode =((PBoolean)this.getProperty(PROPERTY_ONLY_SELECTED).getValue()).boolValue();
  
         for (int i=0; i<tubes.length; i++)
         {	
+        	if(onlySelectedMode && !this.isTubeSelected(i))
+        	{
+        		continue;
+        	}
         	GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo[i]);
 
         	GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
@@ -426,18 +492,6 @@ public class BrainViewer extends Viewer3D{
 	{
 		if (button == 1)
 		{
-			selectedTubes = "";
-			getProperty("SelectedTubes").setValue(new PString(selectedTubes));
-			Color tubeColor = ((PColor)getProperty("Appearance.TubeColor").getValue()).colorValue();
-			for (int i=0; i<tubes.length; i++)
-			{
-			//	System.out.println(tubes[i].color.getRed());
-				if (tubes[i].color.getRed() == 255)
-				{
-					changeColor.add(tubeColor);
-					changeColorTube.add(i);
-				}
-			}
 			
 			this.requestRender();
 
@@ -484,6 +538,9 @@ public class BrainViewer extends Viewer3D{
 	
 	public void changeSelection(Line2D l)
 	{
+		Color tubeColor = ((PColor) this.getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
+		int mode = ((POptions)this.getProperty(PROPERTY_SELECTION_MODE).getValue()).selectedIndex;
+		
 		long t = new Date().getTime();
 		
 		if (projectedSegments == null)
@@ -499,20 +556,24 @@ public class BrainViewer extends Viewer3D{
 				Line2D.Double l2 = new Line2D.Double(projectedSegments[i][j].x, projectedSegments[i][j].y, projectedSegments[i][j+1].x, projectedSegments[i][j+1].y);
 				
 				if (l.intersectsLine(l2))
-				{						
-					changeColor.add(Color.red);
+				{		
 					changeColorTube.add(i);
-					
-					if (selectedTubes.length() == 0)
-						selectedTubes += i;
+					if(mode ==0)
+					{
+						changeColor.add(COLOR_SELECTION);						
+						this.tubes[i].setSelected(true);
+					}
 					else
-						selectedTubes += "," + i;
-
+					{
+						changeColor.add(tubeColor);						
+						this.tubes[i].setSelected(false);
+					}
+					
 					break;
 				}
 			}
 		}
-		
+		this.selectedTubes = this.getSelectedTubesString();
 		this.getProperty("SelectedTubes").setValue(new PString(selectedTubes));
 		
 		System.out.println("changed selection in: " + (new Date().getTime()-t));

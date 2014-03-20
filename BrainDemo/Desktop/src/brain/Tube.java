@@ -14,12 +14,13 @@ public class Tube
 	Vector3D[] vertices;
 	int[] indeces;
 	Vector3D[] normals;
+	private boolean isSelected;
 	
 	public Tube(Vector3D[] segments, int faces, double width, Color color)
 	{
 		this.segments = segments;
 		this.color = color;
-		
+		this.isSelected = false;
 		
 	    //find first normal
 	    Vector3D prev_dir = segments[1].minus(segments[0]);
@@ -240,5 +241,13 @@ public class Tube
 	public static double getDistance(Vector3D[] tube1, Vector3D[] tube2)
 	{
 		return 1;
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
 	}
 }
