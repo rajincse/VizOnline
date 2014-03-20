@@ -45,6 +45,12 @@ import perspectives.properties.PString;
 
 public class BrainViewer extends Viewer3D{
 	public static final String PROPERTY_SELECTED_TUBES="SelectedTubes";
+	public static final String PROPERTY_TUBE_WIDTH="Appearance.TubeWidth";
+	public static final String PROPERTY_TUBE_FACES="Appearance.TubeFaces";
+	public static final String PROPERTY_TUBE_COLOR="Appearance.TubeColor";
+	
+	public static final double TUBE_WIDTH_COEFFICIENT = 0.01;
+	
 
 	Tube[] tubes;
 
@@ -75,62 +81,63 @@ public class BrainViewer extends Viewer3D{
 	public BrainViewer(String name, BrainData dat) {
 		super(name);
 		this.data = dat;
-                final BrainViewer thisf = this;
+        final BrainViewer thisf = this;
 		Task t = new Task("Create Tubes")
 		{
 			@Override
 			public void task() {
-				createGeometry(6,0.01, Color.LIGHT_GRAY);
+				
 				
 				try {
-					Property<PInteger> ptubewidth = new Property<PInteger>("Appearance.TubeWidth", new PInteger(10))
+					Property<PInteger> ptubewidth = new Property<PInteger>(PROPERTY_TUBE_WIDTH, new PInteger(1))
 							{
 								@Override
 								public boolean updating(PInteger newvalue)
 								{
 									double width = ((PInteger)newvalue).intValue();
 									if (width <= 0) return true;
-									width *= 0.001;
+									width *= TUBE_WIDTH_COEFFICIENT;
 									
-									int faces = ((PInteger)getProperty("Appearance.TubeFaces").getValue()).intValue();
+									int faces = ((PInteger)getProperty(PROPERTY_TUBE_FACES).getValue()).intValue();
 									
-									Color color = ((PColor)getProperty("Appearance.TubeColor").getValue()).colorValue();
+									Color color = ((PColor)getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
 									createGeometry(faces, width, color);
+									thisf.requestRender();
 									return true;
 								}
 							};
 					addProperty(ptubewidth);
 					
-					Property<PInteger> ptubefaces = new Property<PInteger>("Appearance.TubeFaces", new PInteger(6))
+					Property<PInteger> ptubefaces = new Property<PInteger>(PROPERTY_TUBE_FACES, new PInteger(6))
 							{
 								@Override
 								public boolean updating(PInteger newvalue)
 								{
-									double width = ((PInteger)getProperty("Appearance.TubeWidth").getValue()).intValue();
-									width *= 0.01;
+									double width = ((PInteger)getProperty(PROPERTY_TUBE_WIDTH).getValue()).intValue();
+									width *= TUBE_WIDTH_COEFFICIENT;
 									
 									int faces = ((PInteger)newvalue).intValue();
-									Color color = ((PColor)getProperty("Appearance.TubeColor").getValue()).colorValue();
+									Color color = ((PColor)getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
 									createGeometry(faces, width, color);
-									
+									thisf.requestRender();
 									return true;
 								}
 							};
 					addProperty(ptubefaces);
 				
-					Property<PColor> ptubecolor = new Property<PColor>("Appearance.TubeColor", new PColor(Color.LIGHT_GRAY))
+					Property<PColor> ptubecolor = new Property<PColor>(PROPERTY_TUBE_COLOR, new PColor(Color.LIGHT_GRAY))
 							{
 								@Override
 								public boolean updating(PColor newvalue)
 								{
-									double width = ((PInteger)getProperty("Appearance.TubeWidth").getValue()).intValue();
-									width *= 0.01;
+									double width = ((PInteger)getProperty(PROPERTY_TUBE_WIDTH).getValue()).intValue();
+									width *= TUBE_WIDTH_COEFFICIENT;
 									
-									int faces = ((PInteger)getProperty("Appearance.TubeFaces").getValue()).intValue();
+									int faces = ((PInteger)getProperty(PROPERTY_TUBE_FACES).getValue()).intValue();
 									
 									Color color = ((PColor)newvalue).colorValue();
 									createGeometry(faces, width, color);
-									
+									thisf.requestRender();
 									return true;
 								}
 							};
@@ -145,7 +152,7 @@ public class BrainViewer extends Viewer3D{
 
                                                 String[] split = selectedTubes.split(",");
                                                 getProperty("SelectedTubes").setValue(new PString(selectedTubes));
-                                                Color tubeColor = ((PColor) getProperty("Appearance.TubeColor").getValue()).colorValue();
+                                                Color tubeColor = ((PColor) getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
 
                                                 ArrayList<Integer> selectedTubeIndices = new ArrayList<Integer>();
                                                 for (String tubeIndex : split) {
@@ -174,6 +181,14 @@ public class BrainViewer extends Viewer3D{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				int faces = ((PInteger)getProperty(PROPERTY_TUBE_FACES).getValue()).intValue();
+				
+				Color color = ((PColor)getProperty(PROPERTY_TUBE_COLOR).getValue()).colorValue();
+				double width = ((PInteger)getProperty(PROPERTY_TUBE_WIDTH).getValue()).intValue();
+				width *= TUBE_WIDTH_COEFFICIENT;
+				
+				thisf.createGeometry(faces,width, color );
 				
 				done();
 	
@@ -199,7 +214,7 @@ public class BrainViewer extends Viewer3D{
 		final Color colorf = color;
 		
 				created = false;
-				System.out.println("creating geom");
+				System.out.println("creating geom("+faces+", "+width+")");
 				
 				tubes = new Tube[data.segments.length];
 				for (int i=0; i<data.segments.length; i++)
