@@ -12,28 +12,14 @@ public class main {
 		  
 		  Environment e = new Environment(false);
 	    
-	       
-	     e.registerDataSourceFactory(new GraphDataFactory());	      
-	    //e.registerDataSourceFactory(new TableDataFactory()); 
 	      
-	     e.registerViewerFactory(new GraphViewerFactory());
-		  
-		  
 	      
-	     // e.registerViewerFactory(new BundledGraphFactory());
-	      
-	    //  e.registerViewerFactory(new ParallelCoordinateViewerFactory());
 	      
 	     e.registerDataSourceFactory(new BrainDataFactory());
-	      e.registerViewerFactory(new BrainViewerFactory());
-	    //  e.registerViewerFactory(new BrainStatsViewerFactory());
-	      
-	   //   e.registerViewerFactory(new PlanarProjectionViewerFactory());
-	      
-	    //  e.addViewer(new GazeAnalyzer("bla"));
-	      
-	   
-	      
+	     e.registerViewerFactory(new BrainViewerFactory());
+	    
+	     e.registerDataSourceFactory(new BrainDataModifierFactory());
+	     
 	      
 	  }
 }
