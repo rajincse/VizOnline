@@ -49,32 +49,52 @@
 
 	}
 
-	window.onresize = function(){
-
-	var winW = 630, winH = 460;
-if (document.body && document.body.offsetWidth) {
- winW = document.body.offsetWidth;
- winH = document.body.offsetHeight;
-}
-if (document.compatMode=='CSS1Compat' &&
-    document.documentElement &&
-    document.documentElement.offsetWidth ) {
- winW = document.documentElement.offsetWidth;
- winH = document.documentElement.offsetHeight;
-}
-if (window.innerWidth && window.innerHeight) {
- winW = window.innerWidth;
- winH = window.innerHeight;
-}
-
-
- vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
-
-
-};
-
-         
+    window.onresize = function(){
+        
+	browserWindowResized();
+        
+    };
+    function browserWindowResized()
+    {
+        var winW = 630, winH = 460;
+        if (document.body && document.body.offsetWidth) {
+            winW = document.body.offsetWidth;
+            winH = document.body.offsetHeight;
+        }
+        if (document.compatMode=='CSS1Compat' &&
+            document.documentElement &&
+            document.documentElement.offsetWidth ) {
+            winW = document.documentElement.offsetWidth;
+            winH = document.documentElement.offsetHeight;
+        }
+        if (window.innerWidth && window.innerHeight) {
+            winW = window.innerWidth;
+            winH = window.innerHeight;
+        }
+        
+        
+        vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
+    }
     
+         
+    function showProperties() {
+                document.getElementById("left").style.display = "block";
+                document.getElementById("hideProperties").style.display = "block";
+                document.getElementById("showProperties").style.display = "none";
+
+
+                browserWindowResized();
+            }
+
+            function hideProperties() {
+                document.getElementById("left").style.display = "none";
+                document.getElementById("hideProperties").style.display = "none";
+                document.getElementById("showProperties").style.display = "block";
+
+
+                browserWindowResized();
+
+            }
 
 
         </script>
@@ -89,7 +109,18 @@ if (window.innerWidth && window.innerHeight) {
 
 		<table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
 			<tr style ="vertical-align : top; margin : 0; padding : 0; border : 0">
-				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="left" ></div></td>
+                                
+				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> 
+                                    <table>
+                                        <tr>
+                                            <td><div id="showProperties" onclick="showProperties();"></div></td>
+                                            <td style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+                                                <div id="left" ></div>
+                                            </td>
+                                            <td><div id="hideProperties" onclick="hideProperties();"></div></td>
+                                        </tr>
+                                    </table>
+                                </td>
 				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right"></div></td>				
 			</tr>
 		</table>
