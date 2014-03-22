@@ -178,7 +178,7 @@ public class PropertyManager{
 		return name;
 	}	
 
-	protected void addProperty(Property p, int where) throws Exception {
+	protected boolean addProperty(Property p, int where){
 		
 		int index = -1;
 		for (int i=0; i<acceptedTypes.size(); i++)
@@ -188,7 +188,7 @@ public class PropertyManager{
 				break;
 			}
 		if (index < 0)
-			throw new Exception();
+			return false;
 		
 		props.add(where,p);
 		p.addPropertyChangeListener(pcl);
@@ -197,12 +197,14 @@ public class PropertyManager{
 			pmcl.get(i).propertyAdded(this, p);
 		
 		if (blockedd)
-			p.setDisabled(true);		
+			p.setDisabled(true);
+		
+		return true;
 		
 	}
 	
-	protected void addProperty(Property p) throws Exception {
-		addProperty(p, props.size());		
+	protected boolean addProperty(Property p){
+		return addProperty(p, props.size());		
 	}
 	
 	protected void removeProperty(String name)

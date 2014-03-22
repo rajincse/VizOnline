@@ -64,8 +64,145 @@ public class GraphViewer extends Viewer2D {
         graph = g.graph;
 
         final GraphViewer gv = this;
+
+ 
+        try {
+
+        	Property<PFileInput> p1 = new Property<PFileInput>("Load Positions", new PFileInput())
+            		{                    	
+            			@Override
+            			public boolean updating(PFileInput newvalue)
+            			{
+            				loadPositions(newvalue.path);
+            				return true;
+            			}                    			
+            		};
+            gv.addProperty(p1);
+           
+            
+          
+            Property<PDouble> p2 = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.))
+            		{
+            			@Override
+            			public boolean updating(PDouble newvalue)
+            			{
+            				((BarnesHutGraphDrawer) drawer).setSpringLength(newvalue.doubleValue());
+            				return true;
+            			}  
+            		};
+            gv.addProperty(p2);
+           
+            
+
+            Property<PDouble> p3 = new Property<PDouble>("Simulation.MAX_STEP", new PDouble(100.))
+            		{
+            			@Override
+            			public boolean updating(PDouble newvalue)
+            			{
+            				((BarnesHutGraphDrawer) drawer).max_step = newvalue.doubleValue();
+            				return true;
+            			} 
+            		};
+
+            gv.addProperty(p3);
+
+            Property<PBoolean> p4 = new Property<PBoolean>("Simulation.Simulate", new PBoolean(false))
+            		{
+            			public boolean updating(PBoolean newvalue)
+            			{
+            				//System.out.println("simulation.simulate " + newvalue.boolValue());
+            				  if (newvalue.boolValue())
+            		                gv.startSimulation(50);
+            		          else
+            		                gv.stopSimulation();
+            				  return true;
+            		           
+            			}
+            		};
+            gv.addProperty(p4);
+
+            Property<PFileOutput> p5 = new Property<PFileOutput>("Save", new PFileOutput())
+            		{
+            	
+            		};
+            gv.addProperty(p5);
+
+            PFileOutput f = new PFileOutput();                   
+            Property<PFileOutput> p6 = new Property<PFileOutput>("Save Positions", f)
+            		{
+            			@Override
+            			public boolean updating(PFileOutput newvalue)
+            			{
+            				savePositions(newvalue.path);
+            				return true;
+            			}  
+            		};
+            gv.addProperty(p6);
+
+            Property<PInteger> p7 = new Property<PInteger>("Appearance.Node Size", new PInteger(22))
+            		{
+            			@Override
+            			 public boolean updating(PInteger newvalue)
+            			 {
+            		            int s = newvalue.intValue();
+            		            for (int i = 0; i < ovals.size(); i++) {
+            		                ovals.get(i).h = s;
+            		                ovals.get(i).w = s;
+            		            }
+            		            gv.requestRender();
+            		            return true;
+            			 }
+            			 
+							@Override
+							protected void receivedBroadcast(PInteger newvalue, PropertyManager sender) {
+					            this.setValue(newvalue); 									
+							}
+            		};
+            p7.setPublic(true);
+            addProperty(p7);
+            
+            Property<PColor> p8 = new Property<PColor>("Appearance.Node Color", new PColor(Color.blue))
+            		{
+						@Override
+						protected void receivedBroadcast(PColor newvalue, PropertyManager sender) {
+							this.setValue(newvalue);
+							
+						}
+						@Override
+						public boolean updating(PColor newvalue)
+						{
+							gv.requestRender();
+							return true;
+						}
+            	
+            		};
+            p8.setPublic(true);
+            addProperty(p8);
+            
+            
+            Property<PString> p99 = new Property<PString>("Selected", new PString(""))
+            		{
+
+						@Override
+						protected boolean updating(PString newvalue) {
+							
+							//System.out.println("selecting a node " + newvalue);
+							ArrayList<String> nodes = graph.getNodes();
+							int index = nodes.indexOf(newvalue.stringValue());
+							ovalInteraction.getItem(index).selected = true;
+							return true;
+						}
+            	
+            		};
+            gv.addProperty(p99);
+            p99.setPublic(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         
-     
+        
+        
         initTask = new Task("Initializing") {
         	
             public void task() {
@@ -73,14 +210,16 @@ public class GraphViewer extends Viewer2D {
                 ovalInteraction = new ObjectInteraction() {
                     @Override
                     protected void mouseIn(int obj) {
-                    	gv.setTooltipContent(obj);
+                       gv.setTooltipContent(obj);
+                       // System.out.println(" ----- scheduling node animation");
                         final int o = obj;
-                        gv.createAnimation(new Animation.IntegerAnimation(22, 30, 300) {
+                        gv.createAnimation(new Animation.IntegerAnimation(22, 30, 500) {
                             public void step(int v) {
+                            //	System.out.println(" ----- node animation step + " + v);
                                 Rectangle l = ((RectangleItem) ovalInteraction.getItem(o)).r;
                                 l.w = v;
                                 l.h = v;
-                                gv.requestRender();
+                                requestRender();
                             }
                         });
                     }
@@ -134,128 +273,10 @@ public class GraphViewer extends Viewer2D {
                 }
 
                 drawer = new BarnesHutGraphDrawer(graph);
+                ((BarnesHutGraphDrawer) drawer).setSpringLength(300.);
+                ((BarnesHutGraphDrawer) drawer).max_step = 200.;
 
-                try {
-
-                	Property<PFileInput> p1 = new Property<PFileInput>("Load Positions", new PFileInput())
-                    		{                    	
-                    			@Override
-                    			public boolean updating(PFileInput newvalue)
-                    			{
-                    				loadPositions(newvalue.path);
-                    				return true;
-                    			}                    			
-                    		};
-                    gv.addProperty(p1);
-                   
-                    
-                  
-                    Property<PDouble> p2 = new Property<PDouble>("Simulation.SPRING_LENGTH", new PDouble(300.))
-                    		{
-		            			@Override
-		            			public boolean updating(PDouble newvalue)
-		            			{
-		            				((BarnesHutGraphDrawer) drawer).setSpringLength(newvalue.doubleValue());
-		            				return true;
-		            			}  
-                    		};
-                    gv.addProperty(p2);
-                    ((BarnesHutGraphDrawer) drawer).setSpringLength(300.);
-                    
-
-                    Property<PDouble> p3 = new Property<PDouble>("Simulation.MAX_STEP", new PDouble(100.))
-                    		{
-		            			@Override
-		            			public boolean updating(PDouble newvalue)
-		            			{
-		            				((BarnesHutGraphDrawer) drawer).max_step = newvalue.doubleValue();
-		            				return true;
-		            			} 
-                    		};
-                    ((BarnesHutGraphDrawer) drawer).max_step = 200.;
-                    gv.addProperty(p3);
-
-                    Property<PBoolean> p4 = new Property<PBoolean>("Simulation.Simulate", new PBoolean(false))
-                    		{
-                    			public boolean updating(PBoolean newvalue)
-                    			{
-                    				  if (newvalue.boolValue())
-                    		                gv.startSimulation(50);
-                    		          else
-                    		                gv.stopSimulation();
-                    				  return true;
-                    		           
-                    			}
-                    		};
-                    gv.addProperty(p4);
-
-                    Property<PFileOutput> p5 = new Property<PFileOutput>("Save", new PFileOutput())
-                    		{
-                    	
-                    		};
-                    gv.addProperty(p5);
-
-                    PFileOutput f = new PFileOutput();                   
-                    Property<PFileOutput> p6 = new Property<PFileOutput>("Save Positions", f)
-                    		{
-		            			@Override
-		            			public boolean updating(PFileOutput newvalue)
-		            			{
-		            				savePositions(newvalue.path);
-		            				return true;
-		            			}  
-                    		};
-                    gv.addProperty(p6);
-
-                    Property<PInteger> p7 = new Property<PInteger>("Appearance.Node Size", new PInteger(22))
-                    		{
-                    			@Override
-                    			 public boolean updating(PInteger newvalue)
-                    			 {
-                    		            int s = newvalue.intValue();
-                    		            for (int i = 0; i < ovals.size(); i++) {
-                    		                ovals.get(i).h = s;
-                    		                ovals.get(i).w = s;
-                    		            }
-                    		            gv.requestRender();
-                    		            return true;
-                    			 }
-                    			 
- 								@Override
- 								protected void receivedBroadcast(PInteger newvalue, PropertyManager sender) {
- 						            this.setValue(newvalue); 									
- 								}
-                    		};
-                    p7.setPublic(true);
-                    addProperty(p7);
-                    
-                    Property<PColor> p8 = new Property<PColor>("Appearance.Node Color", new PColor(Color.blue))
-                    		{
-								@Override
-								protected void receivedBroadcast(PColor newvalue, PropertyManager sender) {
-									this.setValue(newvalue);
-									
-								}
-								@Override
-								public boolean updating(PColor newvalue)
-								{
-									gv.requestRender();
-									return true;
-								}
-                    	
-                    		};
-                    p8.setPublic(true);
-                    addProperty(p8);
-                    
-                    
-                    Property<PString> p99 = new Property<PString>("SelectedNodes", new PString(""));
-                    gv.addProperty(p99);
-                    p99.setPublic(true);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                done();
+                 done();
                 requestRender();
             }
         };
@@ -267,6 +288,8 @@ public class GraphViewer extends Viewer2D {
     }
 
     public void simulate() {
+    	
+    	System.out.println("simulate");
 
         if (!initTask.done) {
             return;
@@ -379,11 +402,10 @@ public class GraphViewer extends Viewer2D {
 
         }
     }
-
-    protected void setTooltipContent(int index)
-    {
-    	this.setToolTipText(graph.getNodes().get(index));
-    }
+    protected void setTooltipContent(int index) {
+		// TODO Auto-generated method stub
+		this.setToolTipText(""+index);
+	}
     public void renderEdge(int p1, int p2, int edgeIndex, boolean selected, boolean hovered, Graphics2D g) {
         int x1 = (int) drawer.getX(p1);
         int y1 = (int) drawer.getY(p1);
@@ -398,7 +420,7 @@ public class GraphViewer extends Viewer2D {
             g.setColor(new Color(150, 150, 150, 200));
         }
 
-        g.setColor(new Color(150, 150, 150, 200));
+       // g.setColor(new Color(150, 150, 150, 200));
 
         g.setStroke(new BasicStroke(2));
 
@@ -577,5 +599,18 @@ public class GraphViewer extends Viewer2D {
                 drawer.setY(i, 0);
             }
         }
+    }
+    
+    public int[] getNodeCoordinates(int index)
+    {
+    	return new int[]{(int)drawer.getX(index), (int)drawer.getY(index)};
+    }
+    
+    public void setNodeCoordinates(int index, int x, int y)
+    {
+    	drawer.setX(index, x);
+    	drawer.setY(index, y);
+    	ovals.get(index).x = x;
+    	ovals.get(index).y = y;
     }
 }

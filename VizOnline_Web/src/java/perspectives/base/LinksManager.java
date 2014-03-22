@@ -1,7 +1,9 @@
 package perspectives.base;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,13 +40,18 @@ public class LinksManager extends JDialog
 		
 		this.setTitle("Links");
 		
-		this.setBounds(200, 200, 300, 500);
+		 Toolkit tool = Toolkit.getDefaultToolkit();		 
+		 Image icon = tool.getImage("image/links.png");
+		this.setIconImage(icon);
+		
+		this.setBounds(200, 200, 250, 300);
 		 
 		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
 		
 		Viewer[][] links = env.getLinks();
 		Vector<Viewer> viewers = env.getViewers();
 		
+		this.getContentPane().add(Box.createVerticalStrut(10));
 		for (int i=0; i<viewers.size()-1; i++)
 		{
 			for (int j=i+1; j<viewers.size(); j++)
@@ -60,6 +67,7 @@ public class LinksManager extends JDialog
 				JPanel oneLink = new JPanel();
 				oneLink.setLayout(new BoxLayout(oneLink, BoxLayout.X_AXIS));
 				oneLink.add(Box.createHorizontalGlue());
+				oneLink.setMaximumSize(new Dimension(1000,50));
 				
 				String label = "Link";
 				if (isLink) label = "Unlink";
@@ -88,11 +96,16 @@ public class LinksManager extends JDialog
 				oneLink.add(create); oneLink.add(Box.createHorizontalStrut(20));
 				oneLink.add(v2l); oneLink.add(Box.createHorizontalGlue());
 				
+				
 				this.getContentPane().add(oneLink);
+				this.getContentPane().add(Box.createVerticalStrut(10));
 			}
 		}
 		
+		this.getContentPane().add(Box.createVerticalGlue());
+		this.getContentPane().setBackground(Color.white);
 		this.revalidate();
+		
 				
 	
 		

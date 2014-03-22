@@ -39,6 +39,7 @@ public class GraphData extends DataSource {
 					{
 						@Override
 						protected boolean updating(PFileInput newvalue) {
+						
 							final GraphData th = thisf;
 							final PFileInput newvalue_ = newvalue;
 							Task t = new Task("Load file")
@@ -47,10 +48,14 @@ public class GraphData extends DataSource {
 								{
 									POptions pf = (POptions)th.getProperty("Format").getValue();						
 									String fs = pf.options[pf.selectedIndex];
+									
+									
 									if (fs.equals("GraphML"))
 										graph.fromGraphML(new File(((PFileInput) newvalue_).path));
 									else if (fs.equals("EdgeList"))
-										graph.fromEdgeList(new File(((PFileInput)newvalue_).path));				
+										graph.fromEdgeList(new File(((PFileInput)newvalue_).path));	
+									
+								
 									
 									
 									if (graph.numberOfNodes() != 0)

@@ -31,7 +31,7 @@ public class PFileOutputWidget extends PropertyWidget {
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		final PropertyWidget th = this;
 		
-		control = new JButton(this.p.getDisplayName(), new ImageIcon(Toolkit.getDefaultToolkit().getImage("Save16.gif")));			
+		control = new JButton(this.p.getDisplayName(), new ImageIcon(Toolkit.getDefaultToolkit().getImage("images/Save16.gif")));			
 		control.setPreferredSize(new Dimension(130,20));
 		ActionListener listener = new ActionListener() {
 		      public void actionPerformed(ActionEvent e) {

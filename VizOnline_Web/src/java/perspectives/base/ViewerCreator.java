@@ -60,7 +60,7 @@ public class ViewerCreator extends JDialog {
         this.setAlwaysOnTop(true);
         this.setModal(true);
 
-        this.setIconImage(Toolkit.getDefaultToolkit().getImage("new_viewer.png"));
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage("images/new_viewer.png"));
         this.setTitle("Create New Viewer");
 
         this.setBounds(200, 200, 300, 400);

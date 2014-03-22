@@ -80,13 +80,11 @@ public abstract class DataSource extends PropertyManager implements Serializable
         }
 
 		@Override
-		protected void addProperty(Property p, int where) throws Exception {
-			super.addProperty(p, where);
-			p.setEventManager(em);
+		protected boolean addProperty(Property p, int where){
+			boolean ret = super.addProperty(p, where);
+			if (ret)
+				p.setEventManager(em);
+			 return ret;
+			
 		}
-        
-        
-		
-	
-
 }

@@ -230,10 +230,10 @@ public class ViewerWindow extends JInternalFrame  {
 		this.addInternalFrameListener(new InternalFrameListener()
 		{
 			public void internalFrameActivated(InternalFrameEvent arg0) {
-				viewerContainer.env.setFocusedViewer(viewerContainer.viewer);
+				viewerContainer.getEnvironment().setFocusedViewer(viewerContainer.viewer);
 			}
 			public void internalFrameClosed(InternalFrameEvent arg0) {
-				viewerContainer.env.deleteViewer(viewerContainer.viewer);
+				viewerContainer.getEnvironment().deleteViewer(viewerContainer.viewer);
 			}
 			public void internalFrameClosing(InternalFrameEvent arg0) {
 			}
