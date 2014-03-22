@@ -56,7 +56,7 @@ public class DataCreator extends JDialog
 		this.setAlwaysOnTop(true);
 		this.setModal(true);
 		
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage("new_data.png"));
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage("images/new_data.png"));
 		this.setTitle("Create New Data");
 		
 		this.setBounds(200, 200, 300, 300);

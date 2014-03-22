@@ -3,6 +3,8 @@ package perspectives.web;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -137,9 +139,7 @@ public class ViewerCanvas extends HttpServlet {
 		            
 		            else if (request.getParameter("page").equals("imageUpdate")) {
 		            	String viewerName = request.getParameter("viewerName");
-		            	
-		            	//System.out.println("processing image update event: " + viewerName);
-		            	
+		            		            	
 		                if (viewerName != null)
 		                {
 		                	ViewerContainer vc = getViewerContainer(e, viewerName);
@@ -268,7 +268,10 @@ public class ViewerCanvas extends HttpServlet {
        int ty = Integer.parseInt(tilesY);
        int dif = Integer.parseInt(difs);
 
-       byte[] bim = vc.getTile(tx, ty);
+       byte[] bim = vc.getTile(tx, ty); 
+       
+       //byte[] bim = vc.getTileTimer(tx, ty, getServletContext().getRealPath("WEB-INF/Uploads/"));
+        
        this.sendImage(bim, response);
 
        long t2 = (new Date()).getTime();
@@ -293,22 +296,11 @@ public class ViewerCanvas extends HttpServlet {
     }
     
     public void sendImage(byte[] bs, HttpServletResponse response) {
-        
-
-        long t2 = new Date().getTime();
+           
         try {
 
-            //ImageIO.write(capture, "png", new File((getServletContext().getRealPath("/WEB-INF/fim"+t2+"capture.png"))));           
-
-            //System.out.println("-2-");
-            response.getOutputStream().write(bs);
-            //System.out.println("-3-");
-            response.flushBuffer();
-            //System.out.println("-4-");
-
-            long t3 = new Date().getTime();
-
-            //  System.out.println("T: " + (t3 - t2) + "      Econding:" + encoding + "      size:" + (bs.length / 1024));
+            response.getOutputStream().write(bs);         
+         //   response.flushBuffer();
 
         } catch (Exception e) {
             System.out.println("-e-");
@@ -316,6 +308,12 @@ public class ViewerCanvas extends HttpServlet {
 
         }
     }
+    
+    
+    
+    
+    
+
 
 
 }

@@ -53,9 +53,9 @@ public class ViewerContainer2D extends ViewerContainer{
 	int renderCount = 0;
 	
 	//apply to 2d viewers
-	public double zoom = 1;
-	public double translatex = 0;
-	public double translatey = 0;
+	private double zoom = 1;
+	private double translatex = 0;
+	private double translatey = 0;
 	
 	//keeping track of dragging; 
 	public boolean rightButtonDown = false;
@@ -81,7 +81,6 @@ public class ViewerContainer2D extends ViewerContainer{
 	public void render()
 	{
 		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(),BufferedImage.TYPE_INT_ARGB);
-
 
 		Graphics2D gc = image.createGraphics();
 
@@ -113,39 +112,24 @@ public class ViewerContainer2D extends ViewerContainer{
 		zoomOriginX = this.getWidth()/2;
 		zoomOriginY = this.getHeight()/2;
 
-		//sets the proper transformation for the Graphics context that will passed into the rendering function	            
-
-
+		//sets the proper transformation for the Graphics context that will passed into the rendering function	
 		gc.setTransform(AffineTransform.getTranslateInstance(zoomOriginX, zoomOriginY));	          
 		gc.transform(AffineTransform.getScaleInstance(zoom,zoom));		           
 		gc.transform(AffineTransform.getTranslateInstance(translatex-zoomOriginX, translatey-zoomOriginY));
-
-
-		transform = gc.getTransform();
-
-		final BufferedImage fimage = image;
-		final Graphics2D gcf = gc;
 		
-		viewer.em.replaceEvent(new PEvent()
-		{
-			public void process() {
-				((Viewer2D)viewer).render(gcf);
-                                
-                 gcf.setTransform(AffineTransform.getTranslateInstance(0, 0));
-                 //render tooltip
-                 if (((Viewer2D) viewer).getToolTipText().length() > 0) {
-                       ((Viewer2D) viewer).renderTooltip(gcf);
-                }
-				renderDoneCallback(fimage);
-			}
-		}, "render");	
+		transform = gc.getTransform();
+		
+		((Viewer2D)getViewer()).render(gc);
+
+	     gc.setTransform(AffineTransform.getTranslateInstance(0, 0));
+         //render tooltip
+        
+	     if (((Viewer2D) viewer).getToolTipText().length() > 0) 
+                  ((Viewer2D) viewer).renderTooltip(gc);             
+		
+		 this.setViewerImage(image);	
 	}
-	
-	public void renderDoneCallback(BufferedImage im)
-	{
-		renderCount--;		
-		this.setViewerImage(im);
-	}
+
 	
 
 	
@@ -348,6 +332,27 @@ public class ViewerContainer2D extends ViewerContainer{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public double getZoom()
+	{
+		return zoom;
+	}
+	
+	public void setZoom(double z)
+	{
+		zoom = z;
+	}
+	
+	public void setTranslation(double x, double y)
+	{
+		this.translatex = x;
+		this.translatey = y;
+	}
+	
+	public Point2D getTranslation()
+	{
+		return new Point2D.Double(translatex, translatey);
 	}
 	
 

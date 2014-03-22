@@ -6,6 +6,9 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import brain.BrainDataFactory;
+import brain.BrainViewerFactory;
+
 import perspectives.*;
 import perspectives.base.Environment;
 import perspectives.graph.BundledGraphFactory;
@@ -19,7 +22,10 @@ public class main {
 
 	  public static void main(String[] args) {  
 		  
+		  System.out.println(args.length);
+		  
 		  Environment e = new Environment(false);
+		  e.setLocalDataPath("c:/work/code/perspectives/data");
 	    
 	       
 	     e.registerDataSourceFactory(new GraphDataFactory());
@@ -32,8 +38,15 @@ public class main {
 	      
 	      e.registerViewerFactory(new ParallelCoordinateViewerFactory());
 	      
+	      e.registerDataSourceFactory(new BrainDataFactory());
+	      e.registerViewerFactory(new BrainViewerFactory());
+//	      
+	      e.registerViewerFactory(new PerformanceViewerFactory());
 	      
+	      e.addViewer(new PerformanceTester("g"));
 	      
-	      
+	    //  e.registerDataSourceFactory(new NameDataFactory());
+	    //  e.registerViewerFactory(new NameViewerFactory()); 
+  
 	  }
 }

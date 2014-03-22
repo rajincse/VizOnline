@@ -6,6 +6,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
@@ -55,7 +57,9 @@ public abstract class Task{
 	{
 		done = false;	
 		worker = new MySwingWorker();
-		worker.execute();		
+		//ExecutorService threadPool = Executors.newFixedThreadPool(5);
+		//threadPool.submit(worker);	
+		worker.execute();
 	}
 	
 	public void cancel()

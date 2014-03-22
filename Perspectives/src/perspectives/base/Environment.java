@@ -146,6 +146,9 @@ public class Environment extends PropertyManagerGroup implements Serializable{
     
     private int defaultDataNameCounter = 1;
     
+    private String localDataPath;
+    
+    
 
 	
 	
@@ -159,7 +162,7 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 	public Environment(boolean offline)
 	{
 		this.offline = offline;
-		
+				
 	     ///set default properties
 	     
 				this.registerNewType(new PString(""), new PropertyWidgetFactory() {
@@ -296,23 +299,24 @@ public class Environment extends PropertyManagerGroup implements Serializable{
 		 //maximize the window
 	     GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	     frame.setMaximizedBounds(e.getMaximumWindowBounds());
+	     frame.setBounds(50, 20, 800, 600);	  
 	     frame.setExtendedState(frame.getExtendedState()|JFrame.MAXIMIZED_BOTH );
 	     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	     frame.setVisible(true);	    
 	        
 		 
 		 Toolkit tool = Toolkit.getDefaultToolkit();		 
-		 Image icon = tool.getImage("frame_icon.png");
+		 Image icon = tool.getImage("images/frame_icon.png");
 		 frame.setIconImage(icon);
 		 
 		 frameicon = new ImageIcon(icon);
 		 
-		 viewerIcon = new ImageIcon(tool.getImage("viewer.png"));
-		 newViewerIcon = new ImageIcon(tool.getImage("new_viewer.png"));
-		 dataIcon = new ImageIcon(tool.getImage("data.png"));
-		 newDataIcon = new ImageIcon(tool.getImage("new_data.png"));
-		 linksIcon = new ImageIcon(tool.getImage("links.png"));
-		 helpIcon = new ImageIcon(tool.getImage("help.png"));
+		 viewerIcon = new ImageIcon(tool.getImage("images/viewer.png"));
+		 newViewerIcon = new ImageIcon(tool.getImage("images/new_viewer.png"));
+		 dataIcon = new ImageIcon(tool.getImage("images/data.png"));
+		 newDataIcon = new ImageIcon(tool.getImage("images/new_data.png"));
+		 linksIcon = new ImageIcon(tool.getImage("images/links.png"));
+		 helpIcon = new ImageIcon(tool.getImage("images/help.png"));
 	     
 	     allPanel = new JPanel(new BorderLayout());
 	     frame.getContentPane().add(allPanel);  
@@ -395,11 +399,28 @@ public class Environment extends PropertyManagerGroup implements Serializable{
                  
 	}
 	
+	public String getLocalDataPath()
+	{
+		return this.localDataPath;
+	}
+	
+	public void setLocalDataPath(String p)
+	{
+		System.out.println("environment local path set to: " + p);
+		this.localDataPath = p;
+	}
+	
+	
 	public void showLinksManager()
 	{
 		//open a dialog box; create a viewer
 		LinksManager vc = new LinksManager(this);
 		vc.setVisible(true);
+	}
+	
+	public boolean isOffline()
+	{
+		return offline;
 	}
 	
 	
