@@ -27,22 +27,28 @@
 
 
         <script type="text/javascript" src="ajax.js"></script>
-        <script type="text/javascript" src="properties.js"></script>
+
         <script type="text/javascript" src="property-manager.js"></script> 
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script type="text/javascript" src="data-transferer.js"></script>
 
 
         <script type="text/javascript">
+
+            var xmlhttp;
+            var cnt = 0;
+            var inpollprops = false;
             var dataTransfer=null;
             var jsD3Client=null;
-            function initialize()
-            {
-		pmDiv = document.createElement("div");
-		var pm = new PropertyManager(pmDiv, window.viewerName);
+            
+            function initialize() {
+                // alert("The name of the viewer is " +document.getElementById("viewerName").value);
+                makeRequest('properties');
+
+
+
                 
-		document.getElementById("left").appendChild(pmDiv);
-          
+
                 dataTransfer = new DataTransfer(document.getElementById("canv"), 1000, 700);
                 dataTransfer.readCreatorType(function(data)
                 {
@@ -52,15 +58,17 @@
                         jsD3Client = new JSD3Client();
                         dataTransfer.readViewerData(jsD3Client.dataUpdated, true);
                     }
-                    
-                );
+
+                    );
                 });
-                
+
+
+                setInterval(pollprops, 500);
                 setInterval(pollUpdateData, 500);
                 
-                
+
             }
-            
+
             function pollUpdateData()
             {
                 if(jsD3Client && dataTransfer)
@@ -68,47 +76,110 @@
                     dataTransfer.readViewerData(jsD3Client.dataUpdated, false);
                 }
             }
-            window.onresize = function(){
-                
-                var winW = 630, winH = 460;
-                if (document.body && document.body.offsetWidth) {
-                    winW = document.body.offsetWidth;
-                    winH = document.body.offsetHeight;
-                }
-                if (document.compatMode=='CSS1Compat' &&
-                    document.documentElement &&
-                    document.documentElement.offsetWidth ) {
-                    winW = document.documentElement.offsetWidth;
-                    winH = document.documentElement.offsetHeight;
-                }
-                if (window.innerWidth && window.innerHeight) {
-                    winW = window.innerWidth;
-                    winH = window.innerHeight;
-                }
-                
-                
-                vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
-                
-                
-            };
+            
+            function pollprops()
+            {
+                if (inpollprops)
+                    return;
+                inpollprops = true;
 
-//         
+                cnt++;
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function()
+                {
+
+                     if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+                    {
+                    
+                        if (xmlhttp.responseText.length !== 0)
+                        {
+
+                           var viewerProperties = document.getElementById("properties");
+
+                          document.getElementById("pollprops").value="true";
+                         addProperties(viewerProperties, xmlhttp.responseText);
+
+
+                        }
+                         document.getElementById("pollprops").value="false";
+                        inpollprops = false;
+                    }
+                };
+
+                var viewerName = document.getElementById("viewerName").value;
+                
+                xmlhttp.open("GET", "VizOnlineServlet?page=pollprops&factoryItemName="+viewerName+"&r=" + cnt, true);
+                xmlhttp.send();
+                
+            }
+
+
+            function sendCommand(url) {
+                xmlhttp = new XMLHttpRequest();
+                console.log(url);
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
+
         </script>
 
 
     </head>
 
-   <body onload="initialize();">
-       
+    <body onload="initialize();">
+        <div id="generalHolder">
 
-  
+            <!--  <div class ="container">  -->
 
-       <table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
-           <tr style ="vertical-align : top; margin : 0; padding : 0; border : 0">
-               <td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="left" ></div></td>
-               <td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right"><div id="canv"></div></div></td>				
-           </tr>
-       </table>
+
+
+            <div id="leftVdiv" >
+                <div id="showProperties" onclick="showProperties();"></div>
+
+                <div id="propslot">
+                    <div id="fps" style="left:0px;">frame/sec</div>
+                    <div id="fps2" style="left:0px;">frame/sec</div> <br>
+                    <div id="controls" style="left:0;">
+                        <input type="text" id="refresh" /><button id = "button1" onclick="alert('fff');"></button><br>
+                        <input type="text" id="encoding" /><button  id="button2"></button><br>
+                        <input type="text" id="loading" /><br>
+                    </div>
+
+                    <div id='sent'></div>                  
+
+                    <h1>Viewer Properties</h1>
+                    <div  id='properties' > 
+                    </div>       
+                </div>
+                <div id="hideProperties" onclick="hideProperties();"></div>
+            </div>   
+
+            <!-- IMAGE DIV -->
+
+            <div id="rightVdiv">
+                <div id="canv"></div>                
+            </div>
+
+            <!--  -->
+
+            <input type="hidden" id="factoryType" value="Viewer" />
+            <input type ="hidden" id="factoryItemName" value="" />
+            <input type="hidden" id="viewerName" value="" />
+            <input type ="hidden" id="pollprops" value="false" />
+
+
+            <div>
+                <a id="downloadFile" href="" style="display:none"></a>    
+            </div>
+
+
+
+
+        </div>
+
+
+
+        <!-- </div> -->
 
 
     </body>

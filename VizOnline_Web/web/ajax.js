@@ -1,3 +1,60 @@
+	function getPos(el) {
+    
+    		for (var lx=0, ly=0;
+        		 el != null;
+         		lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    		return {x: lx,y: ly};
+	}
+
+	    function sendCommand(theUrl, returnFunction)
+	    {
+             	 	var xmlhttp = new XMLHttpRequest();
+
+			if (returnFunction != null && returnFunction !== "undefined")
+			{	
+				xmlhttp.onreadystatechange = function()
+				{
+					if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
+					{
+						returnFunction(xmlhttp.response);
+					}
+				}
+			}	
+                	xmlhttp.open("GET", theUrl, true);
+                	xmlhttp.send(null);
+	    }
+
+function getWindowSize()
+{
+
+	var winW = 630, winH = 460;
+	if (document.body && document.body.offsetWidth) {
+ 		winW = document.body.offsetWidth;
+ 		winH = document.body.offsetHeight;
+	}
+	if (document.compatMode=='CSS1Compat' &&  document.documentElement && document.documentElement.offsetWidth ) {
+ 		winW = document.documentElement.offsetWidth;
+ 		winH = document.documentElement.offsetHeight;
+	}
+	if (window.innerWidth && window.innerHeight) {
+ 		winW = window.innerWidth;
+ 		winH = window.innerHeight;
+	}
+
+	return {width: winW,height: winH};
+}
+
+function getUrlParameter( name ){
+name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+var regexS = "[\\?&]"+name+"=([^&#]*)";  
+var regex = new RegExp( regexS );  
+var results = regex.exec( window.location.href ); 
+ if( results == null )    return null;  
+else    return unescape(results[1]);}
+
+
+
+
 
 //var sourceFiles = new Array();
 //var fileID = 0;

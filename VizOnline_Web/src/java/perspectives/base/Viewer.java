@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.Timer;
@@ -13,6 +14,8 @@ import javax.swing.Timer;
 import perspectives.base.PropertyType;
 
 import perspectives.base.Animation;
+import perspectives.three_d.Viewer3D;
+import perspectives.three_d.ViewerContainer3D;
 
 /**
  * 
@@ -27,7 +30,7 @@ public abstract class Viewer extends PropertyManager
 
 	boolean simulating = false;
 	
-	protected ViewerContainer container;
+	private ViewerContainer container;
 	
 	private boolean tooltip;
 	private String tooltipText;
@@ -35,23 +38,15 @@ public abstract class Viewer extends PropertyManager
 	private int tooltipY = 0;
 	private long tooltipDelay = 1000;	
 	
-	//protected int width;
-	//protected int height;
-	
 	
 	public void simulate()
 	{
 		
-	}
-	
-	/*public void setWidth(int w)
+	}	
+	public ViewerContainer getContainer()
 	{
-		width = w;
+		return container;
 	}
-	public void setHeight(int h)
-	{
-		height = h;
-	}*/
 	
 	private class SimulateEvent implements PEvent
 	{
@@ -61,12 +56,11 @@ public abstract class Viewer extends PropertyManager
 			this.delay = delay;
 		}
 		public void process() {
-			System.out.println("processing simulating event");
+		
 			if (simulating)
 				simulate();
 			if (simulating)
-			{
-				System.out.println("scheduling sim event");
+			{			
 				em.scheduleEvent(new SimulateEvent(delay), delay,"simevent");
 			}
 		}
@@ -85,8 +79,7 @@ public abstract class Viewer extends PropertyManager
 		
 	}
 	public void stopSimulation()
-	{
-		System.out.println("stop simu");
+	{	
 		synchronized(this)
 		{
 			simulating = false;
@@ -111,9 +104,10 @@ public abstract class Viewer extends PropertyManager
 	private class AnimateEvent implements PEvent
 	{
 		public void process() {
+			//System.out.println("animation 2");
 			animate();						
 			if (animating)
-				em.scheduleEvent(new AnimateEvent(), 50);	
+				em.replaceEvent(new AnimateEvent(), "animate", 50);	
 		}		
 	}	
 	public void createAnimation(Animation a)
@@ -121,13 +115,9 @@ public abstract class Viewer extends PropertyManager
 		synchronized(animations)
 		{
 			animations.add(a);
-			if (!animating)
-			{
-				animating = true;
-				em.scheduleEvent(new AnimateEvent());
-			}
+			animating = true;
+			em.replaceEvent(new AnimateEvent(),"animate");
 		}
-
 	}
 	
 	public void setContainer(ViewerContainer c)
@@ -138,7 +128,14 @@ public abstract class Viewer extends PropertyManager
 	public void requestRender()
 	{
 		if (container != null)
-			container.render();
+		{
+			em.replaceEvent(new PEvent()
+			{
+				public void process() {
+					container.render();					
+				}
+			},"render");
+		}
 	}
 	
 	public void animate()
@@ -148,6 +145,7 @@ public abstract class Viewer extends PropertyManager
 		{
 			animationCount = animations.size();
 		}
+		
 		for (int i=0; i<animationCount; i++)
 		{
 			Animation a;
@@ -237,9 +235,11 @@ public abstract class Viewer extends PropertyManager
 		tooltipDelay = ms;
 	}
 	@Override
-	protected void addProperty(Property p, int where) throws Exception {		
-		super.addProperty(p, where);
-		p.setEventManager(em);
+	protected boolean addProperty(Property p, int where){		
+		boolean ret = super.addProperty(p, where);
+		if (ret)
+			p.setEventManager(em);
+		return ret;
 	}	
 	
 	public int getContainerWidth()

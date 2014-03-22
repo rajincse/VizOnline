@@ -95,19 +95,18 @@ public abstract class Viewer2D extends Viewer {
 	
 	public void setZoom(double z)
 	{
-		if (this.container != null)
+		if (getContainer() != null)
 		{
-			((ViewerContainer2D)this.container).zoom = z;
+			((ViewerContainer2D)getContainer()).setZoom(z);
 			this.requestRender();
 		}
 	}
 	
 	public void setTranslation(int tx, int ty)
 	{
-		if (this.container != null)
+		if (getContainer() != null)
 		{
-			((ViewerContainer2D)this.container).translatex = tx;
-			((ViewerContainer2D)this.container).translatey = ty;
+			((ViewerContainer2D)getContainer()).setTranslation(tx,ty);
 			this.requestRender();
 		}
 	}

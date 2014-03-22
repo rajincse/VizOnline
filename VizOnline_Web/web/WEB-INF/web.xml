@@ -7,12 +7,12 @@
         <listener-class>perspectives.web.SessionListener</listener-class>
     </listener>
     <servlet>
-        <servlet-name>VizOnlineServlet</servlet-name>
+        <servlet-name>InitServlet</servlet-name>
         <servlet-class>MyInitServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>InitServlet</servlet-name>
-        <servlet-class>MyInitServlet</servlet-class>
+        <servlet-name>PerformanceTestServlet</servlet-name>
+        <servlet-class>PerformanceTestServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Uploads</servlet-name>
@@ -39,14 +39,15 @@
         <servlet-name>ViewerCanvas</servlet-name>
         <servlet-class>perspectives.web.ViewerCanvas</servlet-class>
     </servlet>
+
     <servlet-mapping>
-        <servlet-name>InitServlet</servlet-name>
-        <url-pattern>/InitServlet</url-pattern>
+        <servlet-name>PerformanceTestServlet</servlet-name>
+        <url-pattern>/PerformanceTestServlet</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>VizOnlineServlet</servlet-name>
-        <url-pattern>/VizOnlineServlet</url-pattern>
+        <servlet-name>InitServlet</servlet-name>
+        <url-pattern>/InitServlet</url-pattern>
     </servlet-mapping>
     <context-param>
         <description>Location to store uploaded file</description>

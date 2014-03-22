@@ -45,14 +45,15 @@ public abstract class InitServlet extends HttpServlet {
             // session = request.getSession(true);
             e = new Environment(true);
             
-            System.out.println("creating new environment");
+            System.out.println("Creating new environment ---------------");
             
-            environmentInit(e);
- 
+            e.setLocalDataPath(getServletContext().getRealPath("data/"));
+            
+            environmentInit(e); 
 
             propsInit();    //call the propsInit again for new sessions.
 
-            message = "Environment has been Initialized";
+            message = "Environment has been Initialized ---------------";
             
             userID++;
             session.setAttribute("userID", userID);

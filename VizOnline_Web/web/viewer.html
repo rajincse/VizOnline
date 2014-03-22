@@ -14,10 +14,6 @@
         <link href="Styles.css" rel="stylesheet" type="text/css" />
        
 
-       
-
-
-
         <script type="text/javascript" src="ajax.js"></script>
 	<script type="text/javascript" src="jscolor/jscolor.js"></script>
         <script type="text/javascript" src="image-transferer.js"></script>
@@ -28,104 +24,94 @@
 
         <script type="text/javascript">
 
-	var vc;
-	var pmDiv;
+	var viewerCanvas;
+	var viewerCanavasDiv;
+	var propertyManager;
+	var propertyManagerDiv;
+
+	var viewerName = getUrlParameter("viewerName");
+
+	var showingPM = true;
          
 	function initialize()
 	{
 
-		pmDiv = document.createElement("div");
-		var pm = new PropertyManager(pmDiv, window.viewerName);
+		propertyManagerDiv = document.createElement("div");
+		var propertyManager = new PropertyManager(propertyManagerDiv, window.viewerName);
+		document.getElementById("left").appendChild(propertyManagerDiv);
 
-		document.getElementById("left").appendChild(pmDiv);
+		var viewerCanvasDiv = document.createElement("div");
+		var size = getWindowSize();
+		viewerCanvas = new ViewerCanvas(viewerCanvasDiv, window, viewerName, size.width- propertyManagerDiv.offsetWidth-20 , size.height-20);
+		document.getElementById("right").appendChild(viewerCanvasDiv);
 
-		var vcDiv = document.createElement("div");
+		window.onmousedown = function (event)
+		{
+			if (event.target == viewerCanvasDiv || event.target.parent == viewerCanvasDiv)
+				viewerCanvas.focus = false;
+			else
+				viewerCanvas.focus = true;			
+		}
 
+		document.getElementById("hideshowcell").onclick = function()
+		{
+			showingPM = !showingPM;
 
-		vc = new ViewerCanvas(vcDiv, window, window.viewerName);
+			if (showingPM)
+			{
+				propertyManagerDiv.style.display = "block";
+				document.getElementById("hideshow").src = "Images/show_.png";
+				var size = getWindowSize();
+				viewerCanvas.resize(size.width - propertyManagerDiv.offsetWidth-20, size.height-20);
+			}
+			else
+			{
+				propertyManagerDiv.style.display = "none";
+				document.getElementById("hideshow").src = "Images/hide_.png";
+				var size = getWindowSize();
+				viewerCanvas.resize(size.width - 20, size.height-20);
+			}
+			viewerCanvas.divMoved();
+		}
 
-		document.getElementById("right").appendChild(vcDiv);
-
+		document.getElementById("hideshowcell").onmouseover = function()
+		{
+			if (showingPM)
+				document.getElementById("hideshow").src = "Images/hideglow_.png"
+			else document.getElementById("hideshow").src = "Images/showglow_.png";
+			this.bgColor = "#BBBBBB";
+		}
+		document.getElementById("hideshowcell").onmouseout = function()
+		{
+			if (showingPM)
+				document.getElementById("hideshow").src = "Images/hide_.png"
+			else document.getElementById("hideshow").src = "Images/show_.png";
+			this.bgColor = "#DDDDDD";
+		}
 
 	}
 
-    window.onresize = function(){
-        
-	browserWindowResized();
-        
-    };
-    function browserWindowResized()
-    {
-        var winW = 630, winH = 460;
-        if (document.body && document.body.offsetWidth) {
-            winW = document.body.offsetWidth;
-            winH = document.body.offsetHeight;
-        }
-        if (document.compatMode=='CSS1Compat' &&
-            document.documentElement &&
-            document.documentElement.offsetWidth ) {
-            winW = document.documentElement.offsetWidth;
-            winH = document.documentElement.offsetHeight;
-        }
-        if (window.innerWidth && window.innerHeight) {
-            winW = window.innerWidth;
-            winH = window.innerHeight;
-        }
-        
-        
-        vc.resize(winW - pmDiv.offsetWidth-20, winH-20);
-    }
-    
-         
-    function showProperties() {
-                document.getElementById("left").style.display = "block";
-                document.getElementById("hideProperties").style.display = "block";
-                document.getElementById("showProperties").style.display = "none";
+	window.onresize = function(){
 
-
-                browserWindowResized();
-            }
-
-            function hideProperties() {
-                document.getElementById("left").style.display = "none";
-                document.getElementById("hideProperties").style.display = "none";
-                document.getElementById("showProperties").style.display = "block";
-
-
-                browserWindowResized();
-
-            }
+		var size = getWindowSize();
+		viewerCanvas.resize(size.width - propertyManagerDiv.offsetWidth-20, size.height-20);
+	};
 
 
         </script>
-
-
     </head>
 
     <body onload="initialize();">
-       
 
   
 
-		<table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
+     <table style ="vertical-align : top; margin : 0; padding : 0; border : 0">
 			<tr style ="vertical-align : top; margin : 0; padding : 0; border : 0">
-                                
-				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> 
-                                    <table>
-                                        <tr>
-                                            <td><div id="showProperties" onclick="showProperties();"></div></td>
-                                            <td style ="vertical-align : top; margin : 0; padding : 0; border : 0">
-                                                <div id="left" ></div>
-                                            </td>
-                                            <td><div id="hideProperties" onclick="hideProperties();"></div></td>
-                                        </tr>
-                                    </table>
-                                </td>
-				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right"></div></td>				
+				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0" bgColor = "#EEEEFF"> <div id="left" ></div></td>
+				<td style ="vertical-align : middle; margin : 0; padding : 0; border : 0" width="10px" bgColor = "#DDDDDD" id="hideshowcell"> <img id="hideshow" src="Images/hide_.png"</img></td>				
+				<td style ="vertical-align : top; margin : 0; padding : 0; border : 0"> <div id="right" tabindex="0";      ></div></td>				
 			</tr>
-		</table>
-
-
+     </table>
 
     </body>
 

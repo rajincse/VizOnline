@@ -21,6 +21,9 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +91,7 @@ public class ViewerContainer{
 	public int allGetTile = 0;
 		
 	//a pointer to the parent Environment class (needed for instance to delete the viewer from the Environment if the user activates the 'X')
-	Environment env;
+	private Environment env;
 	
 	protected int width, height;
 	
@@ -99,6 +102,10 @@ public class ViewerContainer{
 	
 	BufferedImage savedImage = null;
 	boolean blocked = false;
+	
+	
+	long MAXDIFF = 25000;
+	int keyFrameRate = 40;
 	
 	
 		
@@ -119,6 +126,11 @@ public class ViewerContainer{
 	public Viewer getViewer()
 	{
 		return viewer;
+	}
+	
+	public Environment getEnvironment()
+	{
+		return env;
 	}
 	
 	public void resize(int w, int h)
@@ -153,8 +165,7 @@ public class ViewerContainer{
 	public void setViewerImage(BufferedImage im)
 	{
 	
-		
-		
+				
 		
 		
 		this.viewerImage = im;
@@ -309,10 +320,7 @@ public class ViewerContainer{
 	}
 	
 	public void scheduleMouseMove(int x, int y)
-	{
-	//	if (dragging) return;		
-	//	dragging = true;
-		
+	{	
 		final int xf = x;
 		final int yf = y;
 		
@@ -398,10 +406,9 @@ public class ViewerContainer{
 	}
 	
 	public void changeImage(BufferedImage newimage)
-	{
+	{		
 		changedImages++;
-	long t = new Date().getTime();
-	
+		long t = new Date().getTime();	
 
 		
 		if (lastInteractionTime < 0)
@@ -411,25 +418,18 @@ public class ViewerContainer{
 			startInteractionTime = t;
 		}
 		
-		//System.out.println("t-l " + (t-lastInteractionTime));
-		
 		if (t-lastInteractionTime > 100)
 		{
-			//System.out.println("interaction time: long time passed");
 			if (startInteractionTime >= 0)
 			{
 				interactionTime += (lastInteractionTime - startInteractionTime);
-				//System.out.println("interaction time: " + interactionTime);
 			}
 			startInteractionTime = t;
 			lastInteractionTime = t;
 		}
 		else
-		{
-			//System.out.println("interaction time: updating interaction time");
 			lastInteractionTime = t;
-		}
-		
+	
 		synchronized(o2)
 		{
 			image = newimage;
@@ -443,7 +443,7 @@ public class ViewerContainer{
 	private BufferedImage[][] tiles;
 	private BufferedImage[][] tileDifs;
 	
-	byte[][][] outTiles = null;
+	ArrayList<byte[][][]> outTiles = new ArrayList<byte[][][]>();
 
 	
 	byte[] noImage = null;
@@ -457,12 +457,35 @@ public class ViewerContainer{
 	int history = 1;
 	
 	boolean changeSequenceTest = false;
+	boolean useChangeSequenceTest = true;
 	BufferedImage lastImageSaved = null;
+	long lastScaledImageTime = -1;
 	
+	public String getPerformanceMeasures()
+	{
+		double fps = ((sentTiles/4) / ((double)interactionTime/1000.));
+		long pngtime = allPngTime / allPngCount;
+		long difftime = allDifTime / allDifCount;
+		long bytes = allBytesSent;
+		long tasks = allTaskTime / allTaskCount;
+		double requests = (1000. * allGetTile) / (new Date().getTime() - firstGetTileTime);
+		String ret = fps + " fps;" + bytes + " bytes;" + requests + " requests;" + (interactionTime/1000) + " time;";
+
+		return ret;
+	}
+	
+	public int getFrames()
+	{
+		return sentTiles/4;
+	}
+	
+	public long getBytes()
+	{
+		return allBytesSent;
+	}
 	
 	private void tileTasks(BufferedImage image)
-	{
-		
+	{		
 		if (image == null)
 			return;
 		
@@ -471,10 +494,9 @@ public class ViewerContainer{
 			if (working) return;
 			working = true;
 		}
+				
 		
-		
-		
-		if (allPngCount != 0 && allDifTime != 0 && allBytesCount != 0)
+		if (allPngCount != 0 && allDifTime != 0 && allBytesCount != 0) //for stats purposes
 		{
 			double fps = ((sentTiles/4) / ((double)interactionTime/1000.));
 			long pngtime = allPngTime / allPngCount;
@@ -482,109 +504,105 @@ public class ViewerContainer{
 			long bytes = allBytesSent/allBytesCount;
 			long tasks = allTaskTime / allTaskCount;
 			double requests = (1000. * allGetTile) / (new Date().getTime() - firstGetTileTime);
-			System.out.println(" ");
-			System.out.println("web fps: " + fps + " (" + (sentTiles/4) + "," + (interactionTime/1000) + ")");
-			System.out.println("web png: " + pngtime + " (" + allPngCount + "," + allPngTime + ")");
-			System.out.println("web dif: " + difftime + " (" + allDifTime + "," + allDifCount + ")");
-			System.out.println("web bytes: " + bytes + " (" + allBytesSent/4 + "," + allBytesCount + ")");
-			System.out.println("web task: " +  + tasks + " (" + allTaskTime/4 + "," + allTaskCount + ")");
-			System.out.println("web requests: " +  + requests + " (" + allGetTile/4 + "," + (new Date().getTime() - firstGetTileTime) + ")");
-		}
-		
+			//System.out.println(" ");
+			//System.out.println("web fps: " + fps + " (" + (sentTiles/4) + "," + (interactionTime/1000) + ")");
+			//System.out.println("web png: " + pngtime + " (" + allPngCount + "," + allPngTime + ")");
+		//	System.out.println("web dif: " + difftime + " (" + allDifTime + "," + allDifCount + ")");
+			//System.out.println("web bytes: " + bytes + " (" + allBytesSent/4 + "," + allBytesCount + ")");
+			//System.out.println("web task: " +  + tasks + " (" + allTaskTime/4 + "," + allTaskCount + ")");
+			//System.out.println("web requests: " +  + requests + " (" + allGetTile/4 + "," + (new Date().getTime() - firstGetTileTime) + ")");
+		}		
 		
 		
 		final long t = new Date().getTime();
 		
-		BufferedImage difImage = diffImage(image, lastImage);
-		if (diffcount == 0 && history == 0 && !changeSequenceTest)
-		{
-			//System.out.println("tiletasks2");
-			if (changeSequenceTest)
-			{
-				changeSequenceTest = false;
-			}
-			else
-			synchronized(o6)
-			{
-				working = false;
-				lastImage = image;
-				return;
-			}
-		}
-		else if (diffcount > 50000 && history == 0 && !changeSequenceTest)
-		{
-			//System.out.println("tiletasks3");
-			synchronized(o6)
-			{
-				changeSequenceTest = true;
-
-				lastImageSaved = lastImage;
-				lastImage = image;
-				working = false;
-				return;
-			}
-		}
-		else if (diffcount > 50000 && changeSequenceTest)
-		{
-			//System.out.println("tiletasks4");
-			changeSequenceTest = false;
-			difImage = diffImage(image, lastImageSaved);
-			history++;
-		}
-		else if (diffcount <= 50000 && changeSequenceTest)
-		{
-			//System.out.println("tiletasks5");
-			changeSequenceTest = false;
-			difImage = diffImage(image, lastImageSaved);
-		}
+		int[] quadDiff = new int[]{0,0,0,0};	
+		BufferedImage difImage = diffImage(image, lastImage, quadDiff);
 		
-		long ttt = new Date().getTime();
-		
-		//System.out.println("tiletasks6");
-		
-		if (diffcount > 50000)
-		{
-			//System.out.println("tiletasks7");
-			if (history == 0)
-				tiles = this.tileImage(image, tilesX, tilesY, true);
-			else
+			if (diffcount == 0 && history == 0 && !changeSequenceTest) //all is up to data, there's nothing to do
 			{
-				BufferedImage halfIm = resizeImage(image, 1./(history+1));
-				tiles = this.tileImage(halfIm, tilesX, tilesY, false);				
+				synchronized(o6)
+				{
+					working = false;
+					lastImage = image;
+					return;
+				}
 			}
-			lastImage = image;
-			history++;
-			if (history > 4) history = 4;	
-			difsSent = 0;
-		}
-		else
-		{
-			//System.out.println("tiletasks8");
-			if (history == 1 || difsSent > 20)
-			{
-				tiles = this.tileImage(image, tilesX, tilesY, true);
-				difsSent=0;
+			else if (diffcount > MAXDIFF && history == 0 && !changeSequenceTest) //this is a big change, we skip one round to see if it's a one time change
+			{				
+				synchronized(o6)
+				{
+					changeSequenceTest = true;	
+					lastImageSaved = lastImage;
+					lastImage = image;
+					working = false;
+					return;
+				}
 			}
-			else if (history > 1)
+			else if (diffcount > 0 && changeSequenceTest) //there's a second change so we're starting to send compressed images
 			{
-				BufferedImage halfIm = resizeImage(image, 1./(history+1));
-				tiles = this.tileImage(halfIm, tilesX, tilesY, false);
-				difsSent = 0;
+				changeSequenceTest = false;			
+				difImage = diffImage(image, lastImageSaved, quadDiff);
+				history=1;
 			}
-			else
+			else if (diffcount == 0 && changeSequenceTest) //there's no second change so we just send the regular image
 			{
-				tiles = this.tileImage(difImage, tilesX, tilesY, false);
-				difsSent++;
+				changeSequenceTest = false;				
+				difImage = diffImage(image, lastImageSaved, quadDiff);
+				history = 0;
 			}
 			
-				
-			lastImage = image;
-			history--;
-			if (history < 0) history = 0;
+		
+		int tileCase = 0;
+		if (diffcount == 0 && history == 1 && lastScaledImageTime > 0 && (new Date().getTime() - lastScaledImageTime) < 300)
+		{		
+			synchronized(o6)
+			{
+				working = false;
+				lastImage = image;
+				return;
+			}
 		}
+		if ( history == 1 && lastScaledImageTime>0 && (new Date().getTime() - lastScaledImageTime) >= 300) //fluid interaction stopped, we send full image
+		{		
+			tileCase = 2;			
+			tiles = this.tileImage(image, tilesX, tilesY, true);
+			history = 0;
+			difsSent = 0;
+			lastScaledImageTime = -1;
+		}
+		else if (history == 1 && diffcount > 0) // this is a fluid interaction; we send scaled down images
+		{		
+			BufferedImage halfIm = resizeImage(image, 0.25);
+			tiles = this.tileImage(halfIm, tilesX, tilesY, false);
+			lastImage = image;
+			difsSent = 0;
+			
+			lastScaledImageTime = new Date().getTime();
+		}
+		else if (history == 0 && diffcount > MAXDIFF) //this was a single shot action (changeSequenceTest)
+		{
+			tiles = this.tileImage(image, tilesX, tilesY, true);
+			lastImage = image;
+			difsSent = 0;
+			lastScaledImageTime = -1;
+		}
+		else if (history == 0 && diffcount<=MAXDIFF && difsSent > this.keyFrameRate)
+		{
+			tiles = this.tileImage(image, tilesX, tilesY, true);
+			difsSent=0;
+			lastImage = image;
+			lastScaledImageTime = -1;
+		}
+		else if (history == 0 && diffcount<=MAXDIFF && difsSent <= this.keyFrameRate)
+		{
+			tiles = this.tileImage(difImage, tilesX, tilesY, false);
+			difsSent++;
+			lastImage = image;
+			lastScaledImageTime = -1;
+		}		
 
 		
-		//System.out.println("tiletasks9");	
 		tilePngs = new byte[tiles.length][][];
 		for (int i=0; i<tilesX; i++)
 		{
@@ -592,16 +610,23 @@ public class ViewerContainer{
 			for (int j=0; j<tilesY; j++)
 				tilePngs[i][j] = null;
 		}
-		
-		//System.out.println("tiletasks10");
+
+
 		for (int i=0; i<tilesX; i++)
 			for (int j=0; j<tilesY; j++)	{
+				
+				if (quadDiff[i + j*tilesY] == 0 && tileCase != 2)
+				{
+					tilePngs[i][j] = noImage();
+					allTasksDone();
+					continue;
+				}
+				
 				final int i_f = i;	final int j_f = j;
 				Task tt = new Task("t"){							
 					public void task() {
 						long t2 = new Date().getTime();
-						 PngEncoder p = new PngEncoder(tiles[i_f][j_f], true);
-				        // p.setFilter(PngEncoder.FILTER_NONE);
+						 PngEncoder p = new PngEncoder(tiles[i_f][j_f], true);				      
 				             p.setCompressionLevel(8);
 				         byte[] bs = p.pngEncode(true);
 				         
@@ -627,17 +652,18 @@ public class ViewerContainer{
 			for (int j=0; j<tilePngs[i].length; j++)
 				if (tilePngs[i][j] == null) return;
 		
-		synchronized(o6)
-		{			
-			working = false;
-		}
+
 	
 		synchronized(o8)
 		{
-			//System.out.println("all tasks done3");
-			outTiles = tilePngs;
+			
+			outTiles.add(tilePngs);
 			o8.notifyAll();
+	
 		}
+		
+		synchronized(o6)
+		{	working = false; }	
 		
 		o9.notifyAll();
 		return;
@@ -647,21 +673,21 @@ public class ViewerContainer{
 	{
 		synchronized(o8)
 		{
-			if (outTiles == null)
+			if (outTiles.size() == 0)
 			{	
 				sendTiles = null;
 				return;
 			}
 			
-			sendTiles = new byte[outTiles.length][][];
-			for (int i=0; i<outTiles.length; i++)
+			sendTiles = new byte[outTiles.get(0).length][][];
+			for (int i=0; i<outTiles.get(0).length; i++)
 			{
-				sendTiles[i] = new byte[outTiles[i].length][];
-				for (int j=0; j<outTiles[i].length; j++)
-					sendTiles[i][j] = outTiles[i][j];
-			}
-			
-			outTiles = null;
+				sendTiles[i] = new byte[outTiles.get(0)[i].length][];
+				for (int j=0; j<outTiles.get(0)[i].length; j++)
+					sendTiles[i][j] = outTiles.get(0)[i][j];
+			}			
+			outTiles.remove(0);
+			//System.out.println("outtiles size: " + outTiles.size());
 		}
 	}
 	
@@ -672,7 +698,7 @@ public class ViewerContainer{
 	int availableTiles = 0;
 	int round = 0;
 	Object o7 = new Object();
-	Object o8 = new Object();
+	Object o8 = new Object();  //use to synchronize transfer from outTile to sendTiles and from tilePngs to outTiles
 	
 	byte[][][] sendTiles = null;
 	int difsSent = 0;
@@ -680,22 +706,19 @@ public class ViewerContainer{
 	
 	public void createTiles(boolean resetting)
 	{
-		//System.out.println("createTiles: " + (image == lastImage) + " " + history);
-		if (image != lastImage || history > 0 || resetting)
-		{	
-			if (resetting)
-				history = 2;
-			final BufferedImage im = image;
-			
-			long tm = new Date().getTime();
-			Task t = new Task("t")
+		synchronized(o2)
+		{
+			if (image != lastImage || history > 0 || resetting)
 			{	
-				public void task()
-				{	
-					tileTasks(im);	
-				}	
-			};				
-			t.start();
+				if (resetting)
+					history = 0;
+				
+				final BufferedImage im = image;				
+				Task t = new Task("t")
+				{	public void task()
+					{	tileTasks(im);	}};				
+				t.start();
+			}
 		}
 	}
 	
@@ -709,11 +732,9 @@ public class ViewerContainer{
 					o9.wait();
 				} catch (InterruptedException e) {					
 					e.printStackTrace();
-				}
+				}		
 			
-		//	System.out.println("--- reset tiles -----");
-			
-			outTiles = null;
+			outTiles.clear();
 			sendTiles = null;
 			round = 0;
 			lastImage = null;			
@@ -721,11 +742,28 @@ public class ViewerContainer{
 		}		
 	}
 	
+	BufferedImage prevImage = null;
+	public byte[] getTileEmpty(int x, int y)
+	{
+		byte[] ret = noImage();
+		if (image != prevImage)
+		{
+			sentTiles+=4;
+			allBytesSent += ret.length;
+			allBytesCount++;
+		}
+		
+		prevImage = image;
+		return ret;
+	}
+	
 	public byte[] getTile(int x, int y)
 	{
+		//for stats purposes
 		allGetTile++;
 		if (firstGetTileTime < 0)
 			firstGetTileTime = new Date().getTime();
+		
 		synchronized(o5)
 		{
 			if (x < 0 || y < 0)
@@ -751,14 +789,19 @@ public class ViewerContainer{
 			if (round >= tilesX*tilesY) round = 0;
 			
 			if (round == 0)
-				createTiles(false);
+				createTiles(false);	
 			
 			
-			if (ret.length > 100)
+			
+			
+			if (ret.length > 100)  //for stats purposes
 			{
 				sentTiles++;
+				//ret = noImage();
 				allBytesSent += ret.length;
 				allBytesCount++;
+				
+				
 			}
 			return ret;
 		}
@@ -785,36 +828,40 @@ public class ViewerContainer{
 	Object o12 = new Object();
 	
 	
-	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage)
-	{		
+	private BufferedImage diffImage(BufferedImage image, BufferedImage lastImage, int[] quaddiff)
+	{
 			long ttt = new Date().getTime();
-		
-			diffcount = 0;
 			
+			for (int i=0; i<quaddiff.length; i++)
+				quaddiff[i] = 0;
 		
-	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-	       
+			diffcount = 0;			
+		
+	        BufferedImage dif = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);      
 	        
-	        dif.createGraphics().drawImage(image, 0,0,null);
-	  
+	        dif.createGraphics().drawImage(image, 0,0,null);	  
 	       
 	        if (lastImage == null || lastImage.getWidth() != image.getWidth() || lastImage.getHeight() != image.getHeight())
-	        {
-	     
+	        {	     
 	        	diffcount = image.getWidth()*image.getHeight();
+				for (int i=0; i<quaddiff.length; i++)
+					quaddiff[i] = 1;
 	        	return dif;    
-	        }
-	     
+	        }     
 	        
 	         int[] cpixels = ((DataBufferInt) dif.getRaster().getDataBuffer()).getData();
 	         int[] spixels;	        
 	      
 	       	spixels = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();	       
 
-	         int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
-	         
-	         long ttt2 = new Date().getTime() - ttt;
-	          	        
+	        int[] calpha = ((DataBufferInt) dif.getAlphaRaster().getDataBuffer()).getData();
+	        
+	        int w = image.getWidth();
+	        int h = image.getHeight();
+	        int col = 0; 
+	        int row = 0;
+	        int quad = 0;
+	        
 	        for (int i = 0; i < cpixels.length; i += 1)
 	        {
 	                int r1 = (cpixels[i]) & 0xFF;
@@ -831,18 +878,40 @@ public class ViewerContainer{
 	                    calpha[i] = 0;
 	                }
 	                else
+	                {
 	                	diffcount++;
+	                	quaddiff[quad]++;
+	                }
 	                
-	                if (diffcount > 50000)
+	                col++;
+	                if (col == w)
+	                {
+	                	col=0;
+	                	row++;
+	                	if (row < h/2)
+	                		quad = 0;
+	                	else quad = 2;
+	                }
+	                if (col == w/2)
+	                {
+	                	if (row < h/2)
+	                		quad = 1;
+	                	else quad = 3;
+	                }
+	                
+	                if (diffcount > MAXDIFF)
+	                {
+	    				for (int j=0; j<quaddiff.length; j++)
+	    					quaddiff[j] = 1;
 	                	break;
-      
-	        }
-	        
+	                }
+	        }	        
 	        allDifTime +=  (new Date().getTime()-ttt);
 	        allDifCount++;
 	      
 	        return dif;
 	}
+	
 	
 	private BufferedImage resizeImage(BufferedImage im, double f)
 	{
@@ -850,6 +919,7 @@ public class ViewerContainer{
 		res.createGraphics().drawImage(im, 0, 0, res.getWidth()-1, res.getHeight()-1, 0, 0, im.getWidth()-1, im.getHeight()-1, null);
 		return res;
 	}
+	
 	
 	private BufferedImage[][] tileImage(BufferedImage image, int tileX, int tileY, boolean extraWidth)
 	{
@@ -865,10 +935,21 @@ public class ViewerContainer{
 				tiles[i][j] = new BufferedImage(tileWidth, tileHeight, BufferedImage.TYPE_INT_ARGB);
 				tiles[i][j].createGraphics().drawImage(image, 0, 0, tileWidth, tileHeight,  i*tileWidth, j*tileHeight, (i+1)*tileWidth, (j+1)*tileHeight, null);
 			}
-		}
-		
+		}		
 		return tiles;
 	}
-
-
+	
+	
+	
+	
+	
+	ArrayList<byte[]> testImages;
+	ArrayList<long[]> testImageTimes;
+	ArrayList<int[]> testImageCounts;
+	
+	long[][][] lastTileTimes;
+	
+	
+	Object otest = new Object();
+	int tileTimerTest = 0;
 }

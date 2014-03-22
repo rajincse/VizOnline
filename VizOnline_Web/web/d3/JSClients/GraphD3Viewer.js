@@ -25,6 +25,8 @@ JSD3Client.prototype.dataUpdated = function (data, canvas, canvasWidth, canvasHe
 function init(data, canvas, canvasWidth, canvasHeight)
 {
     var graph = data.graph;
+    var color = d3.scale.category20();
+    console.log(JSON.stringify(color));
 
     var force = d3.layout.force()
         .charge(-120)

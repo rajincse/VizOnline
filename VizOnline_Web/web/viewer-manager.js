@@ -233,6 +233,7 @@ function ViewerManager(div, dataSourceManager)
 			}
 		};
 		var url = "ViewerManagement?page=createViewer&type="+factoryType+"&viewerName="+viewerName+"&data=" + data;
+		alert(url);
         	cdRequest.open("GET", url, true);
         	cdRequest.send(null);
 		
@@ -393,15 +394,12 @@ function ViewerManager(div, dataSourceManager)
 			
 			if (xmlHttpRequest.readyState === 4 && xmlHttpRequest.status === 200)
                        	{
-				alert("response: " + xmlHttpRequest.responseText);
+				
                 		var response = xmlHttpRequest.responseText.split(";");  //e.g viewer.html;name-of-viewer
 
-                    		var url = getURL() + response[0] ;
-
-                   		//var win = window.open(url, '_blank');
+                    		var url = getURL() + response[0] + "?viewerName=" + response[1];
+                   		
 				var win = window.open(url);
-				win.viewerName = response[1];
-
                     		win.focus();
            
 			}

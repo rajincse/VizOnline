@@ -322,129 +322,7 @@ function PString(name, value, readonly, hidden, disabled, propertyManager)
 
 	}
 }
-function PSignal(name, value, readonly, hidden, disabled, propertyManager)
-{
 
-	this.name = name;
-	this.readOnly = readonly;
-	this.hidden = hidden;
-	this.disabled = disabled;
-
-    //this.label = createLabel(name);
-    this.label =createDiv();
-    this.button = document.createElement('button');
-    this.button.style.cssText='margin-left: 20%;width: 50%;';
-   this.button.innerHTML = name;
-    this.button.onclick = (function(prop,pm) { return function() {			
-			pm.updateValue(prop);
-		};})(this,propertyManager);
-
-   	this.div = createDiv();
-	//var table = addPairToTable(this.label, this.button)
-    	this.div.appendChild(this.button);
-        
-	this.setReadOnly = setReadOnly;
-	function setReadOnly(readOnly)
-	{
-		this.readOnly = readOnly;
-		if (this.readOnly || this.disabled)			
-			this.button.disabled = true;
-		else
-			this.button.disabled = false;
-	}
-
-
-	this.setValue = setValue;
-	function setValue(stringVal)
-	{
-		 this.button.value = stringVal;
-	}
-
-	this.setHidden = setHidden;
-	function setHidden(stringVal)
-	{
-		//booleanCheckBox.value = stringVal;
-	}
-
-	this.setDisabled = setDisabled;
-	function setDisabled(disabled)
-	{
-		this.disabled = disabled;
-		if (this.disabled || this.readOnly)	
-			this.button.disabled = true;	
-		else
-			this.button.disabled = false;
-		
-			
-
-		if (this.disabled)
-			this.label.style.color = "#999999";
-		else
-			this.label.style.color = "#000000";
-
-	}
-
-}
-function PText(name, value, readonly, hidden, disabled, propertyManager)
-{
-
-	this.name = name;
-	this.readOnly = readonly;
-	this.hidden = hidden;
-	this.disabled = disabled;
-
-    this.label = createLabel(name);
-
-    this.textArea = document.createElement('textarea');
-        this.textArea.style.cssText ='width:155px;height:46px;'
-        this.textArea.innerHTML = value;
-
-   	this.div = createDiv();
-	var table = addPairToTable(this.label, this.textArea)
-    	this.div.appendChild(table);
-
-	this.setReadOnly = setReadOnly;
-	function setReadOnly(readOnly)
-	{
-		this.readOnly = readOnly;
-		if (this.readOnly || this.disabled)			
-			this.textArea.disabled = true;
-		else
-			this.textArea.disabled = false;
-	}
-
-
-	this.setValue = setValue;
-	function setValue(stringVal)
-	{
-		 this.textArea.value = stringVal;
-	}
-
-	this.setHidden = setHidden;
-	function setHidden(stringVal)
-	{
-		//booleanCheckBox.value = stringVal;
-	}
-
-	this.setDisabled = setDisabled;
-	function setDisabled(disabled)
-	{
-		this.disabled = disabled;
-		if (this.disabled || this.readOnly)	
-			this.textArea.disabled = true;	
-		else
-			this.textArea.disabled = false;
-		
-			
-
-		if (this.disabled)
-			this.label.style.color = "#999999";
-		else
-			this.label.style.color = "#000000";
-
-	}
-
-}
 function POptions(name, value, readonly, hidden, disabled, propertyManager)
 {
 	this.name = name;
@@ -629,19 +507,20 @@ function PColor(name, value, readonly, hidden, disabled, propertyManager)
 
     this.label = createLabel(name);
     this.colorInputBox = document.createElement('input');
-    //append the label and input box to the paragraph
-    this.div.appendChild(this.label);
-    this.div.appendChild(this.colorInputBox);
+
+
+   var table = addPairToTable(this.label, this.colorInputBox)
+    this.div.appendChild(table);
+
    
     this.colorPicker = new jscolor.color(this.colorInputBox, {})
-	this.colorPicker.pickerClosable = true;
+	//this.colorPicker.pickerClosable = true;
 
 	var cp = this.colorPicker;
 
    this.colorPicker.onImmediateChange = (function(prop,pm) { return function() {	
 		
 			prop.value = ""+ hexToRgb(this);
-alert(this + " " + prop.value);
 			pm.updateValue(prop);
 		};})(this,propertyManager);
 
