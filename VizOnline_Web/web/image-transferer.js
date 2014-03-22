@@ -155,16 +155,20 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 
         if (this.loaded === tch * tcv)
         {
-            if (this.images[0][0].width === 1)
+            if (this.images[0][0].width === 1 && this.images[0][1].width == 1 && this.images[1][0].width == 1 && this.images[1][1].width == 1)
             {
                 this.images = null;
                 return;
             }
-            else if (this.images[0][0].width !== tw)  //this.tw is the width of a tile, it used to be 500 which was half of a thousand
+            else if (this.images[0][0].width !== tw && this.images[0][1].width !== tw && this.images[1][0].width !== tw && this.images[1][1].width !== tw)  //this.tw is the width of a tile, it used to be 500 which was half of a thousand
             {
+		if (this.images[0][0].width != 1 && this.images[0][1].width != 1 && this.images[1][0].width != 1 && this.images[1][1].width != 1)
+		{
+		//alert(this.images[0][0].width + " " + this.images[0][1].width + " " + this.images[1][0].width + " " + this.images[1][1].width + " " + tw);
                 var last;
                 while (last = this.div.lastChild)
-                    this.div.removeChild(last);
+                   this.div.removeChild(last);
+		}
 		
             }
 
@@ -203,13 +207,7 @@ function ImageTransferer(div, viewerName, w, h, tch, tcv)
 	 this.images = null;
        }
     }
-    function getPos(el) {
-    
-    		for (var lx=0, ly=0;
-        		 el != null;
-         		lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-    		return {x: lx,y: ly};
-	}
+
 
 }
 

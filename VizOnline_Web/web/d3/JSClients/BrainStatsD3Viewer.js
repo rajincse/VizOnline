@@ -67,13 +67,5 @@ function load(data, canvas, canvasWidth, canvasHeight)
     .attr("x", function(d) { return x(d.Key); })
     .attr("width", x.rangeBand())
     .attr("y", function(d) { return y(d.Value); })
-    .attr("height", function(d) { return height - y(d.Value); })
-    .on("click", function(d)
-    {
-        var tubeIds = d.TubeIds;
-        var tr = $('#LSelectedTubes').parents('tr').first();
-        var input = $(tr).find('input').first()
-        $(input).val(tubeIds);
-        $(input).trigger('change');
-    });
+    .attr("height", function(d) { return height - y(d.Value); });
 }

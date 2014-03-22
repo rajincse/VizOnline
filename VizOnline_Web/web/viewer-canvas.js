@@ -1,10 +1,9 @@
-function ViewerCanvas(div, window, viewerName)
+function ViewerCanvas(div, window, viewerName, w, h)
 {
 	this.div = div;
 	this.viewerName = viewerName;
 
 	this.window = window;
-	
 
 	var thisObj = this;
 
@@ -15,30 +14,30 @@ function ViewerCanvas(div, window, viewerName)
 	var prevx = 0;
         var prevy = 0;
 	var mousePos;
-	var dragFlag = 0;
-	
+	var dragFlag = 0;	
 
-	var width = div.width;
-	var height = div.height;
+	var width = w;
+	var height = h;
+
+	this.focus = false;
 
 	var resizeInterval = -1;
 
 	var cnt = 0;
-
 	
 	thisObj.div.onmousedown = handleMouseDown;
-                thisObj.div.onmouseup = handleMouseUp;
-                thisObj.div.onmousemove = handleMouseMove;                
-                thisObj.div.onkeydown = handleKeyDown;
-                thisObj.div.onkeyup = handleKeyUp;
+        thisObj.div.onmouseup = handleMouseUp;
+        thisObj.div.onmousemove = handleMouseMove;        
+        window.onkeydown = handleKeyDown;
+        window.onkeyup = handleKeyUp;               
+	thisObj.div.oncontextmenu = handleContextMenu;
 
-               
-		thisObj.div.oncontextmenu = handleContextMenu;
+        var imageTransf = new ImageTransferer(thisObj.div, this.viewerName, width, height, 2,2);
 
-        var imageTransf = new ImageTransferer(thisObj.div, this.viewerName, 1000, 700, 2,2);
+	thisObj.div.style.width = width + "px";
+	thisObj.div.style.height = height + "px";
 
-thisObj.div.style.width = "1000px";
-thisObj.div.style.height = "700px";
+	this.divMoved = imageTransf.divMoved;
      
 	this.resize = resize;
 	function resize(w, h)
@@ -61,7 +60,7 @@ thisObj.div.style.height = "700px";
 
 	function handleMouseUp(event) {
 
-                 cnt++;
+                cnt++;
                 event = event || thisObj.window.event;      
 
 		var divPos = getPos(thisObj.div);
@@ -82,14 +81,20 @@ thisObj.div.style.height = "700px";
                         + '&my=' + y + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
                 sendCommand(theUrl);
                 
-            }
+       }
 
 
-            function handleContextMenu(event) {
+
+
+
+       function handleContextMenu(event) {
 		return false;
-            }
+       }
 
-            function handleMouseDown(event) {
+
+
+
+       function handleMouseDown(event) {
 
                 cnt++;
                 event = event || thisObj.window.event;      
@@ -99,8 +104,6 @@ thisObj.div.style.height = "700px";
 		var x = event.clientX - divPos.x;
 		var y = event.clientY - divPos.y;
 
-//alert(y);
-
                 if (x >= div.width || y >= div.height)         
                     return true; 
 
@@ -109,22 +112,22 @@ thisObj.div.style.height = "700px";
 		var mouseType = "left";
                 if (event.which === 3)
                     mouseType = "right"; 
-
            
                 var theUrl = 'ViewerCanvas?page=mouseEvent&mb=' + mouseType + '&cmd=mouseDown&mx=' + x
                         + '&my=' + y + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
                 sendCommand(theUrl);
 
                 return false;
-            }
+       }
 
-            function handleMouseMove(event) {
 
+
+
+       function handleMouseMove(event) {
 
                 if (inmousemove)
                     return;
                 inmousemove = true;
-
 
 
                 cnt++;
@@ -138,15 +141,13 @@ thisObj.div.style.height = "700px";
                 if (x >= div.width || y >= div.height)  
 		{      
 			inmousemove = false; 
-                    return true; 
+                   	 return true; 
 		}
-
 
 		var ct = (new Date()).getTime();
 
                 if ( ct - prevTime < 50)
                 {
-			alert("here 00");
                     inmousemove = false;
                     return;
                 }
@@ -154,8 +155,6 @@ thisObj.div.style.height = "700px";
                 prevx = x;
                 prevy = y;
                 prevtime = (new Date()).getTime();
-
-
 
 		var mouseType = "left";
                 if (event.which === 3)
@@ -176,47 +175,47 @@ thisObj.div.style.height = "700px";
                     sendCommand(theUrl);
                 }
 
-
                 inmousemove = false;
-            }
+       }
+
+
+
             
-            function handleKeyDown(event){
+       function handleKeyDown(event){
+
+		if (!thisObj.focus)
+			return;
+
                 event = event || window.event; // IE-ism
                 
-                var keyCode = event.keyCode;                
+                var keyCode = event.keyCode; 
+		var meta = ""+ event.shiftKey + "," + event.ctrlKey + "," + event.altKey;
+      
                  
-                theUrl = 'VizOnlineServlet?page=viewer&keyPressAction=keyDown&keyCode=' 
-                                + keyCode + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
+                theUrl = 'ViewerCanvas?page=keyEvent&keyAction=keyDown&keyCode=' 
+                                + keyCode + "&keyModifiers=" + meta + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
                            
                 sendCommand(theUrl);
-            }
+        }
+
+
+
             
-            function handleKeyUp(event){
+       function handleKeyUp(event){
+
+		if (!thisObj.focus)
+			return;
+
                 event = event || window.event; // IE-ism
                 
                 var keyCode = event.keyCode;
+		var meta = ""+ event.shiftKey + "," + event.ctrlKey + "," + event.altKey;
                 
-               var theUrl = 'VizOnlineServlet?page=viewer&keyPressAction=keyUp&keyCode=' 
-                                + keyCode + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
+               var theUrl = 'ViewerCanvas?page=keyEvent&keyAction=keyUp&keyCode=' 
+                                + keyCode + "&keyModifiers=" + meta + "&viewerName=" + thisObj.viewerName + "&r=" + cnt;
                            
                sendCommand(theUrl);
-            }
-
-	    function sendCommand(theUrl)
-		{
-             	 	xmlhttp = new XMLHttpRequest();		
-                	xmlhttp.open("GET", theUrl, true);
-                	xmlhttp.send(null);
-		}
-
-	function getPos(el) {
-    
-    		for (var lx=0, ly=0;
-        		 el != null;
-         		lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
-    		return {x: lx,y: ly};
-	}
-
+        }
 }
 
 

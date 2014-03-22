@@ -162,12 +162,6 @@ function PropertyManager(div, name)
                     case "PString":      //value format:
                         prop = new PString(name, value, readOnly, hidden, disabled,this);
                         break;
-                    case "PText":      //value format:
-                        prop = new PText(name, value, readOnly, hidden, disabled,this);
-                        break;
-                    case "PSignal":      //value format:
-                        prop = new PSignal(name, value, readOnly, hidden, disabled,this);
-                        break;
                     case "POptions":
                        prop =  new POptions(name, value, readOnly, hidden, disabled,this);
                         break;
