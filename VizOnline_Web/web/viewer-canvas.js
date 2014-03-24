@@ -65,8 +65,8 @@ function ViewerCanvas(div, window, viewerName, w, h)
 
 		var divPos = getPos(thisObj.div);
 
-		var x = event.clientX - divPos.x;
-		var y = event.clientY - divPos.y;
+		var x = Math.round(event.clientX - divPos.x);
+		var y = Math.round(event.clientY - divPos.y);
 
                 if ((x) >= div.width || y >= div.height)         
                     return true; 
@@ -101,8 +101,8 @@ function ViewerCanvas(div, window, viewerName, w, h)
 
 		var divPos = getPos(thisObj.div);
 
-		var x = event.clientX - divPos.x;
-		var y = event.clientY - divPos.y;
+		var x = Math.round(event.clientX - divPos.x);
+		var y = Math.round(event.clientY - divPos.y);
 
                 if (x >= div.width || y >= div.height)         
                     return true; 
@@ -135,8 +135,8 @@ function ViewerCanvas(div, window, viewerName, w, h)
 
 		var divPos = getPos(thisObj.div);
 
-		var x = event.clientX - divPos.x;
-		var y = event.clientY - divPos.y;
+		var x = Math.round(event.clientX - divPos.x);
+		var y = Math.round(event.clientY - divPos.y);
 
                 if (x >= div.width || y >= div.height)  
 		{      

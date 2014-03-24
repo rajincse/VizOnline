@@ -34,7 +34,7 @@ function PropertyManager(div, name)
 					}
 				};	
 	
-				xmlrequest2.open("GET", "PropertyManagement?page=pollprops&propManagerName="+thispm.name, true);
+				xmlrequest2.open("POST", "PropertyManagement?page=pollprops&propManagerName="+thispm.name, true);
         			xmlrequest2.send(null);
 			}, 1000);
 
